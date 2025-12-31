@@ -114,16 +114,38 @@ We will use the following technology stack:
 - Use `PersistenceController` for app-wide container
 - Separate `preview` container for SwiftUI previews with sample data
 - Keep `SwiftDataManager` for complex multi-model scenarios
+- All models registered in schema: Task, Project, Tag, Category, Thought
+
+### SwiftData Relationships
+
+- **@Relationship** annotation with deleteRule: .nullify
+- One-to-Many: Project → Tasks, Category → Tasks
+- Many-to-Many: Task ↔ Tags
+- Self-Referencing: Task → blockedBy Tasks, Project → parentProject
+- Source Tracking: Thought → derivedTasks
 
 ### Feature Organization
 - Each feature gets its own directory
 - Related views, view models, and components stay together
 - Shared components go in DesignSystem
 
-### Repository Pattern
+### Repository Pattern (Implemented Week 2)
+
 - Repositories provide clean interface to data layer
 - Allow swapping persistence mechanisms if needed
 - Keep ViewModels focused on presentation logic
+- **TaskRepository**: 10 query methods (inbox, next, by status/project/tag/category, due today, overdue, search)
+- **ProjectRepository**: 5 query methods (all, active, archived, by ID, search)
+
+### SwiftData Predicate Limitations (Week 2 Findings)
+
+- **Enum comparisons not supported**: Cannot use `#Predicate { $0.status == .inbox }`
+  - Workaround: Fetch all and filter in memory
+- **lowercased() not supported**: String case transformation not available in predicates
+  - Workaround: Use case-sensitive search
+- **Limited optional chaining**: Complex optional predicates not supported
+  - Workaround: Fetch all and filter in memory for complex queries
+- Acceptable for MVP scale, can optimize later with custom indexing if needed
 
 ## References
 
@@ -135,3 +157,4 @@ We will use the following technology stack:
 ## Revision History
 
 - 2025-12-30: Initial decision (v1.0)
+- 2025-12-31: Updated with Week 2 implementation findings (SwiftData relationships, repository queries, predicate limitations)
