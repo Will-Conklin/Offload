@@ -77,7 +77,9 @@ enum PersistenceController {
                 configurations: [configuration]
             )
 
-            let context = container.mainContext
+            let context = MainActor.assumeIsolated {
+                container.mainContext
+            }
 
             // Insert sample brain dump entries
             let sampleEntries = [
