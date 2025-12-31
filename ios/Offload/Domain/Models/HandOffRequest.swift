@@ -1,0 +1,66 @@
+//
+//  HandOffRequest.swift
+//  Offload
+//
+//  Created by Claude Code on 12/31/25.
+//
+
+import Foundation
+import SwiftData
+
+@Model
+final class HandOffRequest {
+    var id: UUID
+    var requestedAt: Date
+    var requestedBy: String  // Stored as String for SwiftData compatibility
+    var mode: String  // Stored as String for SwiftData compatibility
+
+    // Relationships
+    @Relationship(deleteRule: .nullify, inverse: \BrainDumpEntry.handOffRequests)
+    var brainDumpEntry: BrainDumpEntry?
+
+    @Relationship(deleteRule: .cascade, inverse: \HandOffRun.handOffRequest)
+    var runs: [HandOffRun]?
+
+    init(
+        id: UUID = UUID(),
+        requestedAt: Date = Date(),
+        requestedBy: RequestSource,
+        mode: HandOffMode,
+        brainDumpEntry: BrainDumpEntry? = nil,
+        runs: [HandOffRun]? = nil
+    ) {
+        self.id = id
+        self.requestedAt = requestedAt
+        self.requestedBy = requestedBy.rawValue
+        self.mode = mode.rawValue
+        self.brainDumpEntry = brainDumpEntry
+        self.runs = runs
+    }
+
+    // Computed properties for type-safe access to enums
+    var source: RequestSource {
+        get { RequestSource(rawValue: requestedBy) ?? .user }
+        set { requestedBy = newValue.rawValue }
+    }
+
+    var handOffMode: HandOffMode {
+        get { HandOffMode(rawValue: mode) ?? .manual }
+        set { mode = newValue.rawValue }
+    }
+}
+
+// MARK: - RequestSource Enum
+
+enum RequestSource: String, Codable, CaseIterable {
+    case user = "user"
+    case auto = "auto"
+    case scheduled = "scheduled"
+}
+
+// MARK: - HandOffMode Enum
+
+enum HandOffMode: String, Codable, CaseIterable {
+    case manual = "manual"
+    case auto = "auto"
+}

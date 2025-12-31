@@ -2,7 +2,7 @@
 //  PersistenceController.swift
 //  Offload
 //
-//  Created by Claude Code on 12/30/25.
+//  Created by Claude Code on 12/31/25.
 //
 
 import Foundation
@@ -14,12 +14,21 @@ struct PersistenceController {
     /// Shared persistent container for production use
     static let shared: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            // Core workflow models
+            BrainDumpEntry.self,
+            HandOffRequest.self,
+            HandOffRun.self,
+            Suggestion.self,
+            SuggestionDecision.self,
+            Placement.self,
+            // Destination models
+            Plan.self,
             Task.self,
-            Project.self,
             Tag.self,
             Category.self,
-            Thought.self,
+            ListEntity.self,
+            ListItem.self,
+            CommunicationItem.self,
         ])
         let configuration = ModelConfiguration(
             schema: schema,
@@ -39,12 +48,21 @@ struct PersistenceController {
     /// Preview container with sample data for SwiftUI previews
     static let preview: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            // Core workflow models
+            BrainDumpEntry.self,
+            HandOffRequest.self,
+            HandOffRun.self,
+            Suggestion.self,
+            SuggestionDecision.self,
+            Placement.self,
+            // Destination models
+            Plan.self,
             Task.self,
-            Project.self,
             Tag.self,
             Category.self,
-            Thought.self,
+            ListEntity.self,
+            ListItem.self,
+            CommunicationItem.self,
         ])
         let configuration = ModelConfiguration(
             schema: schema,
@@ -59,35 +77,58 @@ struct PersistenceController {
 
             let context = container.mainContext
 
-            // Insert sample thoughts
-            let sampleThoughts = [
-                Thought(
-                    source: .manual,
-                    rawText: "Remember to review the quarterly budget analysis"
+            // Insert sample brain dump entries
+            let sampleEntries = [
+                BrainDumpEntry(
+                    rawText: "Remember to review the quarterly budget analysis",
+                    inputType: .text,
+                    source: .app
                 ),
-                Thought(
-                    source: .voice,
-                    rawText: "Call the dentist to schedule appointment for next week"
+                BrainDumpEntry(
+                    rawText: "Call the dentist to schedule appointment for next week",
+                    inputType: .voice,
+                    source: .app
                 ),
-                Thought(
-                    source: .clipboard,
+                BrainDumpEntry(
                     rawText: "Research SwiftData best practices for production apps",
-                    status: .processing
+                    inputType: .text,
+                    source: .app,
+                    lifecycleState: .handedOff
                 ),
-                Thought(
-                    source: .share,
-                    rawText: "Check out the new design system documentation",
-                    status: .processed
-                ),
-                Thought(
+                BrainDumpEntry(
+                    rawText: "Buy groceries: milk, eggs, bread, coffee",
+                    inputType: .voice,
                     source: .widget,
-                    rawText: "Buy groceries: milk, eggs, bread, coffee"
+                    lifecycleState: .ready
                 ),
             ]
 
-            for thought in sampleThoughts {
-                context.insert(thought)
+            for entry in sampleEntries {
+                context.insert(entry)
             }
+
+            // Insert sample plan
+            let workPlan = Plan(
+                title: "Work Projects",
+                detail: "Active work-related projects"
+            )
+            context.insert(workPlan)
+
+            // Insert sample tasks
+            let task1 = Task(
+                title: "Review Q4 budget",
+                detail: "Analyze spending patterns and prepare report",
+                importance: 4,
+                plan: workPlan
+            )
+            let task2 = Task(
+                title: "Schedule dentist appointment",
+                importance: 3,
+                isDone: true
+            )
+
+            context.insert(task1)
+            context.insert(task2)
 
             try context.save()
 

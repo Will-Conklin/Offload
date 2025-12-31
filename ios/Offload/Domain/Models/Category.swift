@@ -19,8 +19,6 @@ final class Category {
     @Relationship(deleteRule: .nullify, inverse: \Task.category)
     var tasks: [Task]?
 
-    // TODO: Add ordering/sorting (Phase 3+)
-
     init(
         id: UUID = UUID(),
         name: String,

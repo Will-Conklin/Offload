@@ -2,7 +2,7 @@
 //  Task.swift
 //  Offload
 //
-//  Created by Claude Code on 12/30/25.
+//  Created by Claude Code on 12/31/25.
 //
 
 import Foundation
@@ -12,70 +12,42 @@ import SwiftData
 final class Task {
     var id: UUID
     var title: String
-    var notes: String?
+    var detail: String?
     var createdAt: Date
-    var updatedAt: Date
-    var completedAt: Date?
+    var isDone: Bool
+    var importance: Int  // 1-5 scale
     var dueDate: Date?
-    var priority: Priority
-    var status: TaskStatus
 
     // Relationships
-    var project: Project?
-    var category: Category?
-    var tags: [Tag]?
-    var blockedBy: [Task]?
-    var sourceThought: Thought?
+    @Relationship(deleteRule: .nullify, inverse: \Plan.tasks)
+    var plan: Plan?
 
-    // TODO: Add attachments (Phase 3+)
-    // TODO: Add subtasks (Phase 4+)
-    // TODO: Add recurrence rules (Phase 5+)
+    var category: Category?
+
+    @Relationship(deleteRule: .nullify)
+    var tags: [Tag]?
 
     init(
         id: UUID = UUID(),
         title: String,
-        notes: String? = nil,
+        detail: String? = nil,
         createdAt: Date = Date(),
-        updatedAt: Date = Date(),
-        completedAt: Date? = nil,
+        isDone: Bool = false,
+        importance: Int = 3,
         dueDate: Date? = nil,
-        priority: Priority = .medium,
-        status: TaskStatus = .inbox,
-        project: Project? = nil,
+        plan: Plan? = nil,
         category: Category? = nil,
-        tags: [Tag]? = nil,
-        blockedBy: [Task]? = nil,
-        sourceThought: Thought? = nil
+        tags: [Tag]? = nil
     ) {
         self.id = id
         self.title = title
-        self.notes = notes
+        self.detail = detail
         self.createdAt = createdAt
-        self.updatedAt = updatedAt
-        self.completedAt = completedAt
+        self.isDone = isDone
+        self.importance = min(max(importance, 1), 5)  // Clamp between 1-5
         self.dueDate = dueDate
-        self.priority = priority
-        self.status = status
-        self.project = project
+        self.plan = plan
         self.category = category
         self.tags = tags
-        self.blockedBy = blockedBy
-        self.sourceThought = sourceThought
     }
-}
-
-enum Priority: String, Codable, CaseIterable {
-    case low
-    case medium
-    case high
-    case urgent
-}
-
-enum TaskStatus: String, Codable, CaseIterable {
-    case inbox
-    case next
-    case waiting
-    case someday
-    case completed
-    case archived
 }
