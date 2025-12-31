@@ -22,7 +22,7 @@ final class BrainDumpRepositoryTests: XCTestCase {
             Category.self,
             ListEntity.self,
             ListItem.self,
-            CommunicationItem.self
+            CommunicationItem.self,
         ])
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
         modelContainer = try ModelContainer(for: schema, configurations: [configuration])

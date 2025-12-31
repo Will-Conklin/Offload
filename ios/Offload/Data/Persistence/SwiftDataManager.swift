@@ -28,7 +28,7 @@ final class SwiftDataManager {
             Category.self,
             ListEntity.self,
             ListItem.self,
-            CommunicationItem.self
+            CommunicationItem.self,
         ])
 
         let modelConfiguration = ModelConfiguration(

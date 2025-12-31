@@ -9,7 +9,7 @@
 --maxwidth 120
 --tabwidth 4
 --semicolons never
---commas inline
+--commas always
 
 # Enabled rules
 --enable isEmpty
