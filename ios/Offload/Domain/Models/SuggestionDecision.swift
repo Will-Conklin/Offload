@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Tracks user's response to AI suggestions (accept/notNow).
+//  Supports undo workflow and learning from user preferences.
+//
 
 import Foundation
 import SwiftData

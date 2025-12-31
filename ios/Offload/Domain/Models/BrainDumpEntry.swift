@@ -4,6 +4,10 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Core capture entity for raw thoughts before organization.
+//  Tracks lifecycle from raw capture → AI hand-off → placement in structure.
+//  Uses String storage for enums (SwiftData compatibility) with computed properties for type safety.
+//
 
 import Foundation
 import SwiftData

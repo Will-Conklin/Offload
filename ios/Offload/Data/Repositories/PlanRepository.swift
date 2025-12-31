@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Manages plans (task containers) for organizing work.
+//  Simple CRUD with archive support - no complex hierarchy.
+//
 
 import Foundation
 import SwiftData

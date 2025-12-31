@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Structured reminders for messages, calls, emails to send.
+//  Helps capture "remember to tell X about Y" thoughts.
+//
 
 import Foundation
 import SwiftData

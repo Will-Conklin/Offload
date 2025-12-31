@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Records each AI execution attempt for a hand-off request.
+//  Captures prompt version, model, status, and errors for debugging and auditing.
+//
 
 import Foundation
 import SwiftData
