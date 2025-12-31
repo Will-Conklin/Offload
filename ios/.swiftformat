@@ -23,6 +23,8 @@
 --disable sortImports # Using sortedImports option instead
 --disable unusedArguments # Some protocol conformance requires unused arguments
 --disable consecutiveSpaces # Allow intentional spacing for alignment
+--disable wrap # Don't enforce line wrapping at maxwidth
+--disable hoistPatternLet # Allow existing pattern let placement
 
 # File options
 --exclude Offload/Resources,DerivedData,.build
