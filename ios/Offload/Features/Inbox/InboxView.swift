@@ -10,68 +10,64 @@ import SwiftData
 
 struct InboxView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Query(sort: \Thought.createdAt, order: .reverse) private var thoughts: [Thought]
+
+    @State private var showingCapture = false
 
     var body: some View {
-        NavigationStack {
-            List {
-                ForEach(items) { item in
-                    InboxItemRow(item: item)
-                }
-                .onDelete(perform: deleteItems)
+        List {
+            ForEach(thoughts) { thought in
+                ThoughtRow(thought: thought)
             }
-            .navigationTitle("Inbox")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-                ToolbarItem(placement: .topBarLeading) {
-                    EditButton()
+            .onDelete(perform: deleteThoughts)
+        }
+        .navigationTitle("Inbox")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showingCapture = true
+                } label: {
+                    Label("Capture", systemImage: "plus")
                 }
             }
+            ToolbarItem(placement: .topBarLeading) {
+                EditButton()
+            }
+        }
+        .sheet(isPresented: $showingCapture) {
+            CaptureSheetView()
         }
     }
 
-    // TODO: Implement proper item creation with capture flow
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    // TODO: Implement proper deletion with undo support
-    private func deleteItems(offsets: IndexSet) {
+    private func deleteThoughts(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
-                modelContext.delete(items[index])
+                modelContext.delete(thoughts[index])
             }
         }
     }
 }
 
-struct InboxItemRow: View {
-    let item: Item
+struct ThoughtRow: View {
+    let thought: Thought
 
     var body: some View {
-        // TODO: Design proper inbox item UI with metadata
-        HStack {
-            VStack(alignment: .leading) {
-                Text("Item")
-                    .font(.headline)
-                Text(item.timestamp, format: .dateTime)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
+        VStack(alignment: .leading, spacing: 4) {
+            Text(thought.rawText)
+                .font(.body)
+                .lineLimit(2)
+
+            Text(thought.createdAt, format: .dateTime)
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
         .padding(.vertical, 4)
     }
 }
 
 #Preview {
-    InboxView()
-        .modelContainer(for: Item.self, inMemory: true)
+    NavigationStack {
+        InboxView()
+    }
+    .modelContainer(PersistenceController.preview)
 }

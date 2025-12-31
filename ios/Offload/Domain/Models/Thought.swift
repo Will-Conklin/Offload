@@ -21,7 +21,7 @@ final class Thought {
         createdAt: Date = Date(),
         source: ThoughtSource,
         rawText: String,
-        status: ThoughtStatus = .captured
+        status: ThoughtStatus = .inbox
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -45,6 +45,7 @@ final class Thought {
 // MARK: - ThoughtSource Enum
 
 enum ThoughtSource: String, Codable, CaseIterable {
+    case text = "text"
     case manual = "manual"
     case voice = "voice"
     case clipboard = "clipboard"
@@ -55,6 +56,7 @@ enum ThoughtSource: String, Codable, CaseIterable {
 // MARK: - ThoughtStatus Enum
 
 enum ThoughtStatus: String, Codable, CaseIterable {
+    case inbox = "inbox"
     case captured = "captured"
     case processing = "processing"
     case processed = "processed"
