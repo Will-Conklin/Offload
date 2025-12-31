@@ -13,9 +13,10 @@ import SwiftData
 
 struct InboxView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \BrainDumpEntry.createdAt, order: .reverse) private var entries: [BrainDumpEntry]
 
     @State private var showingCapture = false
+    @State private var workflowService: BrainDumpWorkflowService?
+    @State private var entries: [BrainDumpEntry] = []
 
     var body: some View {
         List {
@@ -40,12 +41,40 @@ struct InboxView: View {
         .sheet(isPresented: $showingCapture) {
             CaptureSheetView()
         }
+        .task {
+            if workflowService == nil {
+                workflowService = BrainDumpWorkflowService(modelContext: modelContext)
+            }
+            await loadInbox()
+        }
+        .refreshable {
+            await loadInbox()
+        }
+    }
+
+    private func loadInbox() async {
+        guard let workflowService = workflowService else { return }
+        do {
+            entries = try workflowService.fetchInbox()
+        } catch {
+            // Error is already set in workflowService.errorMessage
+        }
     }
 
     private func deleteEntries(offsets: IndexSet) {
+        guard let workflowService = workflowService else { return }
+
         withAnimation {
             for index in offsets {
-                modelContext.delete(entries[index])
+                let entry = entries[index]
+                _Concurrency.Task {
+                    do {
+                        try await workflowService.deleteEntry(entry)
+                        await loadInbox()
+                    } catch {
+                        // Error is already set in workflowService.errorMessage
+                    }
+                }
             }
         }
     }
