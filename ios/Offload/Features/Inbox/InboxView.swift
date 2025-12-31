@@ -38,7 +38,11 @@ struct InboxView: View {
                 EditButton()
             }
         }
-        .sheet(isPresented: $showingCapture) {
+        .sheet(isPresented: $showingCapture, onDismiss: {
+            _Concurrency.Task {
+                await loadInbox()
+            }
+        }) {
             CaptureSheetView()
         }
         .task {

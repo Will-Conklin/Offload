@@ -137,9 +137,20 @@ struct CaptureSheetView: View {
             voiceService.stopRecording()
         }
 
-        guard let workflowService = workflowService else { return }
+        guard let workflowService = workflowService else {
+            // Fallback: if service not initialized, create entry directly
+            let entry = BrainDumpEntry(
+                rawText: rawText.trimmingCharacters(in: .whitespacesAndNewlines),
+                inputType: voiceService.transcribedText.isEmpty ? .text : .voice,
+                source: .app,
+                lifecycleState: .raw
+            )
+            modelContext.insert(entry)
+            dismiss()
+            return
+        }
 
-        _Concurrency.Task {
+        _Concurrency.Task { @MainActor in
             do {
                 _ = try await workflowService.captureEntry(
                     rawText: rawText.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -149,6 +160,7 @@ struct CaptureSheetView: View {
                 dismiss()
             } catch {
                 // Error is already set in workflowService.errorMessage
+                // Don't dismiss on error so user can see the error message
             }
         }
     }
