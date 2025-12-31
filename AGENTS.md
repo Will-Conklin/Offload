@@ -34,17 +34,21 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 
 ## Critical
 
-- ALWAYS create branches before implementing new features or fixes. Consider worktrees for more complex work or refactors.
+- ALWAYS create branches before implementing new features or fixes.
+  Consider worktrees for more complex work or refactors.
 - ALWAYS clean up merged branches.
 - ALWAYS keep documentation up to date.
 - ALWAYS run markdownlint prior to committing documentation.
-- DO NOT make README a changelog.  While in development, PR history can be used to track changes, release notes will be used after initial v1 release.
+- DO NOT make README a changelog.
+  While in development, PR history can be used to track changes,
+  release notes will be used after initial v1 release.
 
 ## Implementation Plans
 
 Active implementation plans are tracked in [docs/plans/](docs/plans/):
 
-- [Brain Dump Model](docs/plans/brain-dump-model.md) - Event-sourced architecture for capture and AI-assisted organization
+- [Brain Dump Model](docs/plans/brain-dump-model.md) - Event-sourced architecture for
+  capture and AI-assisted organization
 
 ## Project
 
@@ -150,7 +154,8 @@ Code is organized by feature and layer:
 
 Brain dump event-sourced architecture with 13 SwiftData models:
 
-**Workflow Models**: BrainDumpEntry, HandOffRequest, HandOffRun, Suggestion, SuggestionDecision, Placement
+**Workflow Models**: BrainDumpEntry, HandOffRequest, HandOffRun, Suggestion,
+SuggestionDecision, Placement
 
 **Destination Models**: Plan, Task, Tag, Category, ListEntity, ListItem, CommunicationItem
 

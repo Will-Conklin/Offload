@@ -2,7 +2,10 @@
 
 ## Overview
 
-Replace the current simple Task/Project/Tag/Category model with a more sophisticated event-sourced "brain dump" model that explicitly tracks AI hand-off workflows, suggestions, and user decisions. This model better aligns with the product vision of "capture first, organize later with AI approval."
+Replace the current simple Task/Project/Tag/Category model with a more sophisticated
+event-sourced "brain dump" model that explicitly tracks AI hand-off workflows, suggestions,
+and user decisions. This model better aligns with the product vision of "capture first,
+organize later with AI approval."
 
 ## Current State Analysis
 
@@ -26,38 +29,39 @@ Replace the current simple Task/Project/Tag/Category model with a more sophistic
 
 ### Core Capture & Workflow Models
 
-**BrainDumpEntry** (replaces Thought)
+#### BrainDumpEntry (replaces Thought)
 
 - Captures: rawText, inputType (text/voice), source (app/shortcut/shareSheet)
 - Lifecycle: raw → handedOff → ready → placed → archived
 - Tracks: acceptedSuggestionId (v1 constraint: one accepted suggestion)
 - Relationships: handOffRequests (cascade delete)
 
-**HandOffRequest**
+#### HandOffRequest
 
 - Tracks each time user requests AI organization
 - Fields: requestedAt, requestedBy, mode (manual/auto)
 - Relationships: brainDumpEntry (inverse), runs (cascade delete)
 
-**HandOffRun**
+#### HandOffRun
 
 - Captures each AI execution attempt
-- Fields: startedAt, completedAt, modelId, promptVersion, inputSnapshot, runStatus, errorMessage
+- Fields: startedAt, completedAt, modelId, promptVersion, inputSnapshot, runStatus,
+  errorMessage
 - Relationships: handOffRequest (inverse), suggestions (cascade delete)
 
-**Suggestion**
+#### Suggestion
 
 - AI-generated organization suggestions
 - Fields: kind (plan/task/list/communication/mixed), payloadJSON (versioned blob)
 - Relationships: handOffRun (inverse), decisions (cascade delete)
 
-**SuggestionDecision**
+#### SuggestionDecision
 
 - User's response to each suggestion
 - Fields: decision (accepted/notNow), decidedAt, decidedBy, undoOfDecisionId
 - Relationships: suggestion (inverse)
 
-**Placement**
+#### Placement
 
 - Tracks where accepted suggestions end up
 - Fields: placedAt, targetType, targetId, sourceSuggestionId, notes
@@ -65,40 +69,41 @@ Replace the current simple Task/Project/Tag/Category model with a more sophistic
 
 ### Simplified Destination Models
 
-**Plan** (simplified from Project)
+#### Plan (simplified from Project)
 
 - Fields: title, detail, createdAt, isArchived
 - Relationships: tasks (cascade delete)
 
-**Task** (simplified but keeps organization features)
+#### Task (simplified but keeps organization features)
 
 - Fields: title, detail, createdAt, isDone, importance (1-5), dueDate
 - Relationships: plan (inverse), category (optional), tags (optional many-to-many)
 - REMOVED: priority enum, status enum, blockedBy, sourceThought
 
-**Tag** (kept for manual organization)
+#### Tag (kept for manual organization)
 
 - Fields: name, color, createdAt
 - Relationships: tasks (many-to-many inverse)
 
-**Category** (kept for manual organization)
+#### Category (kept for manual organization)
 
 - Fields: name, icon, createdAt
 - Relationships: tasks (one-to-many inverse)
 
-**ListEntity** (new - replaces shopping/packing lists)
+#### ListEntity (new - replaces shopping/packing lists)
 
 - Fields: title, kind (shopping/packing/reference), createdAt
 - Relationships: items (cascade delete)
 
-**ListItem** (new)
+#### ListItem (new)
 
 - Fields: text, isChecked
 - Relationships: list (inverse)
 
-**CommunicationItem** (new)
+#### CommunicationItem (new)
 
-- Fields: channel (call/email/text), recipient, content, createdAt, status (draft/sent/deferred)
+- Fields: channel (call/email/text), recipient, content, createdAt,
+  status (draft/sent/deferred)
 - No relationships
 
 ## Implementation Strategy
@@ -139,7 +144,8 @@ Replace the current simple Task/Project/Tag/Category model with a more sophistic
    - create() - record where suggestion was placed
    - fetchBySource() - find placements from a suggestion
 
-5. Create simplified repositories: `PlanRepository`, `TaskRepository` (new simplified version), `ListRepository`, `CommunicationRepository`, `TagRepository`, `CategoryRepository`
+5. Create simplified repositories: `PlanRepository`, `TaskRepository` (new simplified version),
+   `ListRepository`, `CommunicationRepository`, `TagRepository`, `CategoryRepository`
 
 ### Phase 4: Service Integration
 
@@ -202,12 +208,15 @@ Replace the current simple Task/Project/Tag/Category model with a more sophistic
 ### Models (Keep, Simplify)
 
 - [Tag.swift](ios/Offload/Domain/Models/Tag.swift) (remove Task relationship complexity)
-- [Category.swift](ios/Offload/Domain/Models/Category.swift) (remove Task relationship complexity)
+- [Category.swift](ios/Offload/Domain/Models/Category.swift) (remove Task relationship
+  complexity)
 
 ### Persistence
 
-- [PersistenceController.swift](ios/Offload/Data/Persistence/PersistenceController.swift) (update schema)
-- [SwiftDataManager.swift](ios/Offload/Data/Persistence/SwiftDataManager.swift) (update schema)
+- [PersistenceController.swift](ios/Offload/Data/Persistence/PersistenceController.swift)
+  (update schema)
+- [SwiftDataManager.swift](ios/Offload/Data/Persistence/SwiftDataManager.swift)
+  (update schema)
 
 ### Repositories (Create New)
 
@@ -216,20 +225,27 @@ Replace the current simple Task/Project/Tag/Category model with a more sophistic
 - [SuggestionRepository.swift](ios/Offload/Data/Repositories/SuggestionRepository.swift)
 - [PlacementRepository.swift](ios/Offload/Data/Repositories/PlacementRepository.swift)
 - [PlanRepository.swift](ios/Offload/Data/Repositories/PlanRepository.swift)
-- [TaskRepository.swift](ios/Offload/Data/Repositories/TaskRepository.swift) (replace with simplified version)
+- [TaskRepository.swift](ios/Offload/Data/Repositories/TaskRepository.swift)
+  (replace with simplified version)
 - [ListRepository.swift](ios/Offload/Data/Repositories/ListRepository.swift) (new)
-- [CommunicationRepository.swift](ios/Offload/Data/Repositories/CommunicationRepository.swift) (new)
-- [TagRepository.swift](ios/Offload/Data/Repositories/TagRepository.swift) (simplified from current)
-- [CategoryRepository.swift](ios/Offload/Data/Repositories/CategoryRepository.swift) (simplified from current)
+- [CommunicationRepository.swift](ios/Offload/Data/Repositories/CommunicationRepository.swift)
+  (new)
+- [TagRepository.swift](ios/Offload/Data/Repositories/TagRepository.swift)
+  (simplified from current)
+- [CategoryRepository.swift](ios/Offload/Data/Repositories/CategoryRepository.swift)
+  (simplified from current)
 
 ### Repositories (Remove)
 
-- [ProjectRepository.swift](ios/Offload/Data/Repositories/ProjectRepository.swift) (replaced by PlanRepository)
+- [ProjectRepository.swift](ios/Offload/Data/Repositories/ProjectRepository.swift)
+  (replaced by PlanRepository)
 
 ### UI Integration
 
-- [CaptureSheetView.swift](ios/Offload/Features/Capture/CaptureSheetView.swift) (update saveThought)
-- [InboxView.swift](ios/Offload/Features/Inbox/InboxView.swift) (update to query BrainDumpEntry)
+- [CaptureSheetView.swift](ios/Offload/Features/Capture/CaptureSheetView.swift)
+  (update saveThought)
+- [InboxView.swift](ios/Offload/Features/Inbox/InboxView.swift)
+  (update to query BrainDumpEntry)
 
 ### Tests (Create)
 
@@ -242,8 +258,10 @@ Replace the current simple Task/Project/Tag/Category model with a more sophistic
 
 ### Tests (Remove - clean slate approach)
 
-- [TaskRepositoryTests.swift](ios/OffloadTests/TaskRepositoryTests.swift) (will recreate from scratch)
-- [ProjectRepositoryTests.swift](ios/OffloadTests/ProjectRepositoryTests.swift) (no longer needed, Plan is simpler)
+- [TaskRepositoryTests.swift](ios/OffloadTests/TaskRepositoryTests.swift)
+  (will recreate from scratch)
+- [ProjectRepositoryTests.swift](ios/OffloadTests/ProjectRepositoryTests.swift)
+  (no longer needed, Plan is simpler)
 
 ## Risk Mitigation
 

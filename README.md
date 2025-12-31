@@ -278,12 +278,14 @@ offload/
 ### Building & Running
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/Will-Conklin/offload.git
    cd offload
    ```
 
 2. **Open the Xcode project**
+
    ```bash
    open ios/Offload.xcodeproj
    ```
