@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Tracks when user requests AI to organize a brain dump entry.
+//  Each request can have multiple runs (retries, different AI models, etc.).
+//
 
 import Foundation
 import SwiftData

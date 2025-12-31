@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: AI-generated organization suggestions from a hand-off run.
+//  Stores structured data (plan, task, list, etc.) as versioned JSON for flexibility.
+//
 
 import Foundation
 import SwiftData

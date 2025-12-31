@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Audit trail linking accepted AI suggestions to their final destination.
+//  Uses UUID references (not SwiftData relationships) for flexibility and loose coupling.
+//
 
 import Foundation
 import SwiftData

@@ -2,6 +2,36 @@
 
 iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 
+## Product Philosophy
+
+**Offload** is designed for people with ADHD to capture thoughts and organize them with minimal friction.
+
+### Primary Goals
+
+- Minimize friction in capture and organization
+- Reduce cognitive load throughout the experience
+- Convert raw thoughts into structured lists and plans
+
+### Non-Goals
+
+- Complex project management features
+- Time-driven task pressure or urgency
+- Over-verbose UI or AI output
+
+### AI Behavior Guidelines
+
+- Assist, do not judge user's choices or input
+- Suggest structure, do not enforce it
+- Prefer fewer options over many (reduce decision fatigue)
+- Keep suggestions concise and actionable
+
+### Design Principles
+
+- When unsure about a design decision, ask for clarification
+- Default to simpler designs over complex ones
+- Prioritize speed of capture over completeness
+- Let users organize later rather than forcing structure upfront
+
 ## Critical
 
 - ALWAYS keep documentation up to date.

@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Simplified task model for structured to-dos created from brain dumps.
+//  Uses importance scale (1-5) instead of priority enum to reduce cognitive load.
+//
 
 import Foundation
 import SwiftData

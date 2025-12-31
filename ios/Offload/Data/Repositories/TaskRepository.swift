@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Manages tasks with completion tracking and plan organization.
+//  Supports filtering by plan, category, completion status.
+//
 
 import Foundation
 import SwiftData

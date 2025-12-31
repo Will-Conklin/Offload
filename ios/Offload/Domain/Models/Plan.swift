@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Simplified container for grouped tasks (replaces complex Project hierarchy).
+//  Aligns with "capture first, organize later" philosophy.
+//
 
 import Foundation
 import SwiftData

@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Container for simple lists (shopping, packing, reference).
+//  Lighter-weight alternative to tasks for checklist-style items.
+//
 
 import Foundation
 import SwiftData

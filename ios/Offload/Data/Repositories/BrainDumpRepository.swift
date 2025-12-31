@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/31/25.
 //
+//  Intent: Manages brain dump entries throughout their lifecycle.
+//  Supports inbox queries (raw entries), state transitions, and AI hand-off tracking.
+//
 
 import Foundation
 import SwiftData

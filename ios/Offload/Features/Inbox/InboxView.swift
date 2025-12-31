@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/30/25.
 //
+//  Intent: Primary inbox for raw brain dump entries awaiting organization.
+//  Displays lifecycle state and input type with minimal UI friction.
+//
 
 import SwiftUI
 import SwiftData

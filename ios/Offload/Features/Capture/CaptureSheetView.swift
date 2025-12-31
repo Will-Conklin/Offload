@@ -4,6 +4,9 @@
 //
 //  Created by Claude Code on 12/30/25.
 //
+//  Intent: Quick capture interface with voice and text input.
+//  Minimizes friction - saves to inbox immediately, no forced organization.
+//
 
 import SwiftUI
 import SwiftData
