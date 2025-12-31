@@ -38,6 +38,12 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 - ALWAYS run markdownlint prior to committing documentation.
 - DO NOT make README a changelog.  While in development, PR history can be used to track changes, release notes will be used after initial v1 release.
 
+## Implementation Plans
+
+Active implementation plans are tracked in [docs/plans/](docs/plans/):
+
+- [Brain Dump Model](docs/plans/brain-dump-model.md) - Event-sourced architecture for capture and AI-assisted organization
+
 ## Project
 
 - **Type**: Monorepo (iOS app + backend)
@@ -49,7 +55,7 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 
 ## Structure
 
-```
+```text
 offload/
   README.md
   LICENSE
@@ -69,11 +75,12 @@ offload/
         Organize/OrganizeView.swift
         ContentView.swift       # Legacy scaffold view
       Domain/                   # Business logic, models
-        Models/                 # SwiftData models
-      Data/                     # Data layer, repositories
+        Models/                 # SwiftData models (13 models - brain dump event-sourced)
+      Data/                     # Data layer
         Persistence/            # SwiftData container setup
         Repositories/           # CRUD/query repositories
-        Networking/APIClient.swift
+        Services/               # Service layer (voice recording, etc.)
+        Networking/             # API client
       DesignSystem/             # UI components, theme
       Resources/                # Assets, fonts
         Assets.xcassets/
@@ -89,6 +96,8 @@ offload/
     infra/                      # Infrastructure as code
 
   docs/                         # Documentation
+    plans/                      # Implementation plans
+    testing/                    # Test documentation and results
     prd/                        # Product requirements
     architecture/               # Architecture docs
     decisions/                  # ADRs (Architecture Decision Records)
@@ -101,6 +110,7 @@ offload/
 ## Commands
 
 ### iOS - Build & Run
+
 ```bash
 # Open in Xcode (required for building/running)
 open ios/Offload.xcodeproj
@@ -129,25 +139,35 @@ TBD - Backend implementation coming soon.
 Code is organized by feature and layer:
 
 - **App/**: App lifecycle, configuration, dependency injection
-- **Features/**: UI screens and flows grouped by feature
-- **Domain/**: Business logic, models, use cases (framework-independent)
-- **Data/**: Repositories, data sources, API clients
+- **Features/**: UI screens and flows grouped by feature (Inbox, Capture, Organize)
+- **Domain/**: Business logic, models (brain dump event-sourced architecture)
+- **Data/**: Persistence, repositories, services, networking
 - **DesignSystem/**: Reusable UI components, themes, design tokens
+
+### iOS - Current Model Implementation
+
+Brain dump event-sourced architecture with 13 SwiftData models:
+
+**Workflow Models**: BrainDumpEntry, HandOffRequest, HandOffRun, Suggestion, SuggestionDecision, Placement
+
+**Destination Models**: Plan, Task, Tag, Category, ListEntity, ListItem, CommunicationItem
+
+See [Brain Dump Model Plan](docs/plans/brain-dump-model.md) for architecture details.
 
 ### iOS - SwiftData Setup
 
 1. **ModelContainer** created in `Data/Persistence/PersistenceController.swift`
 2. **Container injection** happens in `App/offloadApp.swift`
-3. **Models** defined with `@Model` macro in `Domain/`
+3. **Models** defined with `@Model` macro in `Domain/Models/`
 4. **Storage** configured as persistent (not in-memory) in `PersistenceController.shared`
 5. **Context** accessed via `@Environment(\.modelContext)` in views
 6. **Queries** use `@Query` property wrapper for reactive data
 
 ### iOS - Adding New Models
 
-1. Create model with `@Model` macro in `Domain/`
+1. Create model with `@Model` macro in `Domain/Models/`
 2. Register in schema: `Data/Persistence/PersistenceController.swift`
-3. If using the full schema container, also update `Data/Persistence/SwiftDataManager.swift`
+3. Update `Data/Persistence/SwiftDataManager.swift` schema
 4. Query in views with `@Query`
 
 ### iOS - SwiftUI Patterns
