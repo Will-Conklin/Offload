@@ -62,12 +62,21 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO
 
-      - name: Create and boot simulator
+      - name: List and select simulator
         run: |
-          RUNTIME=$(xcrun simctl list runtimes iOS -j | jq -r '.runtimes[-1].identifier')
-          DEVICE_TYPE=$(xcrun simctl list devicetypes iPhone -j | jq -r '.devicetypes[-1].identifier')
-          SIMULATOR_ID=$(xcrun simctl create TestiPhone "$DEVICE_TYPE" "$RUNTIME")
-          xcrun simctl boot "$SIMULATOR_ID"
+          echo "=== Available Simulators ==="
+          xcrun simctl list devices available
+          echo "=== Selecting iPhone simulator ==="
+          SIMULATOR_ID=$(xcrun simctl list devices available -j | jq -r '.devices | to_entries[] | .value[] | select(.name | contains("iPhone")) | select(.isAvailable == true) | .udid' | head -1)
+          if [ -z "$SIMULATOR_ID" ]; then
+            echo "No iPhone simulator found, listing all available devices:"
+            xcrun simctl list devices available -j | jq -r '.devices | to_entries[] | .value[] | select(.isAvailable == true) | "\(.name) - \(.udid)"'
+            echo "Using xcodebuild -showdestinations to find valid destination:"
+            xcodebuild -project Offload.xcodeproj -scheme offload -showdestinations -sdk iphonesimulator
+            exit 1
+          fi
+          echo "Using simulator: $SIMULATOR_ID"
+          xcrun simctl boot "$SIMULATOR_ID" || echo "Simulator already booted or boot failed"
           echo "SIMULATOR_ID=$SIMULATOR_ID" >> $GITHUB_ENV
 
       - name: Run unit tests with coverage
