@@ -72,7 +72,7 @@ final class CategoryRepository {
 
     // MARK: - Update
 
-    func update(category: Category) throws {
+    func update(category _: Category) throws {
         try modelContext.save()
     }
 

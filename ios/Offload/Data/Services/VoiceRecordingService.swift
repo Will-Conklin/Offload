@@ -5,10 +5,10 @@
 //  Created by Claude Code on 12/31/25.
 //
 
-import Foundation
 import AVFoundation
-import Speech
+import Foundation
 import Observation
+import Speech
 
 @Observable
 final class VoiceRecordingService {

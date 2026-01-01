@@ -9,8 +9,8 @@
 //
 
 import Foundation
-import SwiftData
 import Observation
+import SwiftData
 
 @Observable
 @MainActor
@@ -32,10 +32,10 @@ final class CaptureWorkflowService {
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
-        self.captureRepo = CaptureRepository(modelContext: modelContext)
-        self.handOffRepo = HandOffRepository(modelContext: modelContext)
-        self.suggestionRepo = SuggestionRepository(modelContext: modelContext)
-        self.placementRepo = PlacementRepository(modelContext: modelContext)
+        captureRepo = CaptureRepository(modelContext: modelContext)
+        handOffRepo = HandOffRepository(modelContext: modelContext)
+        suggestionRepo = SuggestionRepository(modelContext: modelContext)
+        placementRepo = PlacementRepository(modelContext: modelContext)
     }
 
     // MARK: - Capture Operations
@@ -152,29 +152,29 @@ final class CaptureWorkflowService {
 
     /// Submit an entry for AI organization (not yet implemented)
     func submitForOrganization(
-        _ entry: CaptureEntry,
-        mode: HandOffMode = .manual
+        _: CaptureEntry,
+        mode _: HandOffMode = .manual
     ) async throws {
         throw WorkflowError.notImplemented
     }
 
     /// Fetch suggestions for an entry (not yet implemented)
-    func fetchSuggestions(for entry: CaptureEntry) throws -> [Suggestion] {
+    func fetchSuggestions(for _: CaptureEntry) throws -> [Suggestion] {
         throw WorkflowError.notImplemented
     }
 
     /// Accept a suggestion and place it (not yet implemented)
     func acceptSuggestion(
-        _ suggestion: Suggestion,
-        for entry: CaptureEntry
+        _: Suggestion,
+        for _: CaptureEntry
     ) async throws {
         throw WorkflowError.notImplemented
     }
 
     /// Reject a suggestion (not yet implemented)
     func rejectSuggestion(
-        _ suggestion: Suggestion,
-        reason: DecisionType = .notNow
+        _: Suggestion,
+        reason _: DecisionType = .notNow
     ) async throws {
         throw WorkflowError.notImplemented
     }
@@ -190,13 +190,13 @@ enum WorkflowError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .invalidState(let msg):
+        case let .invalidState(msg):
             return "Invalid state: \(msg)"
         case .alreadyProcessing:
             return "Another operation is already in progress"
         case .notImplemented:
             return "This feature is not yet implemented"
-        case .unknownError(let msg):
+        case let .unknownError(msg):
             return msg
         }
     }

@@ -45,7 +45,7 @@ final class ListRepository {
         return all.filter { $0.listKind == kind }
     }
 
-    func updateList(list: ListEntity) throws {
+    func updateList(list _: ListEntity) throws {
         try modelContext.save()
     }
 
@@ -82,7 +82,7 @@ final class ListRepository {
         try modelContext.save()
     }
 
-    func updateItem(item: ListItem) throws {
+    func updateItem(item _: ListItem) throws {
         try modelContext.save()
     }
 

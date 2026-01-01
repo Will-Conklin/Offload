@@ -18,10 +18,10 @@ final class APIClient {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
         configuration.timeoutIntervalForResource = 300
-        self.session = URLSession(configuration: configuration)
+        session = URLSession(configuration: configuration)
 
         // TODO: Move to configuration/environment
-        self.baseURL = URL(string: "https://api.offload.app")!
+        baseURL = URL(string: "https://api.offload.app")!
     }
 
     // TODO: Implement request(_ endpoint: Endpoint) async throws -> Data

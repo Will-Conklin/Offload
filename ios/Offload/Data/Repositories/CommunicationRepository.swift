@@ -69,7 +69,7 @@ final class CommunicationRepository {
 
     // MARK: - Update
 
-    func update(item: CommunicationItem) throws {
+    func update(item _: CommunicationItem) throws {
         try modelContext.save()
     }
 

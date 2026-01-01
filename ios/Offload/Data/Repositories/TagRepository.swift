@@ -72,7 +72,7 @@ final class TagRepository {
 
     // MARK: - Update
 
-    func update(tag: Tag) throws {
+    func update(tag _: Tag) throws {
         try modelContext.save()
     }
 
