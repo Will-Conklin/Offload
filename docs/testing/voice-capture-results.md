@@ -33,6 +33,7 @@ Goal: Verify voice transcription quality meets the 80% accuracy threshold with 1
 **Accuracy**: _____%
 
 **Checklist**:
+
 - [ ] Button turned red during recording
 - [ ] Timer started (0:00, 0:01, etc.)
 - [ ] Text appeared in real-time
@@ -53,6 +54,7 @@ Goal: Verify voice transcription quality meets the 80% accuracy threshold with 1
 **Duration**: _____s
 
 **Checklist**:
+
 - [ ] Transcription kept up during entire recording
 - [ ] Timer showed correct duration
 - [ ] Full text captured (no truncation)
@@ -62,7 +64,7 @@ Goal: Verify voice transcription quality meets the 80% accuracy threshold with 1
 
 ---
 
-## Test 4: Fast Speech (ADHD Pattern Test)
+## Test 4: Fast Speech Test
 
 **Status**: [ ] Pass [ ] Fail
 **Spoken**: "Call dentist email boss buy groceries walk dog schedule meeting"
@@ -93,6 +95,7 @@ Goal: Verify voice transcription quality meets the 80% accuracy threshold with 1
 **Status**: [ ] Pass [ ] Fail
 
 **Checklist**:
+
 - [ ] Started recording successfully
 - [ ] Spoke for 5 seconds
 - [ ] Tapped Cancel button (not stop)
@@ -112,6 +115,7 @@ Goal: Verify voice transcription quality meets the 80% accuracy threshold with 1
 **Edited To**: "Buy milk and bread and eggs"
 
 **Checklist**:
+
 - [ ] Could tap into text field after recording
 - [ ] Keyboard appeared normally
 - [ ] Could add/edit text
@@ -129,6 +133,7 @@ Goal: Verify voice transcription quality meets the 80% accuracy threshold with 1
 **Final**: ___________
 
 **Checklist**:
+
 - [ ] Typed text remained when starting recording
 - [ ] Voice transcription appended correctly
 - [ ] Combined text saved properly
@@ -142,6 +147,7 @@ Goal: Verify voice transcription quality meets the 80% accuracy threshold with 1
 **Status**: [ ] Pass [ ] Fail
 
 **Checklist**:
+
 - [ ] Disabled microphone permission in Settings
 - [ ] Returned to app
 - [ ] Tapped microphone button
@@ -161,6 +167,7 @@ Goal: Verify voice transcription quality meets the 80% accuracy threshold with 1
 **Accuracy**: _____%
 
 **Checklist**:
+
 - [ ] Enabled Airplane Mode
 - [ ] Recording worked in offline mode
 - [ ] Transcription appeared (on-device processing)
@@ -242,16 +249,19 @@ Goal: Verify voice transcription quality meets the 80% accuracy threshold with 1
 ## Issues Discovered
 
 ### Critical Issues (Blockers)
+
 1.
 2.
 3.
 
 ### Major Issues (Should Fix)
+
 1.
 2.
 3.
 
 ### Minor Issues (Nice to Have)
+
 1.
 2.
 3.
@@ -260,11 +270,11 @@ Goal: Verify voice transcription quality meets the 80% accuracy threshold with 1
 
 ## Recommendations
 
-### Immediate Fixes Needed:
+### Immediate Fixes Needed
 
-### Future Enhancements:
+### Future Enhancements
 
-### Notes for Week 3:
+### Notes for Week 3
 
 ---
 

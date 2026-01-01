@@ -1,6 +1,6 @@
 # Offload iOS App
 
-SwiftUI iOS application for Offload - an ADHD-friendly thought capture and organization tool.
+SwiftUI iOS application for Offload - a friction-free thought capture and organization tool.
 
 [![iOS](https://img.shields.io/badge/iOS-17.0+-blue.svg)](https://www.apple.com/ios/)
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)

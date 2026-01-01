@@ -4,7 +4,7 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 
 ## Product Philosophy
 
-**Offload** is designed for people with ADHD to capture thoughts and organize them with minimal friction.
+**Offload** helps people capture thoughts and organize them with minimal friction.
 
 ### Primary Goals
 
@@ -45,7 +45,7 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 
 Active implementation plans are tracked in [docs/plans/](docs/plans/):
 
-- [Brain Dump Model](docs/plans/brain-dump-model.md) - Event-sourced architecture for capture and AI-assisted organization
+- [Thought Capture Model](docs/plans/brain-dump-model.md) - Event-sourced architecture for capture and AI-assisted organization
 
 ## Project
 
@@ -78,7 +78,7 @@ offload/
         Organize/OrganizeView.swift
         ContentView.swift       # Legacy scaffold view
       Domain/                   # Business logic, models
-        Models/                 # SwiftData models (13 models - brain dump event-sourced)
+        Models/                 # SwiftData models (13 models - event-sourced capture workflow)
       Data/                     # Data layer
         Persistence/            # SwiftData container setup
         Repositories/           # CRUD/query repositories
@@ -143,19 +143,19 @@ Code is organized by feature and layer:
 
 - **App/**: App lifecycle, configuration, dependency injection
 - **Features/**: UI screens and flows grouped by feature (Inbox, Capture, Organize)
-- **Domain/**: Business logic, models (brain dump event-sourced architecture)
+- **Domain/**: Business logic, models (event-sourced capture architecture)
 - **Data/**: Persistence, repositories, services, networking
 - **DesignSystem/**: Reusable UI components, themes, design tokens
 
 ### iOS - Current Model Implementation
 
-Brain dump event-sourced architecture with 13 SwiftData models:
+Event-sourced capture architecture with 13 SwiftData models:
 
 **Workflow Models**: BrainDumpEntry, HandOffRequest, HandOffRun, Suggestion, SuggestionDecision, Placement
 
 **Destination Models**: Plan, Task, Tag, Category, ListEntity, ListItem, CommunicationItem
 
-See [Brain Dump Model Plan](docs/plans/brain-dump-model.md) for architecture details.
+See [Thought Capture Model Plan](docs/plans/brain-dump-model.md) for architecture details.
 
 ### iOS - SwiftData Setup
 
