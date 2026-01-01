@@ -72,6 +72,9 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
+      - name: List available SDKs
+        run: xcodebuild -showsdks
+
       - name: Setup simulator
         run: bash scripts/ios/setup-simulator.sh
 
