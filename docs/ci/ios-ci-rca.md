@@ -28,6 +28,18 @@ applied so we do not retry the same changes.
 | 2026-01-01 | a2286b8 | Add `SUPPORTED_PLATFORMS` to offload target configs. | Run 20646427000 | Still failed to find destination. |
 
 
+## Additional Findings
+- `origin/feature/ci-workflows` already includes multiple destination tweaks
+  and the project-level `SUPPORTED_PLATFORMS` change (commit `0c33369`), but
+  no other simulator-enabling changes.
+- `ios/Offload.xcodeproj/project.pbxproj` shows `CreatedOnToolsVersion = 26.2`
+  and `objectVersion = 77`, which may require a newer Xcode than 16.0 for
+  simulator destinations to appear.
+- No `.xcconfig` files exist; workspace settings are empty at
+  `ios/Offload.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings`.
+- CI now logs build settings for the simulator SDK before the build step
+  to surface effective values like `SUPPORTED_PLATFORMS` and `SDKROOT`.
+
 ## Known Non-Solutions
 - Simulator destination string changes alone do not fix the issue.
 - Adding simulator selection by UDID in CI does not fix the issue.
