@@ -45,6 +45,7 @@ opt_in_rules:
 # Disabled rules (only when necessary)
 disabled_rules:
   - todo  # Disable TODO warnings - track TODOs via issue tracker instead
+  - trailing_comma  # SwiftFormat handles trailing commas (prefers them for better diffs)
 
 # Rule configurations
 line_length:
