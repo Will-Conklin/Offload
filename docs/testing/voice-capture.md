@@ -7,9 +7,11 @@ Voice capture has been implemented for Offload (Week 1 of implementation plan). 
 ## What Was Implemented
 
 ### 1. VoiceRecordingService
+
 **Location**: `ios/Offload/Data/Services/VoiceRecordingService.swift`
 
 **Features**:
+
 - Real-time voice recording using AVAudioEngine
 - On-device speech recognition (offline-first via Speech framework)
 - Live transcription updates as you speak
@@ -18,6 +20,7 @@ Voice capture has been implemented for Offload (Week 1 of implementation plan). 
 - Error handling with user-friendly messages
 
 **Key Properties**:
+
 - `isRecording`: Boolean indicating recording state
 - `isTranscribing`: Boolean indicating transcription in progress
 - `transcribedText`: String containing live transcription results
@@ -25,9 +28,11 @@ Voice capture has been implemented for Offload (Week 1 of implementation plan). 
 - `recordingDuration`: TimeInterval tracking recording length
 
 ### 2. Updated CaptureSheetView
+
 **Location**: `ios/Offload/Features/Capture/CaptureSheetView.swift`
 
 **New UI Elements**:
+
 - Microphone button (blue when idle, red when recording)
 - Recording duration timer (MM:SS format)
 - "Transcribing..." indicator
@@ -35,6 +40,7 @@ Voice capture has been implemented for Offload (Week 1 of implementation plan). 
 - Permission alert with Settings link
 
 **Behavior**:
+
 - Tap microphone to start recording
 - Transcription appears in real-time in the text field
 - Tap stop button to end recording
@@ -43,9 +49,11 @@ Voice capture has been implemented for Offload (Week 1 of implementation plan). 
 - Thought saved with `source: .voice` when transcription used
 
 ### 3. Privacy Permissions
+
 **Location**: `ios/Offload.xcodeproj/project.pbxproj`
 
 **Added Privacy Keys**:
+
 - `NSMicrophoneUsageDescription`: "Offload uses the microphone to capture your thoughts via voice recording."
 - `NSSpeechRecognitionUsageDescription`: "Offload uses speech recognition to transcribe your voice recordings into text."
 
@@ -81,7 +89,7 @@ These will trigger permission dialogs on first use.
    - [ ] Stop and save
    - [ ] Verify full text captured
 
-4. **Fast Speech (ADHD Pattern Test)**
+4. **Fast Speech Test**
    - [ ] Tap microphone button
    - [ ] Speak rapidly: "Call dentist email boss buy groceries walk dog schedule meeting"
    - [ ] Verify transcription captures all words
@@ -137,14 +145,14 @@ These will trigger permission dialogs on first use.
 
 ### Error Scenarios
 
-11. **Recording While Another App Uses Mic**
+1. **Recording While Another App Uses Mic**
     - [ ] Start voice memo recording in Voice Memos app
     - [ ] Switch to Offload
     - [ ] Tap microphone button
     - [ ] Verify error message appears
     - [ ] Verify graceful handling (no crash)
 
-12. **Empty Voice Recording**
+2. **Empty Voice Recording**
     - [ ] Tap microphone button
     - [ ] Stay silent for 5 seconds
     - [ ] Tap stop
@@ -152,13 +160,13 @@ These will trigger permission dialogs on first use.
 
 ### Performance Tests
 
-13. **Transcription Latency**
+1. **Transcription Latency**
     - [ ] Tap microphone
     - [ ] Speak one word: "Test"
     - [ ] Note: Text should appear within 1-2 seconds
     - [ ] Expected: <2 second latency
 
-14. **Memory Usage**
+2. **Memory Usage**
     - [ ] Record 5 voice notes in a row (30 seconds each)
     - [ ] Monitor app performance
     - [ ] Verify no slowdown or stuttering
@@ -178,7 +186,7 @@ These will trigger permission dialogs on first use.
 ### Known Limitations
 
 1. **Accuracy**: Speech framework may misinterpret:
-   - Fast speech (ADHD patterns)
+   - Fast speech
    - Accents
    - Technical terms
    - Background noise
@@ -207,6 +215,7 @@ After completing tests 1-10 above:
 - [ ] Permission flow clear and working
 
 **Ship or Block Decision**:
+
 - **Ship if**: All 4 criteria met
 - **Block if**: Accuracy <80% → investigate Speech framework settings or consider fallback
 
@@ -216,10 +225,11 @@ After completing tests 1-10 above:
 
 - [ ] All 14 tests completed
 - [ ] Accuracy validated across 10+ real voice notes
-- [ ] User testing with 1-2 ADHD users (if available)
+- [ ] User testing with 1-2 target users (if available)
 - [ ] No critical bugs
 
 **Next Steps**:
+
 - If shipped → Proceed to Week 2 (Model Relationships)
 - If blocked → Debug transcription issues or defer voice to Phase 2
 
@@ -230,6 +240,7 @@ Use this section to record your findings:
 ---
 
 ### Test 1: First Launch
+
 **Date**: ___________
 **Result**: Pass / Fail
 **Notes**:
@@ -237,6 +248,7 @@ Use this section to record your findings:
 ---
 
 ### Test 2: Simple Voice Capture
+
 **Date**: ___________
 **Result**: Pass / Fail
 **Transcription**: ___________
@@ -251,20 +263,23 @@ Use this section to record your findings:
 
 ## Debugging Tips
 
-### If Transcription Doesn't Appear:
+### If Transcription Doesn't Appear
+
 1. Check Xcode console for errors
 2. Verify both permissions granted in Settings
 3. Ensure iOS 17+ (Speech framework offline requires iOS 17)
 4. Try restarting app
 5. Check `requiresOnDeviceRecognition = true` (should be set)
 
-### If Recording Doesn't Start:
+### If Recording Doesn't Start
+
 1. Check microphone permissions
 2. Verify no other app using microphone
 3. Check Xcode console for AVAudioSession errors
 4. Try restarting device
 
-### If App Crashes:
+### If App Crashes
+
 1. Check Xcode crash logs
 2. Verify proper cleanup in `stopRecording()`
 3. Check for retain cycles in VoiceRecordingService
@@ -280,6 +295,7 @@ Use this section to record your findings:
 ## Next Week Preview
 
 **Week 2 Focus**: Model Relationships & Queries
+
 - Implement Task ↔ Project relationships
 - Implement Task ↔ Tags relationships
 - Build repository query methods

@@ -1,6 +1,6 @@
 # Offload
 
-An iOS app for adults with ADHD to quickly offload thoughts and organize them later, optionally with AI assistance.
+An iOS app to quickly capture thoughts and organize them later, optionally with AI assistance.
 
 [![iOS](https://img.shields.io/badge/iOS-17.0+-blue.svg)](https://www.apple.com/ios/)
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
@@ -23,9 +23,9 @@ An iOS app for adults with ADHD to quickly offload thoughts and organize them la
 
 ## About
 
-Offload is an iOS-first app that turns quick “brain dump” captures (text or voice) into simple, organized **plans** and lists—tasks, shopping, and follow-ups—so you can get mental space back.
+Offload is an iOS-first app that turns quick thought captures (text or voice) into simple, organized **plans** and lists—tasks, shopping, and follow-ups—so you can get mental space back.
 
-Most productivity tools assume you’ll calmly plan everything up front. Offload starts where real life starts: random thoughts, urgency spikes, and “I’ll remember” moments. Capture in seconds, then let the app help you sort and clarify what’s next—without making everything feel time-sensitive or turning your life into a project management system.
+Most productivity tools assume you'll calmly plan everything up front. Offload starts where real life starts: random thoughts, urgency spikes, and "I'll remember" moments. Capture in seconds, then let the app help you sort and clarify what's next—without making everything feel time-sensitive or turning your life into a project management system.
 
 The app follows a simple principle:
 
@@ -44,7 +44,7 @@ The app follows a simple principle:
 
 ### ✅ Implemented
 
-- Brain dump data model (BrainDumpEntry, HandOff*, Suggestion, Placement) stored with SwiftData
+- Thought capture data model (BrainDumpEntry, HandOff*, Suggestion, Placement) stored with SwiftData
 - Destination models for plans, tasks, tags, categories, lists, and communication items
 - Repository layer for all models plus a BrainDumpWorkflowService for capture and inbox operations
 - SwiftUI inbox and capture sheet with voice recording and transcription via `VoiceRecordingService`
@@ -283,8 +283,8 @@ Run tests with ⌘U in Xcode. Unit tests use in-memory SwiftData containers so t
 ### ✅ Implemented
 
 - **Capture**: Text and voice capture with live transcription using the Speech framework (offline-first)
-- **Inbox**: BrainDumpEntry inbox with lifecycle tracking (raw → archived)
-- **Data Layer**: SwiftData models for brain dump workflow plus destinations (plans, tasks, tags, categories, lists, communication)
+- **Inbox**: Thought inbox with lifecycle tracking (raw → archived)
+- **Data Layer**: SwiftData models for capture workflow plus destinations (plans, tasks, tags, categories, lists, communication)
 - **Repositories**: CRUD + lifecycle helpers for every model
 - **Workflow Service**: `BrainDumpWorkflowService` for capture, inbox queries, and lifecycle actions
 
@@ -307,7 +307,7 @@ Run tests with ⌘U in Xcode. Unit tests use in-memory SwiftData containers so t
 - 📱 [iOS Development Guide](ios/README.md)
 - 📋 [Product Requirements Document](docs/prd/v1.md)
 - 🏗️ [Architecture Decision Records](docs/decisions/)
-- 🧠 [Brain Dump Model Plan](docs/plans/brain-dump-model.md)
+- 🧠 [Thought Capture Model Plan](docs/plans/brain-dump-model.md)
 - 📦 [Project Scaffolding Details](ios/SCAFFOLDING.md)
 
 ### Testing & Development
@@ -318,7 +318,7 @@ Run tests with ⌘U in Xcode. Unit tests use in-memory SwiftData containers so t
 
 ### Implementation
 
-- ✅ Brain dump data layer and repositories
+- ✅ Thought capture data layer and repositories
 - 🔄 Inbox and capture experience
 - 🔄 Organization UI and AI hand-off workflows
 
@@ -349,7 +349,7 @@ See [ADR-0001](docs/decisions/ADR-0001-stack.md) for detailed technical decision
 
 ## Development Principles
 
-### ADHD-Friendly Design
+### Friction-Free Design
 
 - **No Forced Structure**: Capture without categorization
 - **No Guilt**: No red warnings, no streaks, no shame
