@@ -14,8 +14,8 @@ struct CaptureView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @State private var title: String = ""
-    @State private var notes: String = ""
+    @State private var title = ""
+    @State private var notes = ""
 
     var body: some View {
         NavigationStack {

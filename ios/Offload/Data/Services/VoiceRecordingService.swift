@@ -69,7 +69,7 @@ final class VoiceRecordingService {
         }
 
         // Check speech recognizer availability
-        guard let speechRecognizer = speechRecognizer, speechRecognizer.isAvailable else {
+        guard let speechRecognizer, speechRecognizer.isAvailable else {
             errorMessage = "Speech recognition is not available"
             throw RecordingError.recognizerNotAvailable
         }
@@ -81,7 +81,7 @@ final class VoiceRecordingService {
 
         // Create and configure recognition request
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-        guard let recognitionRequest = recognitionRequest else {
+        guard let recognitionRequest else {
             errorMessage = "Unable to create recognition request"
             throw RecordingError.failedToCreateRequest
         }
@@ -91,7 +91,7 @@ final class VoiceRecordingService {
 
         // Create audio engine
         audioEngine = AVAudioEngine()
-        guard let audioEngine = audioEngine else {
+        guard let audioEngine else {
             errorMessage = "Unable to create audio engine"
             throw RecordingError.failedToCreateAudioEngine
         }
@@ -109,14 +109,14 @@ final class VoiceRecordingService {
         // Start recognition task
         isTranscribing = true
         recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
-            guard let self = self else { return }
+            guard let self else { return }
 
-            if let result = result {
-                self.transcribedText = result.bestTranscription.formattedString
+            if let result {
+                transcribedText = result.bestTranscription.formattedString
             }
 
             if error != nil {
-                self.stopRecording()
+                stopRecording()
             }
         }
 
@@ -170,15 +170,15 @@ final class VoiceRecordingService {
         var errorDescription: String? {
             switch self {
             case .permissionDenied:
-                return "Microphone and speech recognition permissions are required"
+                "Microphone and speech recognition permissions are required"
             case .recognizerNotAvailable:
-                return "Speech recognition is not available on this device"
+                "Speech recognition is not available on this device"
             case .failedToCreateRequest:
-                return "Failed to initialize speech recognition"
+                "Failed to initialize speech recognition"
             case .failedToCreateAudioEngine:
-                return "Failed to initialize audio recording"
+                "Failed to initialize audio recording"
             case .recordingFailed:
-                return "Recording failed unexpectedly"
+                "Recording failed unexpectedly"
             }
         }
     }

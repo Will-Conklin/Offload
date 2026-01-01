@@ -64,7 +64,7 @@ final class CommunicationRepository {
 
     /// Fetch draft communications (not yet sent)
     func fetchDrafts() throws -> [CommunicationItem] {
-        return try fetchByStatus(.draft)
+        try fetchByStatus(.draft)
     }
 
     // MARK: - Update

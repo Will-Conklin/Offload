@@ -191,13 +191,13 @@ enum WorkflowError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case let .invalidState(msg):
-            return "Invalid state: \(msg)"
+            "Invalid state: \(msg)"
         case .alreadyProcessing:
-            return "Another operation is already in progress"
+            "Another operation is already in progress"
         case .notImplemented:
-            return "This feature is not yet implemented"
+            "This feature is not yet implemented"
         case let .unknownError(msg):
-            return msg
+            msg
         }
     }
 }

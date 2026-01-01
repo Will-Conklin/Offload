@@ -16,7 +16,7 @@ struct CaptureSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @State private var rawText: String = ""
+    @State private var rawText = ""
     @State private var showingPermissionAlert = false
     @State private var voiceService = VoiceRecordingService()
     @State private var workflowService: CaptureWorkflowService?
@@ -46,7 +46,7 @@ struct CaptureSheetView: View {
                         }
                     }
 
-                    if voiceService.isTranscribing && !voiceService.transcribedText.isEmpty {
+                    if voiceService.isTranscribing, !voiceService.transcribedText.isEmpty {
                         Text("Transcribing...")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -84,7 +84,8 @@ struct CaptureSheetView: View {
                     Button("Save") {
                         saveThought()
                     }
-                    .disabled(rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || workflowService?.isProcessing == true)
+                    .disabled(rawText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || workflowService?
+                        .isProcessing == true)
                 }
             }
             .alert("Permissions Required", isPresented: $showingPermissionAlert) {
@@ -137,7 +138,7 @@ struct CaptureSheetView: View {
             voiceService.stopRecording()
         }
 
-        guard let workflowService = workflowService else {
+        guard let workflowService else {
             // Fallback: if service not initialized, create entry directly
             let entry = CaptureEntry(
                 rawText: rawText.trimmingCharacters(in: .whitespacesAndNewlines),

@@ -57,7 +57,7 @@ struct InboxView: View {
     }
 
     private func loadInbox() async {
-        guard let workflowService = workflowService else { return }
+        guard let workflowService else { return }
         do {
             entries = try workflowService.fetchInbox()
         } catch {
@@ -66,7 +66,7 @@ struct InboxView: View {
     }
 
     private func deleteEntries(offsets: IndexSet) {
-        guard let workflowService = workflowService else { return }
+        guard let workflowService else { return }
 
         withAnimation {
             for index in offsets {

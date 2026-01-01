@@ -18,8 +18,6 @@
 
 # Spacing
 --trimwhitespace always
---insertblanklines enabled
---removeblanklines enabled
 
 # Organization
 --importgrouping testable-bottom
