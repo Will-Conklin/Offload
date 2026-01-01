@@ -1,0 +1,232 @@
+name: iOS CI
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-checks:
+    name: Code Quality Checks
+    runs-on: macos-15
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - name: Markdown Lint
+            command: npx markdownlint-cli '**/*.md' --ignore node_modules
+          - name: SwiftFormat Check
+            command: swiftformat --lint ios/Offload
+          - name: SwiftLint
+            command: swiftlint lint --strict ios/Offload
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (for markdownlint)
+        if: matrix.check.name == 'Markdown Lint'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install SwiftFormat
+        if: matrix.check.name == 'SwiftFormat Check'
+        run: brew install swiftformat
+
+      - name: Install SwiftLint
+        if: matrix.check.name == 'SwiftLint'
+        run: brew install swiftlint
+
+      - name: Run ${{ matrix.check.name }}
+        run: ${{ matrix.check.command }}
+
+  build:
+    name: Build iOS App
+    runs-on: macos-15
+    needs: quality-checks
+    timeout-minutes: 20
+    env:
+      XCODE_PATH: /Applications/Xcode_16.0.app/Contents/Developer
+      DERIVED_DATA_PATH: ios/DerivedData
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore file timestamps
+        uses: chetan/git-restore-mtime-action@v2
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s "$XCODE_PATH"
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Setup simulator
+        run: bash scripts/ios/setup-simulator.sh
+
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DERIVED_DATA_PATH }}
+          key: deriveddata-${{ runner.os }}-xcode16-${{ hashFiles('ios/Offload.xcodeproj/**', 'ios/Offload/**/*.swift') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-xcode16-
+
+      - name: Configure Xcode caching
+        run: |
+          defaults write com.apple.dt.Xcode IgnoreFileSystemDeviceInodeChanges -bool YES
+
+      - name: Build
+        run: |
+          set -o pipefail && xcodebuild build \
+            -project ios/Offload.xcodeproj \
+            -scheme offload \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+  test-unit:
+    name: Unit Tests with Coverage
+    runs-on: macos-15
+    needs: build
+    timeout-minutes: 15
+    env:
+      XCODE_PATH: /Applications/Xcode_16.0.app/Contents/Developer
+      DERIVED_DATA_PATH: ios/DerivedData
+      TEST_RESULT_PATH: ios/TestResults.xcresult
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore file timestamps
+        uses: chetan/git-restore-mtime-action@v2
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s "$XCODE_PATH"
+
+      - name: Setup simulator
+        run: bash scripts/ios/setup-simulator.sh
+
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.DERIVED_DATA_PATH }}
+          key: deriveddata-${{ runner.os }}-xcode16-${{ hashFiles('ios/Offload.xcodeproj/**', 'ios/Offload/**/*.swift') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-xcode16-
+
+      - name: Configure Xcode caching
+        run: |
+          defaults write com.apple.dt.Xcode IgnoreFileSystemDeviceInodeChanges -bool YES
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail && xcodebuild test \
+            -project ios/Offload.xcodeproj \
+            -scheme offload \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath "$TEST_RESULT_PATH" \
+            -enableCodeCoverage YES \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Check coverage threshold
+        run: bash scripts/ios/check-coverage.sh "$TEST_RESULT_PATH"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ${{ env.TEST_RESULT_PATH }}
+          retention-days: 30
+
+      - name: Generate coverage report
+        if: always()
+        run: |
+          xcrun xccov view --report --json "$TEST_RESULT_PATH" > coverage-report.json
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report.json
+          retention-days: 30
+
+  # UI Tests - Disabled initially
+  # Uncomment when ready to enable UI tests
+  # test-ui:
+  #   name: UI Tests
+  #   runs-on: macos-15
+  #   needs: test-unit
+  #   timeout-minutes: 20
+  #   env:
+  #     XCODE_PATH: /Applications/Xcode_16.0.app/Contents/Developer
+  #     DERIVED_DATA_PATH: ios/DerivedData
+  #     UI_TEST_RESULT_PATH: ios/UITestResults.xcresult
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #
+  #     - name: Restore file timestamps
+  #       uses: chetan/git-restore-mtime-action@v2
+  #
+  #     - name: Select Xcode version
+  #       run: sudo xcode-select -s "$XCODE_PATH"
+  #
+  #     - name: Setup simulator
+  #       run: bash scripts/ios/setup-simulator.sh
+  #
+  #     - name: Cache DerivedData
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ${{ env.DERIVED_DATA_PATH }}
+  #         key: deriveddata-${{ runner.os }}-xcode16-${{ hashFiles('ios/Offload.xcodeproj/**', 'ios/Offload/**/*.swift') }}
+  #         restore-keys: |
+  #           deriveddata-${{ runner.os }}-xcode16-
+  #
+  #     - name: Configure Xcode caching
+  #       run: |
+  #         defaults write com.apple.dt.Xcode IgnoreFileSystemDeviceInodeChanges -bool YES
+  #
+  #     - name: Run UI tests
+  #       run: |
+  #         xcodebuild test \
+  #           -project ios/Offload.xcodeproj \
+  #           -scheme offload \
+  #           -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+  #           -derivedDataPath "$DERIVED_DATA_PATH" \
+  #           -resultBundlePath "$UI_TEST_RESULT_PATH" \
+  #           -only-testing:offloadUITests \
+  #           CODE_SIGN_IDENTITY="" \
+  #           CODE_SIGNING_REQUIRED=NO \
+  #           CODE_SIGNING_ALLOWED=NO \
+  #           | xcpretty || exit 1
+  #
+  #     - name: Upload UI test results
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: ui-test-results
+  #         path: ${{ env.UI_TEST_RESULT_PATH }}
+  #         retention-days: 30
