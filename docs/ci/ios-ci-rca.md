@@ -7,10 +7,13 @@ This document tracks failed GitHub Actions runs, observed symptoms, and fixes
 applied so we do not retry the same changes.
 
 ## Current Status
-- Latest run: 20646427000 (PR #17) failed in "Build iOS App".
+- Latest run: 20647277804 (PR #17) failed in "Build iOS App".
 - Symptom: `xcodebuild -showdestinations` lists only an ineligible iOS device
   placeholder and no iOS Simulator destinations. Build fails with
   "Unable to find a destination matching the provided destination specifier."
+- Diagnostic: `xcodebuild -showBuildSettings` with `-sdk iphonesimulator`
+  reports "Found no destinations for the scheme 'offload' and action build"
+  (only `SDKROOT = iphonesimulator18.0` is printed).
 
 ## Applied Fixes (Chronological)
 
@@ -26,6 +29,7 @@ applied so we do not retry the same changes.
 | 2026-01-01 | 0c33369 | Add `SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"` at project level. | Run 20644872115 | Still failed to find destination. |
 | 2026-01-01 | 7cc9490 | Select available simulator by UDID in CI. | Run 20646313834 | Still failed to find destination. |
 | 2026-01-01 | a2286b8 | Add `SUPPORTED_PLATFORMS` to offload target configs. | Run 20646427000 | Still failed to find destination. |
+| 2026-01-01 | c77090d | Add CI build-settings diagnostics for simulator SDK. | Run 20647277804 | Confirms scheme has no destinations. |
 
 
 ## Additional Findings
@@ -39,6 +43,8 @@ applied so we do not retry the same changes.
   `ios/Offload.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings`.
 - CI now logs build settings for the simulator SDK before the build step
   to surface effective values like `SUPPORTED_PLATFORMS` and `SDKROOT`.
+- The diagnostics still report no destinations for the `offload` scheme even
+  when `SDKROOT = iphonesimulator18.0` is selected.
 
 ## Known Non-Solutions
 - Simulator destination string changes alone do not fix the issue.
