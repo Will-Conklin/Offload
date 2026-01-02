@@ -111,59 +111,18 @@ jobs:
       - name: List available SDKs
         run: xcodebuild -showsdks
 
-      - name: Setup simulator
-        run: bash scripts/ios/setup-simulator.sh
-
-      - name: Select simulator
+      - name: Simulator diagnostics
         run: |
-          python3 <<'PY'
-          import json
-          import os
-          import subprocess
-          import sys
+          set -euo pipefail
+          xcodebuild -version
+          swift --version
+          xcrun simctl list runtimes
+          xcrun simctl list devicetypes | head -n 100
+          xcrun simctl list devices available
+          xcrun simctl list | sed -n '/== Devices ==/,$p' | head -n 200
 
-          preferred = [
-              "iPhone 16 Pro",
-              "iPhone 16",
-              "iPhone 15 Pro",
-              "iPhone 15",
-              "iPhone 14 Pro",
-              "iPhone 14",
-          ]
-
-          data = json.loads(
-              subprocess.check_output(
-                  ["xcrun", "simctl", "list", "devices", "available", "-j"]
-              )
-          )
-
-          devices = []
-          for runtime_devices in data.get("devices", {}).values():
-              for device in runtime_devices:
-                  if device.get("isAvailable") and device.get("name", "").startswith("iPhone"):
-                      devices.append(device)
-
-          selected = None
-          for name in preferred:
-              for device in devices:
-                  if device.get("name") == name:
-                      selected = device
-                      break
-              if selected:
-                  break
-
-          if not selected and devices:
-              selected = devices[0]
-
-          if not selected:
-              print("No available iPhone simulators found.", file=sys.stderr)
-              sys.exit(1)
-
-          print(f"Selected simulator: {selected['name']} ({selected['udid']})")
-          with open(os.environ["GITHUB_ENV"], "a") as env_file:
-              env_file.write(f"SIMULATOR_UDID={selected['udid']}\n")
-              env_file.write(f"SIMULATOR_NAME={selected['name']}\n")
-          PY
+      - name: Allocate simulator
+        run: bash scripts/ios/allocate-simulator.sh
 
       - name: Show build settings (simulator)
         run: |
@@ -272,59 +231,18 @@ jobs:
       - name: Show Swift version
         run: swift --version
 
-      - name: Setup simulator
-        run: bash scripts/ios/setup-simulator.sh
-
-      - name: Select simulator
+      - name: Simulator diagnostics
         run: |
-          python3 <<'PY'
-          import json
-          import os
-          import subprocess
-          import sys
+          set -euo pipefail
+          xcodebuild -version
+          swift --version
+          xcrun simctl list runtimes
+          xcrun simctl list devicetypes | head -n 100
+          xcrun simctl list devices available
+          xcrun simctl list | sed -n '/== Devices ==/,$p' | head -n 200
 
-          preferred = [
-              "iPhone 16 Pro",
-              "iPhone 16",
-              "iPhone 15 Pro",
-              "iPhone 15",
-              "iPhone 14 Pro",
-              "iPhone 14",
-          ]
-
-          data = json.loads(
-              subprocess.check_output(
-                  ["xcrun", "simctl", "list", "devices", "available", "-j"]
-              )
-          )
-
-          devices = []
-          for runtime_devices in data.get("devices", {}).values():
-              for device in runtime_devices:
-                  if device.get("isAvailable") and device.get("name", "").startswith("iPhone"):
-                      devices.append(device)
-
-          selected = None
-          for name in preferred:
-              for device in devices:
-                  if device.get("name") == name:
-                      selected = device
-                      break
-              if selected:
-                  break
-
-          if not selected and devices:
-              selected = devices[0]
-
-          if not selected:
-              print("No available iPhone simulators found.", file=sys.stderr)
-              sys.exit(1)
-
-          print(f"Selected simulator: {selected['name']} ({selected['udid']})")
-          with open(os.environ["GITHUB_ENV"], "a") as env_file:
-              env_file.write(f"SIMULATOR_UDID={selected['udid']}\n")
-              env_file.write(f"SIMULATOR_NAME={selected['name']}\n")
-          PY
+      - name: Allocate simulator
+        run: bash scripts/ios/allocate-simulator.sh
 
       - name: Log available simulators
         run: |
@@ -344,15 +262,7 @@ jobs:
           defaults write com.apple.dt.Xcode IgnoreFileSystemDeviceInodeChanges -bool YES
 
       - name: Boot simulator (timed)
-        run: |
-          set -euo pipefail
-          log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $*"; }
-          log "Booting simulator $SIMULATOR_NAME ($SIMULATOR_UDID)"
-          start=$(date +%s)
-          xcrun simctl boot "$SIMULATOR_UDID" || true
-          xcrun simctl bootstatus "$SIMULATOR_UDID" -b -s
-          end=$(date +%s)
-          log "Simulator boot ready in $((end - start))s"
+        run: bash scripts/ios/boot-simulator.sh
 
       - name: Run unit tests
         run: |
@@ -402,8 +312,25 @@ jobs:
           end=$(date +%s)
           log "Completed tests in $((end - start))s"
 
+      - name: Inspect test result bundle
+        id: inspect-xcresult
+        if: always()
+        run: |
+          if [ -d "$TEST_RESULT_PATH" ]; then
+              echo "bundle_present=true" >> "$GITHUB_OUTPUT"
+              du -sh "$TEST_RESULT_PATH" || true
+          else
+              echo "bundle_present=false" >> "$GITHUB_OUTPUT"
+              echo "::error::Test result bundle missing at $TEST_RESULT_PATH (xcodebuild may have failed before writing results)."
+          fi
+
       - name: Check coverage threshold
-        run: bash scripts/ios/check-coverage.sh "$TEST_RESULT_PATH"
+        run: |
+          if [ "${{ steps.inspect-xcresult.outputs.bundle_present }}" != "true" ]; then
+              echo "::error::Cannot check coverage because $TEST_RESULT_PATH is missing. Inspect test logs above for the root cause."
+              exit 1
+          fi
+          bash scripts/ios/check-coverage.sh "$TEST_RESULT_PATH"
 
       - name: Upload test results
         if: always()
@@ -411,11 +338,16 @@ jobs:
         with:
           name: test-results
           path: ${{ env.TEST_RESULT_PATH }}
+          if-no-files-found: warn
           retention-days: 30
 
       - name: Generate coverage report
         if: always()
         run: |
+          if [ "${{ steps.inspect-xcresult.outputs.bundle_present }}" != "true" ]; then
+              echo "Skipping coverage report generation because $TEST_RESULT_PATH is missing."
+              exit 0
+          fi
           xcrun xccov view --report --json "$TEST_RESULT_PATH" > coverage-report.json
 
       - name: Upload coverage report
@@ -424,6 +356,7 @@ jobs:
         with:
           name: coverage-report
           path: coverage-report.json
+          if-no-files-found: warn
           retention-days: 30
 
   # UI Tests - Disabled initially
