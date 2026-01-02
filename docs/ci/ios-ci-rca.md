@@ -15,6 +15,9 @@ applied so we do not retry the same changes.
   reports "Found no destinations for the scheme 'offload' and action build"
   (only `SDKROOT = iphonesimulator18.0` is printed).
 
+## Constraints
+- Local macOS cannot run Xcode 16, so downgrading locally is not viable.
+
 ## Applied Fixes (Chronological)
 
 | Date | Commit | Change | Evidence | Result |
@@ -45,6 +48,27 @@ applied so we do not retry the same changes.
   to surface effective values like `SUPPORTED_PLATFORMS` and `SDKROOT`.
 - The diagnostics still report no destinations for the `offload` scheme even
   when `SDKROOT = iphonesimulator18.0` is selected.
+- CI now detects installed Xcode apps, logs their versions, and selects the
+  newest available Xcode for builds/tests.
+
+## How to Get an Older Xcode (Reference)
+- Download older versions from
+  [Apple Developer Downloads](https://developer.apple.com/download/all/)
+  (requires Apple ID).
+- Install alongside current Xcode by renaming the app, for example:
+  `/Applications/Xcode_16.2.app`.
+- Point command line tools to the older version:
+  `sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer`.
+- Verify the selected version:
+  `xcodebuild -version`.
+- If needed, open the project in that older Xcode to resave project metadata.
+
+## Hosted Runner Path (Option 2)
+- Use a GitHub-hosted macOS runner image that includes the required Xcode.
+- Add a step to list installed Xcodes (e.g., `ls /Applications | grep Xcode`)
+  so CI logs show what is available.
+- Set `DEVELOPER_DIR` (or run `xcode-select`) to the chosen Xcode before builds.
+- If the required Xcode is missing on the runner image, switch to a newer image.
 
 ## Known Non-Solutions
 - Simulator destination string changes alone do not fix the issue.

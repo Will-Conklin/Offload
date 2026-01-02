@@ -56,8 +56,6 @@ jobs:
     needs: quality-checks
     timeout-minutes: 20
     env:
-      XCODE_PATH: /Applications/Xcode_16.0.app/Contents/Developer
-      DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
       DERIVED_DATA_PATH: ios/DerivedData
     steps:
       - name: Checkout
@@ -67,6 +65,39 @@ jobs:
 
       - name: Restore file timestamps
         uses: chetan/git-restore-mtime-action@v2
+
+      - name: Detect installed Xcodes
+        run: |
+          set -euo pipefail
+          apps=(/Applications/Xcode*.app)
+          if [ "${apps[0]}" = "/Applications/Xcode*.app" ]; then
+            echo "No Xcode apps found in /Applications."
+            exit 1
+          fi
+
+          echo "Installed Xcodes:"
+          best_path=""
+          best_version=""
+          for app in "${apps[@]}"; do
+            plist="$app/Contents/Info.plist"
+            version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist")
+            echo "- $app ($version)"
+            if [ -z "$best_version" ]; then
+              best_version="$version"
+              best_path="$app"
+              continue
+            fi
+            newest=$(printf '%s\n%s\n' "$best_version" "$version" | sort -V | tail -n1)
+            if [ "$newest" = "$version" ]; then
+              best_version="$version"
+              best_path="$app"
+            fi
+          done
+
+          echo "Selected Xcode: $best_path ($best_version)"
+          echo "XCODE_PATH=$best_path/Contents/Developer" >> "$GITHUB_ENV"
+          echo "DEVELOPER_DIR=$best_path/Contents/Developer" >> "$GITHUB_ENV"
+          echo "XCODE_VERSION=$best_version" >> "$GITHUB_ENV"
 
       - name: Select Xcode version
         run: sudo xcode-select -s "$XCODE_PATH"
@@ -144,9 +175,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.DERIVED_DATA_PATH }}
-          key: deriveddata-${{ runner.os }}-xcode16-${{ hashFiles('ios/Offload.xcodeproj/**', 'ios/Offload/**/*.swift') }}
+          key: deriveddata-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-${{ hashFiles('ios/Offload.xcodeproj/**', 'ios/Offload/**/*.swift') }}
           restore-keys: |
-            deriveddata-${{ runner.os }}-xcode16-
+            deriveddata-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-
 
       - name: Configure Xcode caching
         run: |
@@ -176,8 +207,6 @@ jobs:
     needs: build
     timeout-minutes: 15
     env:
-      XCODE_PATH: /Applications/Xcode_16.0.app/Contents/Developer
-      DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
       DERIVED_DATA_PATH: ios/DerivedData
       TEST_RESULT_PATH: ios/TestResults.xcresult
     steps:
@@ -189,8 +218,44 @@ jobs:
       - name: Restore file timestamps
         uses: chetan/git-restore-mtime-action@v2
 
+      - name: Detect installed Xcodes
+        run: |
+          set -euo pipefail
+          apps=(/Applications/Xcode*.app)
+          if [ "${apps[0]}" = "/Applications/Xcode*.app" ]; then
+            echo "No Xcode apps found in /Applications."
+            exit 1
+          fi
+
+          echo "Installed Xcodes:"
+          best_path=""
+          best_version=""
+          for app in "${apps[@]}"; do
+            plist="$app/Contents/Info.plist"
+            version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist")
+            echo "- $app ($version)"
+            if [ -z "$best_version" ]; then
+              best_version="$version"
+              best_path="$app"
+              continue
+            fi
+            newest=$(printf '%s\n%s\n' "$best_version" "$version" | sort -V | tail -n1)
+            if [ "$newest" = "$version" ]; then
+              best_version="$version"
+              best_path="$app"
+            fi
+          done
+
+          echo "Selected Xcode: $best_path ($best_version)"
+          echo "XCODE_PATH=$best_path/Contents/Developer" >> "$GITHUB_ENV"
+          echo "DEVELOPER_DIR=$best_path/Contents/Developer" >> "$GITHUB_ENV"
+          echo "XCODE_VERSION=$best_version" >> "$GITHUB_ENV"
+
       - name: Select Xcode version
         run: sudo xcode-select -s "$XCODE_PATH"
+
+      - name: Show Xcode version
+        run: xcodebuild -version
 
       - name: Setup simulator
         run: bash scripts/ios/setup-simulator.sh
@@ -250,9 +315,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.DERIVED_DATA_PATH }}
-          key: deriveddata-${{ runner.os }}-xcode16-${{ hashFiles('ios/Offload.xcodeproj/**', 'ios/Offload/**/*.swift') }}
+          key: deriveddata-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-${{ hashFiles('ios/Offload.xcodeproj/**', 'ios/Offload/**/*.swift') }}
           restore-keys: |
-            deriveddata-${{ runner.os }}-xcode16-
+            deriveddata-${{ runner.os }}-xcode${{ env.XCODE_VERSION }}-
 
       - name: Configure Xcode caching
         run: |
