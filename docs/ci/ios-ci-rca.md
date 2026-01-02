@@ -7,15 +7,11 @@ This document tracks failed GitHub Actions runs, observed symptoms, and fixes
 applied so we do not retry the same changes.
 
 ## Current Status
-- Latest run: 20648070979 (PR #17) failed in "Build iOS App".
-- Symptom: Swift compile errors after selecting Xcode 26.1.1 on the runner:
-  - `HandOffRequest` has no member `brainDumpEntry` in
-    `HandOffRepository.swift` and `SuggestionRepository.swift`.
-  - `modelContext.fetch(descriptor)` fails with
-    "generic parameter 'T' could not be inferred" in `SuggestionRepository.swift`.
-- Fix in progress: Repository lookups now reference `captureEntry` and SwiftData
-  fetches have explicit typing to avoid inference issues. Pending validation in
-  the next CI run on `macos-26`.
+- Latest run: 20662961598 (main) failed in "Unit Tests with Coverage".
+- Symptoms:
+  - `Boot simulator (timed)` exited 117 while using `xcrun simctl bootstatus ... -b -s`.
+  - `Generate coverage report` exited 1 because `ios/TestResults.xcresult` was missing.
+- Fix in progress: Replace simulator selection with fresh allocation + blocking boot, add diagnostics, and gate coverage on xcresult presence.
 
 ## Constraints
 - Local macOS cannot run Xcode 16, so downgrading locally is not viable.
@@ -38,6 +34,7 @@ applied so we do not retry the same changes.
 | 2026-01-01 | b612a13 | Select newest installed Xcode on runner. | Run 20648070979 | Now fails in Swift compilation (no `brainDumpEntry` member). |
 | 2026-01-02 | Pending (this PR) | Use `captureEntry` relationship and typed SwiftData fetches to satisfy Xcode 26.1.1 compiler. | Pending next CI run | Pending |
 | 2026-01-02 | N/A | Switch iOS workflow runners to `macos-26` for Xcode 26.x coverage. | Pending next CI run | Pending validation of simulator availability and build. |
+| 2026-01-02 | Pending (this PR) | Allocate a fresh simulator, add blocking boot with diagnostics, and gate coverage on xcresult presence. | Run 20662961598 | Pending validation (boot returned 117). |
 
 
 ## Additional Findings
