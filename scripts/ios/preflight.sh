@@ -27,6 +27,10 @@ info() {
   echo "[INFO] $*"
 }
 
+warn() {
+  echo "[WARN] $*" >&2
+}
+
 log_pinned_destination() {
   info "Pinned simulator device: ${CI_SIM_DEVICE}"
   info "Pinned simulator OS: ${CI_SIM_OS}"
@@ -181,14 +185,14 @@ assert_destination_available() {
     return 0
   fi
 
-  err "Destination not found for ${DESTINATION}"
-  err "Available iOS runtimes:"
+  warn "Destination not found for ${DESTINATION}"
+  warn "Available iOS runtimes:"
   print_available_ios_runtimes >&2
-  err "Available devices for chosen runtime:"
+  warn "Available devices for chosen runtime:"
   print_devices_for_pinned_runtime >&2
-  err "Available destinations from xcodebuild:"
+  warn "Available destinations from xcodebuild:"
   printf "%s\n" "${DESTINATIONS_OUTPUT}" | sed 's/^/  /' >&2
-  exit 1
+  return 1
 }
 
 main() {
@@ -217,7 +221,10 @@ main() {
   fi
 
   assert_scheme_exists
-  assert_destination_available
+
+  if ! assert_destination_available; then
+    warn "Pinned simulator destination unavailable; downstream scripts will select a fallback."
+  fi
 
   info "Preflight checks passed."
 }

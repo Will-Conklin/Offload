@@ -9,12 +9,9 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 PROJECT_PATH="${PROJECT_PATH:-${REPO_ROOT}/ios/Offload.xcodeproj}"
 SCHEME="${SCHEME:-Offload}"
 CONFIGURATION="${CONFIGURATION:-Debug}"
-DEVICE_NAME="${DEVICE_NAME:-iPhone 15}"
-OS_VERSION="${OS_VERSION:-17.5}"
-DESTINATION="${DESTINATION:-platform=iOS Simulator,name=${DEVICE_NAME},OS=${OS_VERSION}}"
 DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-${REPO_ROOT}/.ci/DerivedData}"
 RESULT_BUNDLE_PATH="${RESULT_BUNDLE_PATH:-${REPO_ROOT}/.ci/TestResults.xcresult}"
-USE_UDID="${USE_UDID:-0}"
+SIM_SELECTOR="${SCRIPT_DIR}/select-simulator.sh"
 
 info() {
   echo "[INFO] $*"
@@ -40,29 +37,29 @@ main() {
   print_versions
   "${SCRIPT_DIR}/preflight.sh"
 
-  local allocated_udid=""
-  if [[ "${USE_UDID}" == "1" ]]; then
-    info "USE_UDID enabled. Allocating simulator for ${DEVICE_NAME} (${OS_VERSION})."
-    if ! allocated_udid="$("${SCRIPT_DIR}/allocate-simulator.sh")"; then
-      warn "Failed to allocate simulator UDID."
-      exit 1
-    fi
-
-    info "Allocated simulator UDID: ${allocated_udid}"
-    info "Booting simulator ${allocated_udid}"
-    if ! "${SCRIPT_DIR}/boot-simulator.sh" "${allocated_udid}"; then
-      warn "Failed to boot simulator ${allocated_udid}"
-      exit 1
-    fi
-
-    DESTINATION="platform=iOS Simulator,id=${allocated_udid}"
+  if [[ ! -x "${SIM_SELECTOR}" ]]; then
+    warn "Simulator selector not found at ${SIM_SELECTOR}"
+    exit 1
   fi
+
+  info "Selecting simulator UDID via ${SIM_SELECTOR}"
+  local selection_output
+  if ! selection_output="$("${SIM_SELECTOR}")"; then
+    warn "Failed to select simulator UDID."
+    printf "%s\n" "${selection_output:-<no output>}" >&2
+    exit 1
+  fi
+
+  printf "%s\n" "${selection_output}"
+  local selected_udid
+  selected_udid="$(printf "%s\n" "${selection_output}" | tail -n 1)"
+  local destination="platform=iOS Simulator,id=${selected_udid}"
 
   mkdir -p "$(dirname "${RESULT_BUNDLE_PATH}")"
   rm -rf "${RESULT_BUNDLE_PATH}"
   mkdir -p "${DERIVED_DATA_PATH}"
 
-  info "Testing scheme '${SCHEME}' on '${DESTINATION}'."
+  info "Testing scheme '${SCHEME}' on '${destination}'."
   info "Result bundle: ${RESULT_BUNDLE_PATH}"
   info "DerivedData: ${DERIVED_DATA_PATH}"
 
@@ -71,7 +68,7 @@ main() {
     -project "${PROJECT_PATH}" \
     -scheme "${SCHEME}" \
     -configuration "${CONFIGURATION}" \
-    -destination "${DESTINATION}" \
+    -destination "${destination}" \
     -derivedDataPath "${DERIVED_DATA_PATH}" \
     -resultBundlePath "${RESULT_BUNDLE_PATH}" \
     COMPILER_INDEX_STORE_ENABLE=NO \

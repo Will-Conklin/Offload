@@ -11,10 +11,8 @@ source "${REPO_ROOT}/scripts/ci/readiness_env.sh"
 PROJECT_PATH="${PROJECT_PATH:-${REPO_ROOT}/ios/Offload.xcodeproj}"
 SCHEME="${SCHEME:-Offload}"
 CONFIGURATION="${CONFIGURATION:-Debug}"
-DEVICE_NAME="${DEVICE_NAME:-${CI_SIM_DEVICE}}"
-OS_VERSION="${OS_VERSION:-${CI_SIM_OS}}"
-DESTINATION="${DESTINATION:-platform=iOS Simulator,name=${DEVICE_NAME},OS=${OS_VERSION}}"
 DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-${REPO_ROOT}/.ci/DerivedData}"
+SIM_SELECTOR="${SCRIPT_DIR}/select-simulator.sh"
 
 info() {
   echo "[INFO] $*"
@@ -23,17 +21,35 @@ info() {
 main() {
   "${SCRIPT_DIR}/preflight.sh"
 
+  if [[ ! -x "${SIM_SELECTOR}" ]]; then
+    echo "[ERROR] Simulator selector not found at ${SIM_SELECTOR}" >&2
+    exit 1
+  fi
+
+  info "Selecting simulator UDID via ${SIM_SELECTOR}"
+  local selection_output
+  if ! selection_output="$("${SIM_SELECTOR}")"; then
+    echo "[ERROR] Failed to select simulator UDID." >&2
+    printf "%s\n" "${selection_output:-<no output>}" >&2
+    exit 1
+  fi
+
+  printf "%s\n" "${selection_output}"
+  local selected_udid
+  selected_udid="$(printf "%s\n" "${selection_output}" | tail -n 1)"
+  local destination="platform=iOS Simulator,id=${selected_udid}"
+
   mkdir -p "${DERIVED_DATA_PATH}"
 
   info "Building scheme '${SCHEME}' with configuration '${CONFIGURATION}'."
   info "DerivedData: ${DERIVED_DATA_PATH}"
-  info "Destination: ${DESTINATION}"
+  info "Destination: ${destination}"
 
   xcodebuild \
     -project "${PROJECT_PATH}" \
     -scheme "${SCHEME}" \
     -configuration "${CONFIGURATION}" \
-    -destination "${DESTINATION}" \
+    -destination "${destination}" \
     -derivedDataPath "${DERIVED_DATA_PATH}" \
     COMPILER_INDEX_STORE_ENABLE=NO \
     build
