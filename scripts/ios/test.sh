@@ -6,15 +6,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
+source "${REPO_ROOT}/scripts/ci/readiness_env.sh"
+
 PROJECT_PATH="${PROJECT_PATH:-${REPO_ROOT}/ios/Offload.xcodeproj}"
-SCHEME="${SCHEME:-Offload}"
+SCHEME="${SCHEME:-offload}"
 CONFIGURATION="${CONFIGURATION:-Debug}"
-DEVICE_NAME="${DEVICE_NAME:-iPhone 15}"
-OS_VERSION="${OS_VERSION:-17.5}"
-DESTINATION="${DESTINATION:-platform=iOS Simulator,name=${DEVICE_NAME},OS=${OS_VERSION}}"
+DEVICE_NAME="${DEVICE_NAME:-${CI_SIM_DEVICE}}"
+OS_VERSION="${OS_VERSION:-${CI_SIM_OS}}"
+DESTINATION="${DESTINATION:-}"
 DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-${REPO_ROOT}/.ci/DerivedData}"
 RESULT_BUNDLE_PATH="${RESULT_BUNDLE_PATH:-${REPO_ROOT}/.ci/TestResults.xcresult}"
-USE_UDID="${USE_UDID:-0}"
 
 info() {
   echo "[INFO] $*"
@@ -38,25 +39,29 @@ print_versions() {
 
 main() {
   print_versions
-  "${SCRIPT_DIR}/preflight.sh"
 
-  local allocated_udid=""
-  if [[ "${USE_UDID}" == "1" ]]; then
-    info "USE_UDID enabled. Allocating simulator for ${DEVICE_NAME} (${OS_VERSION})."
-    if ! allocated_udid="$("${SCRIPT_DIR}/allocate-simulator.sh")"; then
-      warn "Failed to allocate simulator UDID."
-      exit 1
-    fi
+  local selection_output=""
+  local selected_udid=""
 
-    info "Allocated simulator UDID: ${allocated_udid}"
-    info "Booting simulator ${allocated_udid}"
-    if ! "${SCRIPT_DIR}/boot-simulator.sh" "${allocated_udid}"; then
-      warn "Failed to boot simulator ${allocated_udid}"
-      exit 1
-    fi
-
-    DESTINATION="platform=iOS Simulator,id=${allocated_udid}"
+  if ! selection_output="$("${SCRIPT_DIR}/select-simulator.sh")"; then
+    warn "Failed to select simulator UDID."
+    exit 1
   fi
+
+  selected_udid="$(printf "%s\n" "${selection_output}" | tail -n 1)"
+  if [[ -z "${selected_udid}" ]]; then
+    warn "Simulator UDID was not found in selection output."
+    exit 1
+  fi
+
+  DESTINATION="platform=iOS Simulator,id=${selected_udid}"
+
+  while IFS= read -r line; do
+    info "${line}"
+  done <<<"${selection_output}"
+  info "Resolved destination: ${DESTINATION}"
+
+  DESTINATION="${DESTINATION}" DEVICE_NAME="${DEVICE_NAME}" OS_VERSION="${OS_VERSION}" "${SCRIPT_DIR}/preflight.sh"
 
   mkdir -p "$(dirname "${RESULT_BUNDLE_PATH}")"
   rm -rf "${RESULT_BUNDLE_PATH}"
