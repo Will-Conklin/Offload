@@ -11,7 +11,7 @@ SECTION_START_PATTERN='^## Pinned CI Environment$'
 KEY_PATTERN='^(CI_MACOS_RUNNER|CI_XCODE_VERSION|CI_SIM_DEVICE|CI_SIM_OS):[[:space:]]*(.+)$'
 
 err() {
-  echo "docs/ci/ci-readiness.md is missing required pinned CI environment keys" >&2
+  echo "docs/ci/ci-readiness.md Pinned CI Environment section is missing a required key or value" >&2
 }
 
 parse_values() {
