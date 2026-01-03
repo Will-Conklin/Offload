@@ -49,6 +49,7 @@ struct PersistenceController {
     }()
 
     /// Preview container with sample data for SwiftUI previews
+    @MainActor
     static let preview: ModelContainer = {
         let schema = Schema([
             // Core workflow models
