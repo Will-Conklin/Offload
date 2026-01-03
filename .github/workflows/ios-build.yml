@@ -86,7 +86,7 @@ jobs:
 
       - name: Write diagnostics report
         if: always()
-        run: scripts/ci/write-env-report.sh
+        run: bash scripts/ci/write-env-report.sh
 
       - name: Preflight
         run: scripts/ios/preflight.sh
