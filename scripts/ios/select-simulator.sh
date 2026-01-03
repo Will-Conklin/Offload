@@ -175,8 +175,14 @@ main() {
 
   local simctl_output=""
   local selection_output=""
-  if ! simctl_output="$(xcrun simctl list devices -j)"; then
+  if ! simctl_output="$(xcrun simctl list devices -j 2>&1)"; then
     err "Failed to list available simulators via simctl."
+    exit 1
+  fi
+
+  info "simctl output length: ${#simctl_output} bytes"
+  if [[ -z "${simctl_output}" ]]; then
+    err "simctl returned empty output"
     exit 1
   fi
 
