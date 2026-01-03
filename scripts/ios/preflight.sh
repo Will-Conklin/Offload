@@ -193,7 +193,7 @@ assert_destination_available() {
     print_diagnostics
     exit 1
   else
-    if printf "%s\n" "${DESTINATIONS_OUTPUT}" | grep -Eq "name:${DEVICE_NAME}.*,.*OS: ?${OS_VERSION}"; then
+    if printf "%s\n" "${DESTINATIONS_OUTPUT}" | grep -Eq "OS: ?${OS_VERSION}.*,.*name:${DEVICE_NAME}"; then
       return 0
     fi
   fi
