@@ -7,7 +7,7 @@
 - **Models shipped**: CaptureEntry + HandOffRequest/Run, Suggestion + SuggestionDecision, Placement, Plan, Task, Tag, Category, ListEntity/ListItem, CommunicationItem (`ios/Offload/Domain/Models/`).
 - **Persistence**: `PersistenceController` and `SwiftDataManager` register the full schema for production and preview containers.
 - **Data access**: Repositories exist for every model, plus `CaptureWorkflowService` for inbox + capture orchestration.
-- **UI**: Inbox reads from `CaptureWorkflowService`; `CaptureSheetView` handles text + voice capture. Organize and settings flows remain placeholder-only.
+- **UI**: Capture list currently labeled "Inbox" and reads from `CaptureWorkflowService`; `CaptureSheetView` handles text + voice capture. Organize and settings flows remain placeholder-only and will need renaming per ADR-0002.
 - **Tests**: Repository + workflow tests cover current CRUD/lifecycle behaviors with in-memory SwiftData.
 - **Not implemented**: AI hand-off submission, suggestion presentation/decisions, placement flows, and richer organization UI. These methods are stubbed in `CaptureWorkflowService` and TODOs remain across Organize/Settings.
 
@@ -30,6 +30,12 @@
 - **ListEntity/ListItem**: lightweight lists with cascade delete for items.
 - **CommunicationItem**: communication follow-ups with channel/recipient/content/status.
 
+## Terminology Alignment (ADR-0002)
+
+- Canonical vocabulary: capture → hand-off → suggestion → decision → placement; use `CaptureEntry`, `HandOffRequest`/`HandOffRun`, `Suggestion`/`SuggestionDecision`, `Placement`, `Plan`, `ListEntity`/`ListItem`, and `CommunicationItem`.
+- Deprecated labels present in the iOS scaffolding and docs include "Inbox" (as a destination/view), "Thought", and "BrainDump" variants; align code, tests, and copy with the canonical names.
+- Early in the SDLC—no data migrations required; focus on renaming surfaces, service APIs, and documentation references.
+
 ## Implementation Status by Phase
 
 - **Phase 1 — Model Definition**: ✅ Complete with enum rawValue storage for SwiftData compatibility.
@@ -45,7 +51,8 @@
 2. **Suggestion/placement UI**: Present suggestions in Inbox/Organize, collect decisions, and record placements targeting Plan/Task/List/Communication.
 3. **Organize surfaces**: Add creation/editing flows for plans, categories, tags, lists, and communication items; replace TODOs in `OrganizeView`.
 4. **App shell alignment**: Decide on `MainTabView` adoption vs. direct Inbox, add Settings screen, and ensure capture affordances are consistent across entry points.
-5. **Testing expansion**: Add coverage for AI orchestration, placement flows, and new UI interactions once built.
+5. **Terminology cleanup (ADR-0002)**: Rename Inbox surfaces, repository/service APIs (e.g., `fetchInbox`), and tests to reflect the capture → hand-off workflow; update docs/PRD to remove "Thought"/"BrainDump" references.
+6. **Testing expansion**: Add coverage for AI orchestration, placement flows, and new UI interactions once built.
 
 ## Success Criteria
 
