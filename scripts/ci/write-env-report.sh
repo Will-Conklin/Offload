@@ -32,6 +32,9 @@ run_best_effort() {
   echo "CI_XCODE_VERSION=${CI_XCODE_VERSION}"
   echo "CI_SIM_DEVICE=${CI_SIM_DEVICE}"
   echo "CI_SIM_OS=${CI_SIM_OS}"
+  if [[ -n ${CI_SIM_OS_RESOLVED:-} && ${CI_SIM_OS_RESOLVED} != "${CI_SIM_OS}" ]]; then
+    echo "CI_SIM_OS_RESOLVED=${CI_SIM_OS_RESOLVED}"
+  fi
   echo ""
 
   if command -v sw_vers >/dev/null 2>&1; then

@@ -20,6 +20,7 @@ parse_values() {
   local ci_xcode_version=""
   local ci_sim_device=""
   local ci_sim_os=""
+  local ci_sim_os_resolved=""
 
   while IFS= read -r line; do
     if [[ ${in_section} == false ]]; then
@@ -64,10 +65,61 @@ parse_values() {
     esac
   done
 
+  if [[ ${ci_sim_os} == "latest" ]]; then
+    if ! command -v xcrun >/dev/null 2>&1; then
+      echo "CI_SIM_OS=latest requires xcrun to resolve the newest installed iOS runtime" >&2
+      return 1
+    fi
+
+    local runtimes_json
+    if ! runtimes_json="$(xcrun simctl list runtimes --json 2>/dev/null)"; then
+      echo "Unable to query simulator runtimes via xcrun simctl list runtimes --json" >&2
+      return 1
+    fi
+
+    if ! ci_sim_os_resolved="$(python3 - <<'PY'
+import json
+import sys
+
+try:
+    runtimes = json.load(sys.stdin).get("runtimes", [])
+except json.JSONDecodeError:
+    sys.exit(1)
+
+versions = []
+for runtime in runtimes:
+    if runtime.get("platform") != "iOS":
+        continue
+    if runtime.get("isAvailable") is False:
+        continue
+    version = runtime.get("version")
+    if not version:
+        continue
+    try:
+        parts = tuple(int(part) for part in version.split("."))
+    except ValueError:
+        continue
+    versions.append((parts, version))
+
+if not versions:
+    sys.exit(1)
+
+versions.sort()
+print(versions[-1][1])
+PY
+    )"; then
+      echo "Failed to resolve the latest available iOS simulator runtime version" >&2
+      return 1
+    fi
+  else
+    ci_sim_os_resolved="${ci_sim_os}"
+  fi
+
   export CI_MACOS_RUNNER="${ci_macos_runner}"
   export CI_XCODE_VERSION="${ci_xcode_version}"
   export CI_SIM_DEVICE="${ci_sim_device}"
   export CI_SIM_OS="${ci_sim_os}"
+  export CI_SIM_OS_RESOLVED="${ci_sim_os_resolved}"
 }
 
 main() {

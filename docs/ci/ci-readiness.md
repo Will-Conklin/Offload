@@ -12,9 +12,10 @@
 CI_MACOS_RUNNER: macos-14
 CI_XCODE_VERSION: 16.2
 CI_SIM_DEVICE: iPhone 15
-CI_SIM_OS: 17.5
+CI_SIM_OS: latest
 
 > Note: macos-14 GitHub runners no longer provide Xcode 16.0; they ship Xcode 16.2+. Pin CI_XCODE_VERSION to 16.2 to avoid resolution failures.
+> CI_SIM_OS accepts `latest` to automatically pick the newest installed iOS runtime on the runner.
 
 ## Local build and test commands (xcodebuild)
 Use the project file directly with the shared `offload` scheme.
