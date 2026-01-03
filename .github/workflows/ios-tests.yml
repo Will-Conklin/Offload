@@ -12,38 +12,64 @@ jobs:
     name: Read pinned CI environment
     runs-on: macos-14
     outputs:
-      macos_runner: ${{ steps.read_env.outputs.macos_runner }}
-      xcode_version: ${{ steps.read_env.outputs.xcode_version }}
-      sim_device: ${{ steps.read_env.outputs.sim_device }}
-      sim_os: ${{ steps.read_env.outputs.sim_os }}
+      ci_macos_runner: ${{ steps.readiness.outputs.ci_macos_runner }}
+      ci_xcode_version: ${{ steps.readiness.outputs.ci_xcode_version }}
+      sim_device: ${{ steps.readiness.outputs.sim_device }}
+      sim_os: ${{ steps.readiness.outputs.sim_os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Parse pinned CI environment
-        id: read_env
+        id: readiness
         run: |
-          bash scripts/ci/readiness_env.sh
-          echo "macos_runner=${CI_MACOS_RUNNER}" >> "$GITHUB_OUTPUT"
-          echo "xcode_version=${CI_XCODE_VERSION}" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          source scripts/ci/readiness_env.sh
+
+          echo "ci_macos_runner=${CI_MACOS_RUNNER}" >> "$GITHUB_OUTPUT"
+          echo "ci_xcode_version=${CI_XCODE_VERSION}" >> "$GITHUB_OUTPUT"
           echo "sim_device=${CI_SIM_DEVICE}" >> "$GITHUB_OUTPUT"
           echo "sim_os=${CI_SIM_OS}" >> "$GITHUB_OUTPUT"
+
+      - name: Guard pinned values
+        run: |
+          if [[ -z "${{ steps.readiness.outputs.ci_macos_runner }}" ]]; then
+            echo "CI_MACOS_RUNNER missing/empty in docs/ci/ci-readiness.md (Pinned CI Environment section)" >&2
+            exit 1
+          fi
+          if [[ -z "${{ steps.readiness.outputs.ci_xcode_version }}" ]]; then
+            echo "CI_XCODE_VERSION missing/empty in docs/ci/ci-readiness.md (Pinned CI Environment section)" >&2
+            exit 1
+          fi
+
+          echo "Resolved CI_MACOS_RUNNER from bootstrap: ${{ steps.readiness.outputs.ci_macos_runner }}"
 
   tests:
     name: Test with pinned environment
     needs: bootstrap
-    runs-on: ${{ needs.bootstrap.outputs.macos_runner }}
+    runs-on: ${{ needs.bootstrap.outputs.ci_macos_runner }}
     env:
-      CI_MACOS_RUNNER: ${{ needs.bootstrap.outputs.macos_runner }}
-      CI_XCODE_VERSION: ${{ needs.bootstrap.outputs.xcode_version }}
+      CI_MACOS_RUNNER: ${{ needs.bootstrap.outputs.ci_macos_runner }}
+      CI_XCODE_VERSION: ${{ needs.bootstrap.outputs.ci_xcode_version }}
       CI_SIM_DEVICE: ${{ needs.bootstrap.outputs.sim_device }}
       CI_SIM_OS: ${{ needs.bootstrap.outputs.sim_os }}
     steps:
+      - name: Guard resolved runner
+        run: |
+          set -euo pipefail
+          echo "Using CI_MACOS_RUNNER from bootstrap: '${{ needs.bootstrap.outputs.ci_macos_runner }}'"
+          if [[ -z "${{ needs.bootstrap.outputs.ci_macos_runner }}" ]]; then
+            echo "tests job cannot proceed without a pinned CI_MACOS_RUNNER from docs/ci/ci-readiness.md" >&2
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Parse pinned CI environment
-        run: bash scripts/ci/readiness_env.sh
+        run: |
+          set -euo pipefail
+          source scripts/ci/readiness_env.sh
 
       - name: Print pinned values
         run: |
@@ -56,7 +82,7 @@ jobs:
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: ${{ needs.bootstrap.outputs.xcode_version }}
+          xcode-version: ${{ needs.bootstrap.outputs.ci_xcode_version }}
 
       - name: Show runner versions
         run: |
