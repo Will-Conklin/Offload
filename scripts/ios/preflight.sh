@@ -109,6 +109,11 @@ assert_scheme_exists() {
 assert_destination_available() {
   local destinations_output=""
   local destinations_status=0
+  local destination_id=""
+
+  if [[ ${DESTINATION} =~ id=([^,]+) ]]; then
+    destination_id="${BASH_REMATCH[1]}"
+  fi
 
   if ! destinations_output="$(xcodebuild -showdestinations -project "${PROJECT_PATH}" -scheme "${SCHEME}" 2>&1)"; then
     destinations_status=$?
@@ -122,8 +127,20 @@ assert_destination_available() {
     exit 1
   fi
 
-  if printf "%s\n" "${destinations_output}" | grep -Eq "name:${DEVICE_NAME}.*,.*OS: ?${OS_VERSION}"; then
-    return 0
+  if [[ -n ${destination_id} ]]; then
+    if printf "%s\n" "${destinations_output}" | grep -Eq "id: ?${destination_id}"; then
+      return 0
+    fi
+
+    err "Destination not found for simulator id ${destination_id}"
+    err "Available destinations:"
+    printf "%s\n" "${destinations_output}" | sed 's/^/  /'
+    print_diagnostics
+    exit 1
+  else
+    if printf "%s\n" "${destinations_output}" | grep -Eq "name:${DEVICE_NAME}.*,.*OS: ?${OS_VERSION}"; then
+      return 0
+    fi
   fi
 
   err "Destination not found for ${DESTINATION}"
