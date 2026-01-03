@@ -13,13 +13,23 @@ SCHEME="${SCHEME:-Offload}"
 CONFIGURATION="${CONFIGURATION:-Debug}"
 DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-${REPO_ROOT}/.ci/DerivedData}"
 SIM_SELECTOR="${SCRIPT_DIR}/select-simulator.sh"
+PRE_FLIGHT_SCRIPT="${SCRIPT_DIR}/preflight.sh"
 
 info() {
   echo "[INFO] $*"
 }
 
 main() {
-  "${SCRIPT_DIR}/preflight.sh"
+  if [[ ! -x "${PRE_FLIGHT_SCRIPT}" ]]; then
+    PRE_FLIGHT_SCRIPT="${REPO_ROOT}/scripts/ios/preflight.sh"
+  fi
+
+  if [[ ! -x "${PRE_FLIGHT_SCRIPT}" ]]; then
+    echo "[ERROR] Preflight script not found. Expected at ${SCRIPT_DIR}/preflight.sh" >&2
+    exit 1
+  fi
+
+  "${PRE_FLIGHT_SCRIPT}"
 
   if [[ ! -x "${SIM_SELECTOR}" ]]; then
     echo "[ERROR] Simulator selector not found at ${SIM_SELECTOR}" >&2

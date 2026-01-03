@@ -12,6 +12,7 @@ CONFIGURATION="${CONFIGURATION:-Debug}"
 DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-${REPO_ROOT}/.ci/DerivedData}"
 RESULT_BUNDLE_PATH="${RESULT_BUNDLE_PATH:-${REPO_ROOT}/.ci/TestResults.xcresult}"
 SIM_SELECTOR="${SCRIPT_DIR}/select-simulator.sh"
+PRE_FLIGHT_SCRIPT="${SCRIPT_DIR}/preflight.sh"
 
 info() {
   echo "[INFO] $*"
@@ -35,7 +36,16 @@ print_versions() {
 
 main() {
   print_versions
-  "${SCRIPT_DIR}/preflight.sh"
+  if [[ ! -x "${PRE_FLIGHT_SCRIPT}" ]]; then
+    PRE_FLIGHT_SCRIPT="${REPO_ROOT}/scripts/ios/preflight.sh"
+  fi
+
+  if [[ ! -x "${PRE_FLIGHT_SCRIPT}" ]]; then
+    warn "Preflight script not found. Expected at ${SCRIPT_DIR}/preflight.sh"
+    exit 1
+  fi
+
+  "${PRE_FLIGHT_SCRIPT}"
 
   if [[ ! -x "${SIM_SELECTOR}" ]]; then
     warn "Simulator selector not found at ${SIM_SELECTOR}"
