@@ -180,14 +180,14 @@ main() {
     exit 1
   fi
 
-  info "simctl output length: ${#simctl_output} bytes"
+  echo "[DEBUG] simctl output length: ${#simctl_output} bytes" >&2
   if [[ -z "${simctl_output}" ]]; then
     err "simctl returned empty output"
     exit 1
   fi
 
   # Show first 200 chars of simctl output for debugging
-  info "simctl output (first 200 chars): ${simctl_output:0:200}"
+  echo "[DEBUG] simctl output (first 200 chars): ${simctl_output:0:200}" >&2
 
   if ! selection_output="$(printf "%s" "${simctl_output}" | select_simulator)"; then
     err "Simulator selection failed."
