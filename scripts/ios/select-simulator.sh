@@ -175,7 +175,7 @@ main() {
 
   local simctl_output=""
   local selection_output=""
-  if ! simctl_output="$(xcrun simctl list -j devices available)"; then
+  if ! simctl_output="$(xcrun simctl list devices available -j)"; then
     err "Failed to list available simulators via simctl."
     exit 1
   fi
