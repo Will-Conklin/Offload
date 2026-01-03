@@ -23,6 +23,22 @@ info() {
   echo "[INFO] $*"
 }
 
+log_toolchain_context() {
+  echo "[INFO] sw_vers"
+  if command -v sw_vers >/dev/null 2>&1; then
+    sw_vers || true
+  else
+    echo "sw_vers not available"
+  fi
+
+  echo "[INFO] xcodebuild -version"
+  if command -v xcodebuild >/dev/null 2>&1; then
+    xcodebuild -version || true
+  else
+    echo "xcodebuild not available"
+  fi
+}
+
 print_diagnostics() {
   echo "[DIAG] sw_vers"
   if command -v sw_vers >/dev/null 2>&1; then
@@ -60,13 +76,26 @@ require_command() {
 }
 
 assert_scheme_exists() {
+  log_toolchain_context
+
   local list_output
-  if ! list_output="$(xcodebuild -list -project "${PROJECT_PATH}" 2>&1)"; then
+  local list_stderr
+  local list_status=0
+  list_stderr="$(mktemp -t xcodebuild-list-stderr)"
+
+  if ! list_output="$(xcodebuild -list -project "${PROJECT_PATH}" 2>"${list_stderr}")"; then
+    list_status=$?
     err "Unable to list schemes for ${PROJECT_PATH}"
-    err "${list_output}"
+    err "xcodebuild command: xcodebuild -list -project \"${PROJECT_PATH}\""
+    err "exit code: ${list_status}"
+    err "stderr:"
+    err "$(cat "${list_stderr}")"
     print_diagnostics
+    rm -f "${list_stderr}"
     exit 1
   fi
+
+  rm -f "${list_stderr}"
 
   if ! printf "%s\n" "${list_output}" | grep -Eq "^[[:space:]]*${SCHEME}[[:space:]]*$"; then
     err "Scheme '${SCHEME}' not found in ${PROJECT_PATH}."
