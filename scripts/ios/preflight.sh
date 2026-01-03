@@ -131,7 +131,7 @@ assert_scheme_exists() {
 
 query_destinations() {
   local destinations_status=0
-  local destination_id=""
+  destination_id=""
 
   if [[ ${DESTINATION} =~ id=([^,]+) ]]; then
     destination_id="${BASH_REMATCH[1]}"
@@ -183,17 +183,17 @@ assert_destination_available() {
   query_destinations
 
   if [[ -n ${destination_id} ]]; then
-    if printf "%s\n" "${destinations_output}" | grep -Eq "id: ?${destination_id}"; then
+    if printf "%s\n" "${DESTINATIONS_OUTPUT}" | grep -Eq "id: ?${destination_id}"; then
       return 0
     fi
 
     err "Destination not found for simulator id ${destination_id}"
     err "Available destinations:"
-    printf "%s\n" "${destinations_output}" | sed 's/^/  /'
+    printf "%s\n" "${DESTINATIONS_OUTPUT}" | sed 's/^/  /'
     print_diagnostics
     exit 1
   else
-    if printf "%s\n" "${destinations_output}" | grep -Eq "name:${DEVICE_NAME}.*,.*OS: ?${OS_VERSION}"; then
+    if printf "%s\n" "${DESTINATIONS_OUTPUT}" | grep -Eq "name:${DEVICE_NAME}.*,.*OS: ?${OS_VERSION}"; then
       return 0
     fi
   fi
