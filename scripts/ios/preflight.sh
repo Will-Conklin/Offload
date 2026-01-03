@@ -131,6 +131,11 @@ assert_scheme_exists() {
 
 query_destinations() {
   local destinations_status=0
+  destination_id=""
+
+  if [[ ${DESTINATION} =~ id=([^,]+) ]]; then
+    destination_id="${BASH_REMATCH[1]}"
+  fi
 
   if ! DESTINATIONS_OUTPUT="$(xcodebuild -showdestinations -project "${PROJECT_PATH}" -scheme "${SCHEME}" 2>&1)"; then
     destinations_status=$?
@@ -177,8 +182,24 @@ print_devices_for_pinned_runtime() {
 assert_destination_available() {
   query_destinations
 
-  if printf "%s\n" "${DESTINATIONS_OUTPUT}" | grep -Eq "name:${DEVICE_NAME}.*,.*OS: ?${OS_VERSION}"; then
-    return 0
+  if [[ -n ${destination_id} ]]; then
+    # Validate UDID against simctl output (authoritative source for simulators)
+    # xcodebuild -showdestinations may not list specific UDIDs on CI runners
+    if printf "%s\n" "${SIMCTL_DEVICES_OUTPUT}" | grep -Fq "${destination_id}"; then
+      info "Validated simulator UDID ${destination_id} exists in simctl output"
+      return 0
+    fi
+
+    err "Destination not found for simulator id ${destination_id}"
+    err "The UDID was not found in 'xcrun simctl list devices' output."
+    err "Available devices for chosen runtime:"
+    print_devices_for_pinned_runtime >&2
+    print_diagnostics
+    exit 1
+  else
+    if printf "%s\n" "${DESTINATIONS_OUTPUT}" | grep -Eq "OS: ?${OS_VERSION}.*,.*name:${DEVICE_NAME}"; then
+      return 0
+    fi
   fi
 
   err "Destination not found for ${DESTINATION}"

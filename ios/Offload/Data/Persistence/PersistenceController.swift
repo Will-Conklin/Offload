@@ -78,7 +78,9 @@ struct PersistenceController {
                 configurations: [configuration]
             )
 
-            let context = container.mainContext
+            let context = MainActor.assumeIsolated {
+                container.mainContext
+            }
 
             // Insert sample thought captures
             let sampleEntries = [
