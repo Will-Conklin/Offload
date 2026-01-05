@@ -14,6 +14,7 @@ import SwiftData
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.openURL) private var openURL
 
     @AppStorage("defaultCaptureSource") private var defaultCaptureSource = CaptureSource.app
     @AppStorage("autoArchiveCompleted") private var autoArchiveCompleted = false
@@ -213,7 +214,9 @@ struct SettingsView: View {
             }
 
             Button {
-                openURL(URL(string: "https://github.com/Will-Conklin/offload/issues")!)
+                if let url = URL(string: "https://github.com/Will-Conklin/offload/issues") {
+                    openURL(url)
+                }
             } label: {
                 Label("Report an Issue", systemImage: "exclamationmark.bubble")
                     .foregroundStyle(.primary)
@@ -260,12 +263,6 @@ struct SettingsView: View {
         } catch {
             print("Error archiving old captures: \(error)")
         }
-    }
-
-    private func openURL(_ url: URL) {
-        #if os(iOS)
-        UIApplication.shared.open(url)
-        #endif
     }
 }
 
