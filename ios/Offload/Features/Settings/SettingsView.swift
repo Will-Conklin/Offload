@@ -245,7 +245,7 @@ struct SettingsView: View {
         do {
             let allCaptures = try captureRepo.fetchAll()
             let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
-            let oldCaptures = allCaptures.filter { $0.capturedAt < thirtyDaysAgo }
+            let oldCaptures = allCaptures.filter { $0.createdAt < thirtyDaysAgo }
 
             for capture in oldCaptures {
                 try captureRepo.updateLifecycleState(entry: capture, to: .archived)
