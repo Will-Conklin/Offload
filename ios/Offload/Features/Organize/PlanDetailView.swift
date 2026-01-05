@@ -224,7 +224,7 @@ private struct TaskRowView: View {
                     }
 
                     if let dueDate = task.dueDate {
-                        Label(dueDate, format: .dateTime.month().day())
+                        Text(dueDate, format: .dateTime.month().day())
                             .font(.caption)
                             .foregroundStyle(dueDate < Date() ? .red : .secondary)
                     }
