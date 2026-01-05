@@ -347,6 +347,8 @@ private struct APIConfigurationView: View {
 }
 
 private struct AIInfoView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
@@ -410,6 +412,8 @@ private struct FeatureCard: View {
     let icon: String
     let title: String
     let description: String
+
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -520,6 +524,7 @@ private struct StorageInfoView: View {
 
 private struct AboutSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         NavigationStack {
