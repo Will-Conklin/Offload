@@ -28,8 +28,7 @@ struct MainTabView: View {
                 }
                 .tag(Tab.organize)
 
-            // TODO: Add Settings view
-            Text("Settings")
+            SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: Icons.settings)
                 }

@@ -11,7 +11,7 @@ import Speech
 import Observation
 
 @Observable
-final class VoiceRecordingService {
+final class VoiceRecordingService: @unchecked Sendable {
     // MARK: - Published State
 
     var isRecording = false

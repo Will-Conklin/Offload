@@ -1,0 +1,718 @@
+//
+//  SettingsView.swift
+//  Offload
+//
+//  Created by Claude Code on 1/5/26.
+//
+//  Intent: Comprehensive settings interface for app configuration, preferences,
+//  and information. Provides foundation for future AI/backend configuration.
+//
+
+import SwiftUI
+import SwiftData
+
+struct SettingsView: View {
+    @Environment(\.modelContext) private var modelContext
+
+    @AppStorage("defaultCaptureSource") private var defaultCaptureSource = CaptureSource.app
+    @AppStorage("autoArchiveCompleted") private var autoArchiveCompleted = false
+    @AppStorage("enableAISuggestions") private var enableAISuggestions = false
+    @AppStorage("apiEndpoint") private var apiEndpoint = "https://api.offload.app"
+
+    @State private var showingClearCompletedAlert = false
+    @State private var showingArchiveOldAlert = false
+    @State private var showingAbout = false
+    @State private var showingPrivacyPolicy = false
+
+    var body: some View {
+        NavigationStack {
+            List {
+                // App Info Section
+                appInfoSection
+
+                // Preferences Section
+                preferencesSection
+
+                // AI & Hand-Off Section
+                aiHandOffSection
+
+                // Data Management Section
+                dataManagementSection
+
+                // About & Legal Section
+                aboutLegalSection
+            }
+            .navigationTitle("Settings")
+        }
+        .alert("Clear Completed Tasks?", isPresented: $showingClearCompletedAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Clear", role: .destructive) {
+                clearCompletedTasks()
+            }
+        } message: {
+            Text("This will permanently delete all completed tasks. This cannot be undone.")
+        }
+        .alert("Archive Old Captures?", isPresented: $showingArchiveOldAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Archive", role: .destructive) {
+                archiveOldCaptures()
+            }
+        } message: {
+            Text("This will archive all captures older than 30 days.")
+        }
+        .sheet(isPresented: $showingAbout) {
+            AboutSheet()
+        }
+        .sheet(isPresented: $showingPrivacyPolicy) {
+            PrivacyPolicySheet()
+        }
+    }
+
+    // MARK: - App Info Section
+
+    private var appInfoSection: some View {
+        Section {
+            VStack(spacing: 12) {
+                Image(systemName: "brain.head.profile")
+                    .font(.system(size: 60))
+                    .foregroundStyle(.blue)
+
+                Text("Offload")
+                    .font(.title2)
+                    .fontWeight(.bold)
+
+                Text("Capture First, Organize Later")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 4) {
+                    Text("Version")
+                    Text(appVersion)
+                        .foregroundStyle(.secondary)
+                    Text("(\(buildNumber))")
+                        .foregroundStyle(.tertiary)
+                        .font(.caption)
+                }
+                .font(.caption)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, Theme.Spacing.md)
+        }
+    }
+
+    // MARK: - Preferences Section
+
+    private var preferencesSection: some View {
+        Section {
+            Picker("Default Capture Source", selection: $defaultCaptureSource) {
+                Text("App").tag(CaptureSource.app)
+                Text("Shortcut").tag(CaptureSource.shortcut)
+                Text("Share Sheet").tag(CaptureSource.shareSheet)
+                Text("Widget").tag(CaptureSource.widget)
+            }
+
+            Toggle("Auto-Archive Completed Items", isOn: $autoArchiveCompleted)
+
+            NavigationLink {
+                VoiceSettingsView()
+            } label: {
+                Label("Voice Recording", systemImage: "waveform")
+            }
+        } header: {
+            Text("Preferences")
+        } footer: {
+            Text("Auto-archive will move completed tasks and placed captures to archive after 7 days.")
+        }
+    }
+
+    // MARK: - AI & Hand-Off Section
+
+    private var aiHandOffSection: some View {
+        Section {
+            Toggle("Enable AI Suggestions", isOn: $enableAISuggestions)
+                .disabled(true) // Disabled until backend is implemented
+
+            if enableAISuggestions {
+                NavigationLink {
+                    APIConfigurationView(apiEndpoint: $apiEndpoint)
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("API Configuration")
+                        Text(apiEndpoint)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                .disabled(true)
+            }
+
+            NavigationLink {
+                AIInfoView()
+            } label: {
+                Label("How AI Suggestions Work", systemImage: "info.circle")
+            }
+        } header: {
+            Text("AI & Organization")
+        } footer: {
+            Text("AI suggestions are currently under development. When enabled, Offload will help organize your captures into plans, tasks, and lists.")
+        }
+    }
+
+    // MARK: - Data Management Section
+
+    private var dataManagementSection: some View {
+        Section {
+            Button {
+                showingClearCompletedAlert = true
+            } label: {
+                Label("Clear Completed Tasks", systemImage: "checkmark.circle")
+                    .foregroundStyle(.primary)
+            }
+
+            Button {
+                showingArchiveOldAlert = true
+            } label: {
+                Label("Archive Old Captures", systemImage: "archivebox")
+                    .foregroundStyle(.primary)
+            }
+
+            NavigationLink {
+                StorageInfoView()
+            } label: {
+                Label("Storage Usage", systemImage: "internaldrive")
+            }
+        } header: {
+            Text("Data Management")
+        } footer: {
+            Text("All data is stored locally on your device. No cloud sync is currently enabled.")
+        }
+    }
+
+    // MARK: - About & Legal Section
+
+    private var aboutLegalSection: some View {
+        Section("About & Legal") {
+            Button {
+                showingAbout = true
+            } label: {
+                Label("About Offload", systemImage: "info.circle")
+                    .foregroundStyle(.primary)
+            }
+
+            Button {
+                showingPrivacyPolicy = true
+            } label: {
+                Label("Privacy Policy", systemImage: "hand.raised")
+                    .foregroundStyle(.primary)
+            }
+
+            Link(destination: URL(string: "https://github.com/Will-Conklin/offload")!) {
+                Label("View on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
+            }
+
+            Button {
+                openURL(URL(string: "https://github.com/Will-Conklin/offload/issues")!)
+            } label: {
+                Label("Report an Issue", systemImage: "exclamationmark.bubble")
+                    .foregroundStyle(.primary)
+            }
+        }
+    }
+
+    // MARK: - Helper Methods
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    }
+
+    private var buildNumber: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+    }
+
+    private func clearCompletedTasks() {
+        let taskRepo = TaskRepository(modelContext: modelContext)
+
+        do {
+            let allTasks = try taskRepo.fetchAll()
+            let completedTasks = allTasks.filter { $0.isDone }
+
+            for task in completedTasks {
+                try taskRepo.delete(task: task)
+            }
+        } catch {
+            print("Error clearing completed tasks: \(error)")
+        }
+    }
+
+    private func archiveOldCaptures() {
+        let captureRepo = CaptureRepository(modelContext: modelContext)
+
+        do {
+            let allCaptures = try captureRepo.fetchAll()
+            let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+            let oldCaptures = allCaptures.filter { $0.createdAt < thirtyDaysAgo }
+
+            for capture in oldCaptures {
+                try captureRepo.updateLifecycleState(entry: capture, to: .archived)
+            }
+        } catch {
+            print("Error archiving old captures: \(error)")
+        }
+    }
+
+    private func openURL(_ url: URL) {
+        #if os(iOS)
+        UIApplication.shared.open(url)
+        #endif
+    }
+}
+
+// MARK: - Supporting Views
+
+private struct VoiceSettingsView: View {
+    @AppStorage("voiceRecordingQuality") private var recordingQuality = "high"
+    @AppStorage("enableLiveTranscription") private var enableLiveTranscription = true
+
+    var body: some View {
+        Form {
+            Section {
+                Picker("Recording Quality", selection: $recordingQuality) {
+                    Text("Low").tag("low")
+                    Text("Medium").tag("medium")
+                    Text("High").tag("high")
+                }
+
+                Toggle("Enable Live Transcription", isOn: $enableLiveTranscription)
+            } header: {
+                Text("Recording")
+            } footer: {
+                Text("Higher quality recordings use more storage. Live transcription uses the on-device Speech framework.")
+            }
+
+            Section("Privacy") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Voice recordings are processed entirely on your device using Apple's Speech Recognition framework.")
+                        .font(.caption)
+
+                    Text("No audio data is sent to external servers.")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                        .fontWeight(.medium)
+                }
+                .padding(.vertical, 4)
+            }
+        }
+        .navigationTitle("Voice Recording")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct APIConfigurationView: View {
+    @Binding var apiEndpoint: String
+    @State private var tempEndpoint: String
+
+    init(apiEndpoint: Binding<String>) {
+        self._apiEndpoint = apiEndpoint
+        self._tempEndpoint = State(initialValue: apiEndpoint.wrappedValue)
+    }
+
+    var body: some View {
+        Form {
+            Section {
+                TextField("URL", text: $tempEndpoint)
+                    .keyboardType(.URL)
+                    .autocapitalization(.none)
+                    .autocorrectionDisabled()
+            } header: {
+                Text("API Endpoint")
+            } footer: {
+                Text("Configure the backend API endpoint for AI suggestions. This is for development and testing purposes.")
+            }
+
+            Section {
+                Button("Reset to Default") {
+                    tempEndpoint = "https://api.offload.app"
+                }
+            }
+        }
+        .navigationTitle("API Configuration")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    apiEndpoint = tempEndpoint
+                }
+            }
+        }
+    }
+}
+
+private struct AIInfoView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("How AI Suggestions Work")
+                        .font(.title2)
+                        .fontWeight(.bold)
+
+                    Text("Offload uses AI to help organize your captures into actionable items.")
+                        .foregroundStyle(.secondary)
+                }
+
+                Divider()
+
+                FeatureCard(
+                    icon: "brain",
+                    title: "Intelligent Organization",
+                    description: "AI analyzes your captures and suggests organizing them into plans, tasks, lists, or communication items."
+                )
+
+                FeatureCard(
+                    icon: "hand.raised.fill",
+                    title: "You Stay in Control",
+                    description: "AI only suggests—it never automatically modifies your data. You review and approve every suggestion."
+                )
+
+                FeatureCard(
+                    icon: "lock.shield",
+                    title: "Privacy First",
+                    description: "When enabled, suggestions are generated using secure API calls. Your data is never stored on external servers permanently."
+                )
+
+                FeatureCard(
+                    icon: "chart.line.uptrend.xyaxis",
+                    title: "Learns Your Patterns",
+                    description: "Over time, the AI learns your organization preferences to provide more relevant suggestions."
+                )
+
+                Divider()
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Coming Soon")
+                        .font(.headline)
+
+                    Text("AI suggestions are currently under development. When available, you'll be able to enable this feature in Settings.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .background(Color.blue.opacity(0.1))
+                .cornerRadius(Theme.CornerRadius.md)
+            }
+            .padding()
+        }
+        .navigationTitle("AI Suggestions")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct FeatureCard: View {
+    let icon: String
+    let title: String
+    let description: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(.blue)
+                .frame(width: 32)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(Theme.CornerRadius.md)
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
+                .stroke(Color(.systemGray5), lineWidth: 1)
+        )
+    }
+}
+
+private struct StorageInfoView: View {
+    @Environment(\.modelContext) private var modelContext
+
+    @State private var captureCount = 0
+    @State private var planCount = 0
+    @State private var taskCount = 0
+    @State private var listCount = 0
+    @State private var commCount = 0
+
+    var body: some View {
+        List {
+            Section("Data Overview") {
+                HStack {
+                    Label("Captures", systemImage: "tray")
+                    Spacer()
+                    Text("\(captureCount)")
+                        .foregroundStyle(.secondary)
+                }
+
+                HStack {
+                    Label("Plans", systemImage: "folder")
+                    Spacer()
+                    Text("\(planCount)")
+                        .foregroundStyle(.secondary)
+                }
+
+                HStack {
+                    Label("Tasks", systemImage: "checklist")
+                    Spacer()
+                    Text("\(taskCount)")
+                        .foregroundStyle(.secondary)
+                }
+
+                HStack {
+                    Label("Lists", systemImage: "list.bullet")
+                    Spacer()
+                    Text("\(listCount)")
+                        .foregroundStyle(.secondary)
+                }
+
+                HStack {
+                    Label("Communications", systemImage: "message")
+                    Spacer()
+                    Text("\(commCount)")
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Section {
+                HStack {
+                    Label("Device Storage", systemImage: "internaldrive")
+                    Spacer()
+                    Text("Local Only")
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text("Storage")
+            } footer: {
+                Text("All data is stored locally using SwiftData. No cloud storage is currently enabled.")
+            }
+        }
+        .navigationTitle("Storage")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            loadCounts()
+        }
+    }
+
+    private func loadCounts() {
+        do {
+            captureCount = try CaptureRepository(modelContext: modelContext).fetchAll().count
+            planCount = try PlanRepository(modelContext: modelContext).fetchAll().count
+            taskCount = try TaskRepository(modelContext: modelContext).fetchAll().count
+            listCount = try ListRepository(modelContext: modelContext).fetchAllLists().count
+            commCount = try CommunicationRepository(modelContext: modelContext).fetchAll().count
+        } catch {
+            print("Error loading counts: \(error)")
+        }
+    }
+}
+
+private struct AboutSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                    VStack(spacing: 12) {
+                        Image(systemName: "brain.head.profile")
+                            .font(.system(size: 80))
+                            .foregroundStyle(.blue)
+
+                        Text("Offload")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical)
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("About")
+                            .font(.headline)
+
+                        Text("Offload is an iOS-first app that turns quick thought captures (text or voice) into simple, organized plans and lists—tasks, shopping, and follow-ups—so you can get mental space back.")
+                            .font(.body)
+
+                        Text("Most productivity tools assume you'll calmly plan everything up front. Offload starts where real life starts: random thoughts, urgency spikes, and \"I'll remember\" moments.")
+                            .font(.body)
+                    }
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Core Philosophy")
+                            .font(.headline)
+
+                        PhilosophyItem(icon: "shield.checkered", text: "Psychological Safety: No guilt, no shame, no forced structure")
+                        PhilosophyItem(icon: "wifi.slash", text: "Offline-First: Works completely offline, on-device processing")
+                        PhilosophyItem(icon: "hand.raised", text: "User Control: AI suggests, never auto-modifies")
+                        PhilosophyItem(icon: "lock.fill", text: "Privacy: All data stays on device, no cloud required")
+                    }
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Open Source")
+                            .font(.headline)
+
+                        Text("Offload is open source and available on GitHub. Contributions and feedback are welcome.")
+                            .font(.body)
+
+                        Link(destination: URL(string: "https://github.com/Will-Conklin/offload")!) {
+                            Label("View on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
+                        }
+                    }
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("License")
+                            .font(.headline)
+
+                        Text("MIT License")
+                            .font(.body)
+
+                        Text("Copyright © 2026 William Conklin")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("About")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct PhilosophyItem: View {
+    let icon: String
+    let text: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .foregroundStyle(.blue)
+                .frame(width: 24)
+
+            Text(text)
+                .font(.body)
+        }
+    }
+}
+
+private struct PrivacyPolicySheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+                    Text("Privacy Policy")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+
+                    Text("Last Updated: January 5, 2026")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Divider()
+
+                    PolicySection(
+                        title: "Data Collection",
+                        content: "Offload does not collect, transmit, or store any personal data on external servers. All captures, plans, tasks, and other content are stored locally on your device using SwiftData."
+                    )
+
+                    PolicySection(
+                        title: "Voice Recording",
+                        content: "Voice recordings are processed entirely on your device using Apple's Speech Recognition framework. No audio data is transmitted to external servers. Transcriptions are stored locally with your captures."
+                    )
+
+                    PolicySection(
+                        title: "AI Suggestions (Future)",
+                        content: "When AI suggestions are enabled in a future update, anonymized capture text may be sent to our secure API for processing. You will be able to opt-in or opt-out at any time. Suggestions will never be stored permanently on external servers."
+                    )
+
+                    PolicySection(
+                        title: "No Tracking",
+                        content: "Offload does not use analytics, telemetry, or tracking tools. We don't know how you use the app, and we like it that way."
+                    )
+
+                    PolicySection(
+                        title: "Your Rights",
+                        content: "Since all data is stored locally on your device, you have complete control. You can delete any or all data at any time through the app or by deleting the app from your device."
+                    )
+
+                    PolicySection(
+                        title: "Changes to This Policy",
+                        content: "We may update this privacy policy from time to time. Significant changes will be communicated through the app or GitHub repository."
+                    )
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Questions?")
+                            .font(.headline)
+
+                        Text("If you have questions about this privacy policy, please open an issue on our GitHub repository.")
+                            .font(.body)
+
+                        Link(destination: URL(string: "https://github.com/Will-Conklin/offload/issues")!) {
+                            Label("Open an Issue", systemImage: "exclamationmark.bubble")
+                        }
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("Privacy")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct PolicySection: View {
+    let title: String
+    let content: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+
+            Text(content)
+                .font(.body)
+        }
+    }
+}
+
+#Preview {
+    SettingsView()
+        .modelContainer(PersistenceController.preview)
+}
