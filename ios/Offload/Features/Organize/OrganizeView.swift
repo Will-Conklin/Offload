@@ -13,6 +13,7 @@ import SwiftData
 
 struct OrganizeView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
 
     @Query(sort: \Plan.createdAt, order: .reverse) private var plans: [Plan]
     @Query(sort: \Category.name) private var categories: [Category]
@@ -128,14 +129,14 @@ struct OrganizeView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     HStack {
                                         Text(list.title)
-                                            .font(.headline)
+                                            .font(Theme.Typography.cardTitle)
                                         Spacer()
                                         Text(list.listKind.rawValue.capitalized)
-                                            .font(.caption)
-                                            .padding(.horizontal, 8)
+                                            .font(Theme.Typography.badge)
+                                            .padding(.horizontal, Theme.Spacing.sm)
                                             .padding(.vertical, 2)
-                                            .background(Color.blue.opacity(0.2))
-                                            .cornerRadius(4)
+                                            .background(Theme.Colors.accentPrimary(colorScheme).opacity(0.2))
+                                            .cornerRadius(Theme.CornerRadius.sm)
                                     }
 
                                     if let itemCount = list.items?.count, itemCount > 0 {
@@ -166,24 +167,24 @@ struct OrganizeView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack {
                                     Image(systemName: iconForChannel(comm.communicationChannel))
-                                        .foregroundStyle(.blue)
+                                        .foregroundStyle(Theme.Colors.accentPrimary(colorScheme))
                                     Text(comm.recipient)
-                                        .font(.headline)
+                                        .font(Theme.Typography.cardTitle)
                                     Spacer()
                                     if comm.communicationStatus == .sent {
                                         Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(.green)
+                                            .foregroundStyle(Theme.Colors.success(colorScheme))
                                     }
                                 }
 
                                 Text(comm.content)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+                                    .font(Theme.Typography.cardBody)
+                                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme))
                                     .lineLimit(2)
 
                                 Text(comm.createdAt, format: .dateTime.month().day().year())
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
+                                    .font(Theme.Typography.metadata)
+                                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme))
                             }
                         }
                         .onDelete(perform: deleteCommunications)
@@ -402,6 +403,7 @@ private enum OrganizeSheet: Identifiable {
 
 private struct PlanFormSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     let onSave: (String, String?) throws -> Void
 
@@ -420,8 +422,8 @@ private struct PlanFormSheet: View {
                 if let errorMessage {
                     Section {
                         Text(errorMessage)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(Theme.Typography.errorText)
+                            .foregroundStyle(Theme.Colors.destructive(colorScheme))
                     }
                 }
             }
@@ -461,6 +463,7 @@ private struct PlanFormSheet: View {
 
 private struct CategoryFormSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     let onSave: (String, String?) throws -> Void
 
@@ -479,8 +482,8 @@ private struct CategoryFormSheet: View {
                 if let errorMessage {
                     Section {
                         Text(errorMessage)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(Theme.Typography.errorText)
+                            .foregroundStyle(Theme.Colors.destructive(colorScheme))
                     }
                 }
             }
@@ -520,6 +523,7 @@ private struct CategoryFormSheet: View {
 
 private struct TagFormSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     let onSave: (String, String?) throws -> Void
 
@@ -538,8 +542,8 @@ private struct TagFormSheet: View {
                 if let errorMessage {
                     Section {
                         Text(errorMessage)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(Theme.Typography.errorText)
+                            .foregroundStyle(Theme.Colors.destructive(colorScheme))
                     }
                 }
             }
@@ -579,6 +583,7 @@ private struct TagFormSheet: View {
 
 private struct ListFormSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     let onSave: (String, ListKind) throws -> Void
 
@@ -602,8 +607,8 @@ private struct ListFormSheet: View {
                 if let errorMessage {
                     Section {
                         Text(errorMessage)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(Theme.Typography.errorText)
+                            .foregroundStyle(Theme.Colors.destructive(colorScheme))
                     }
                 }
             }
@@ -638,6 +643,7 @@ private struct ListFormSheet: View {
 
 private struct CommunicationFormSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     let onSave: (CommunicationChannel, String, String) throws -> Void
 
@@ -668,8 +674,8 @@ private struct CommunicationFormSheet: View {
                 if let errorMessage {
                     Section {
                         Text(errorMessage)
-                            .font(.caption)
-                            .foregroundStyle(.red)
+                            .font(Theme.Typography.errorText)
+                            .foregroundStyle(Theme.Colors.destructive(colorScheme))
                     }
                 }
             }

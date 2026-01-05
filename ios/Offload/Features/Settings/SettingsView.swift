@@ -13,6 +13,7 @@ import SwiftData
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
 
     @AppStorage("defaultCaptureSource") private var defaultCaptureSource = CaptureSource.app
     @AppStorage("autoArchiveCompleted") private var autoArchiveCompleted = false
@@ -75,10 +76,10 @@ struct SettingsView: View {
             VStack(spacing: 12) {
                 Image(systemName: "brain.head.profile")
                     .font(.system(size: 60))
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(Theme.Colors.accentPrimary(colorScheme))
 
                 Text("Offload")
-                    .font(.title2)
+                    .font(Theme.Typography.title2)
                     .fontWeight(.bold)
 
                 Text("Capture First, Organize Later")
@@ -398,7 +399,7 @@ private struct AIInfoView: View {
                         .foregroundStyle(.secondary)
                 }
                 .padding()
-                .background(Color.blue.opacity(0.1))
+                .background(Theme.Colors.accentPrimary(colorScheme).opacity(0.1))
                 .cornerRadius(Theme.CornerRadius.md)
             }
             .padding()
@@ -417,7 +418,7 @@ private struct FeatureCard: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundStyle(.blue)
+                .foregroundStyle(Theme.Colors.accentPrimary(colorScheme))
                 .frame(width: 32)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -530,7 +531,7 @@ private struct AboutSheet: View {
                     VStack(spacing: 12) {
                         Image(systemName: "brain.head.profile")
                             .font(.system(size: 80))
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(Theme.Colors.accentPrimary(colorScheme))
 
                         Text("Offload")
                             .font(.largeTitle)
@@ -612,7 +613,7 @@ private struct PhilosophyItem: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
-                .foregroundStyle(.blue)
+                .foregroundStyle(Theme.Colors.accentPrimary(colorScheme))
                 .frame(width: 24)
 
             Text(text)

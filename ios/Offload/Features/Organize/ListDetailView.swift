@@ -13,6 +13,7 @@ import SwiftData
 struct ListDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     @Bindable var list: ListEntity
 
@@ -42,11 +43,11 @@ struct ListDetailView: View {
                         Spacer()
 
                         Text(list.listKind.rawValue.capitalized)
-                            .font(.caption)
+                            .font(Theme.Typography.badge)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 4)
-                            .background(Color.blue.opacity(0.2))
-                            .cornerRadius(6)
+                            .background(Theme.Colors.accentPrimary(colorScheme).opacity(0.2))
+                            .cornerRadius(Theme.CornerRadius.sm)
                     }
 
                     if let itemCount = list.items?.count, itemCount > 0 {
