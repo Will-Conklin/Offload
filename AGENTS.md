@@ -34,7 +34,7 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 
 ## Critical
 
-- ALWAYS add intent header to key files.
+- ALWAYS add headers to key files to describe intent to agents. Use a format that's optimized for agent consumption. 
 - ALWAYS create branches before implementing new features or fixes. Consider worktrees for more complex work or refactors.
 - ALWAYS clean up merged branches.
 - ALWAYS label pull requests with appropriate labels (bug, enhancement, documentation, etc.).
