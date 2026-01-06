@@ -87,34 +87,36 @@ struct InboxView: View {
 struct CaptureRow: View {
     let entry: CaptureEntry
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(entry.rawText)
-                .font(.body)
+                .font(Theme.Typography.body)
                 .lineLimit(2)
 
             HStack {
                 Text(entry.createdAt, format: .dateTime)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(Theme.Typography.metadata)
+                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme))
 
                 if entry.entryInputType == .voice {
                     Image(systemName: "waveform")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(Theme.Typography.metadata)
+                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme))
                 }
 
                 if entry.currentLifecycleState != .raw {
                     Text(entry.currentLifecycleState.rawValue)
-                        .font(.caption2)
+                        .font(Theme.Typography.badge)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.blue.opacity(0.2))
-                        .cornerRadius(4)
+                        .background(Theme.Colors.accentPrimary(colorScheme).opacity(0.2))
+                        .cornerRadius(Theme.CornerRadius.sm)
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, Theme.Spacing.xs)
     }
 }
 

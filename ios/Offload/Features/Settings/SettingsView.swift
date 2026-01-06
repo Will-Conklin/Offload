@@ -13,6 +13,8 @@ import SwiftData
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.openURL) private var openURL
 
     @AppStorage("defaultCaptureSource") private var defaultCaptureSource = CaptureSource.app
     @AppStorage("autoArchiveCompleted") private var autoArchiveCompleted = false
@@ -75,10 +77,10 @@ struct SettingsView: View {
             VStack(spacing: 12) {
                 Image(systemName: "brain.head.profile")
                     .font(.system(size: 60))
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(Theme.Colors.accentPrimary(colorScheme))
 
                 Text("Offload")
-                    .font(.title2)
+                    .font(Theme.Typography.title2)
                     .fontWeight(.bold)
 
                 Text("Capture First, Organize Later")
@@ -212,7 +214,9 @@ struct SettingsView: View {
             }
 
             Button {
-                openURL(URL(string: "https://github.com/Will-Conklin/offload/issues")!)
+                if let url = URL(string: "https://github.com/Will-Conklin/offload/issues") {
+                    openURL(url)
+                }
             } label: {
                 Label("Report an Issue", systemImage: "exclamationmark.bubble")
                     .foregroundStyle(.primary)
@@ -260,17 +264,12 @@ struct SettingsView: View {
             print("Error archiving old captures: \(error)")
         }
     }
-
-    private func openURL(_ url: URL) {
-        #if os(iOS)
-        UIApplication.shared.open(url)
-        #endif
-    }
 }
 
 // MARK: - Supporting Views
 
 private struct VoiceSettingsView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @AppStorage("voiceRecordingQuality") private var recordingQuality = "high"
     @AppStorage("enableLiveTranscription") private var enableLiveTranscription = true
 
@@ -297,7 +296,7 @@ private struct VoiceSettingsView: View {
 
                     Text("No audio data is sent to external servers.")
                         .font(.caption)
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Theme.Colors.success(colorScheme))
                         .fontWeight(.medium)
                 }
                 .padding(.vertical, 4)
@@ -349,6 +348,8 @@ private struct APIConfigurationView: View {
 }
 
 private struct AIInfoView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
@@ -398,7 +399,7 @@ private struct AIInfoView: View {
                         .foregroundStyle(.secondary)
                 }
                 .padding()
-                .background(Color.blue.opacity(0.1))
+                .background(Theme.Colors.accentPrimary(colorScheme).opacity(0.1))
                 .cornerRadius(Theme.CornerRadius.md)
             }
             .padding()
@@ -413,11 +414,13 @@ private struct FeatureCard: View {
     let title: String
     let description: String
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundStyle(.blue)
+                .foregroundStyle(Theme.Colors.accentPrimary(colorScheme))
                 .frame(width: 32)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -522,6 +525,7 @@ private struct StorageInfoView: View {
 
 private struct AboutSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         NavigationStack {
@@ -530,7 +534,7 @@ private struct AboutSheet: View {
                     VStack(spacing: 12) {
                         Image(systemName: "brain.head.profile")
                             .font(.system(size: 80))
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(Theme.Colors.accentPrimary(colorScheme))
 
                         Text("Offload")
                             .font(.largeTitle)
@@ -608,11 +612,12 @@ private struct AboutSheet: View {
 private struct PhilosophyItem: View {
     let icon: String
     let text: String
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
-                .foregroundStyle(.blue)
+                .foregroundStyle(Theme.Colors.accentPrimary(colorScheme))
                 .frame(width: 24)
 
             Text(text)

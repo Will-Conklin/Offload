@@ -83,10 +83,53 @@ struct Theme {
     // MARK: - Typography
 
     struct Typography {
-        // TODO: Define font families
-        // TODO: Define text styles (headline, body, caption, etc.)
-        // TODO: Define font weights
-        // TODO: Define line heights
+        // MARK: - Standard Text Styles (with Dynamic Type support)
+
+        static let largeTitle = Font.largeTitle
+        static let title = Font.title
+        static let title2 = Font.title2
+        static let title3 = Font.title3
+        static let headline = Font.headline
+        static let body = Font.body
+        static let callout = Font.callout
+        static let subheadline = Font.subheadline
+        static let footnote = Font.footnote
+        static let caption = Font.caption
+        static let caption2 = Font.caption2
+
+        // MARK: - Semantic Styles (application-specific)
+
+        /// Title for cards, sections, and main content areas
+        static let cardTitle = Font.headline
+
+        /// Body text for cards and descriptions
+        static let cardBody = Font.subheadline
+
+        /// Button labels across the app
+        static let buttonLabel = Font.headline
+
+        /// Input field labels
+        static let inputLabel = Font.subheadline
+
+        /// Error and validation messages
+        static let errorText = Font.caption
+
+        /// Metadata and timestamps
+        static let metadata = Font.caption
+
+        /// Badge text (lifecycle states, categories, etc.)
+        static let badge = Font.caption2
+
+        // MARK: - Line Spacing
+
+        /// Tight line spacing for compact layouts
+        static let lineSpacingTight: CGFloat = 2
+
+        /// Normal line spacing (default)
+        static let lineSpacingNormal: CGFloat = 4
+
+        /// Relaxed line spacing for readability
+        static let lineSpacingRelaxed: CGFloat = 8
     }
 
     // MARK: - Spacing
