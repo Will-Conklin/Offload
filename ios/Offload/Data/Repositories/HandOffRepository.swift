@@ -44,7 +44,8 @@ final class HandOffRepository {
     }
 
     func fetchRequestsBySource(_ source: RequestSource) throws -> [HandOffRequest] {
-        let predicate = #Predicate<HandOffRequest> { $0.source == source }
+        let rawValue = source.rawValue
+        let predicate = #Predicate<HandOffRequest> { $0.requestedBy == rawValue }
         let descriptor = FetchDescriptor<HandOffRequest>(
             predicate: predicate,
             sortBy: [SortDescriptor(\.requestedAt, order: .reverse)]
