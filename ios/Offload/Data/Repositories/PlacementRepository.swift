@@ -55,19 +55,26 @@ final class PlacementRepository {
 
     /// Fetch placements by target type (plan, task, list, etc.)
     func fetchByTargetType(_ type: PlacementTargetType) throws -> [Placement] {
-        let all = try fetchAll()
-        return all.filter { $0.target == type }
+        let rawType = type.rawValue
+        let descriptor = FetchDescriptor<Placement>(
+            predicate: #Predicate { placement in
+                placement.targetType == rawType
+            },
+            sortBy: [SortDescriptor(\.placedAt, order: .reverse)]
+        )
+        return try modelContext.fetch(descriptor)
     }
 
     /// Fetch placements pointing to a specific target entity
     func fetchByTarget(type: PlacementTargetType, id: UUID) throws -> [Placement] {
+        let rawType = type.rawValue
         let descriptor = FetchDescriptor<Placement>(
             predicate: #Predicate { placement in
-                placement.targetId == id
-            }
+                placement.targetId == id && placement.targetType == rawType
+            },
+            sortBy: [SortDescriptor(\.placedAt, order: .reverse)]
         )
-        let all = try modelContext.fetch(descriptor)
-        return all.filter { $0.target == type }
+        return try modelContext.fetch(descriptor)
     }
 
     // MARK: - Update

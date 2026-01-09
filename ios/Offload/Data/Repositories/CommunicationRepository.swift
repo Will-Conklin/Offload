@@ -43,13 +43,25 @@ final class CommunicationRepository {
     }
 
     func fetchByChannel(_ channel: CommunicationChannel) throws -> [CommunicationItem] {
-        let all = try fetchAll()
-        return all.filter { $0.communicationChannel == channel }
+        let rawChannel = channel.rawValue
+        let descriptor = FetchDescriptor<CommunicationItem>(
+            predicate: #Predicate { item in
+                item.channel == rawChannel
+            },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        return try modelContext.fetch(descriptor)
     }
 
     func fetchByStatus(_ status: CommunicationStatus) throws -> [CommunicationItem] {
-        let all = try fetchAll()
-        return all.filter { $0.communicationStatus == status }
+        let rawStatus = status.rawValue
+        let descriptor = FetchDescriptor<CommunicationItem>(
+            predicate: #Predicate { item in
+                item.status == rawStatus
+            },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        return try modelContext.fetch(descriptor)
     }
 
     func fetchByRecipient(_ recipient: String) throws -> [CommunicationItem] {

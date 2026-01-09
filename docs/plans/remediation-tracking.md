@@ -78,7 +78,7 @@ TBD
 
 ### 1.3 Fix N+1 Query Problems ⚠️
 **Status:** 🟡 In Progress
-**Progress:** 8/9 methods fixed (pending suggestion-by-entry optimization)
+**Progress:** 12/13 methods fixed (pending suggestion-by-entry optimization)
 
 #### CaptureRepository.swift
 - [x] fetchInbox() - Add predicate for .raw state
@@ -100,6 +100,14 @@ TBD
 #### HandOffRepository.swift
 - [x] Review and fix any similar patterns (all queries use predicates)
 - [ ] Benchmark queries
+
+#### PlacementRepository.swift
+- [x] fetchByTargetType() - Add predicate for targetType
+- [x] fetchByTarget() - Add predicate for targetType + targetId
+
+#### CommunicationRepository.swift
+- [x] fetchByChannel() - Add predicate for channel
+- [x] fetchByStatus() - Add predicate for status
 
 **Performance Testing:**
 ```
