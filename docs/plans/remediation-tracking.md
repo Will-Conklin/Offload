@@ -2,8 +2,8 @@
 
 # Remediation Progress Tracking
 **Created:** January 6, 2026
-**Status:** Phase 1 nearly complete (toast cancellation pending); Phase 2 in progress
-**Last Updated:** January 8, 2026
+**Status:** Phase 1 complete (testing pending); Phase 2 in progress
+**Last Updated:** January 9, 2026
 
 This document tracks the implementation progress of the [Remediation Plan](./remediation-plan.md).
 
@@ -35,8 +35,8 @@ Not yet collected.
 ---
 
 ### 1.2 Eliminate Silent Error Suppression (21 instances) ⚠️
-**Status:** 🟡 In Progress
-**Progress:** 20/21 instances fixed (ToastView cancellation tracked in 1.6)
+**Status:** ✅ Completed
+**Progress:** 21/21 instances fixed
 
 **Instances:**
 
@@ -67,7 +67,7 @@ Not yet collected.
 #### Other files (3 instances)
 - [x] PersistenceController.swift:137
 - [x] VoiceRecordingService.swift:148
-- [ ] ToastView.swift:96 (pending cancellation handling update)
+- [x] ToastView.swift:96
 
 **Testing Evidence:**
 ```
@@ -78,7 +78,7 @@ TBD
 
 ### 1.3 Fix N+1 Query Problems ⚠️
 **Status:** 🟡 In Progress
-**Progress:** 8/9 methods fixed (pending suggestion-by-entry optimization)
+**Progress:** 12/13 methods fixed (pending suggestion-by-entry optimization)
 
 #### CaptureRepository.swift
 - [x] fetchInbox() - Add predicate for .raw state
@@ -100,6 +100,14 @@ TBD
 #### HandOffRepository.swift
 - [x] Review and fix any similar patterns (all queries use predicates)
 - [ ] Benchmark queries
+
+#### PlacementRepository.swift
+- [x] fetchByTargetType() - Add predicate for targetType
+- [x] fetchByTarget() - Add predicate for targetType + targetId
+
+#### CommunicationRepository.swift
+- [x] fetchByChannel() - Add predicate for channel
+- [x] fetchByStatus() - Add predicate for status
 
 **Performance Testing:**
 ```
@@ -157,14 +165,14 @@ TBD
 ---
 
 ### 1.6 Fix ToastView Task Cancellation ⚠️
-**Status:** ❌ Not Started
-**File:** `ios/Offload/DesignSystem/ToastView.swift:87-102`
+**Status:** ✅ Completed (testing pending)
+**File:** `ios/Offload/DesignSystem/ToastView.swift:87-109`
 
 **Checklist:**
-- [ ] Fix Task.isCancelled check (remove static reference)
-- [ ] Add proper CancellationError handling
-- [ ] Add weak self capture
-- [ ] Use @MainActor for state updates
+- [x] Fix Task.isCancelled check (remove static reference)
+- [x] Add proper CancellationError handling
+- [x] Add weak self capture
+- [x] Use @MainActor for state updates
 - [ ] Test auto-dismiss after duration
 - [ ] Test showing multiple toasts rapidly
 - [ ] Test manual dismiss() cancels task
@@ -332,13 +340,13 @@ TBD
 ## OVERALL PROGRESS
 
 ### Phase 1: Critical Fixes
-**Progress:** 7/8 tasks complete (toast cancellation pending)
+**Progress:** 8/8 tasks complete (testing pending)
 - [x] 1.1 CapturesView (Inbox) Race Condition
-- [x] 1.2 Silent Error Suppression (20/21)
+- [x] 1.2 Silent Error Suppression (21/21)
 - [x] 1.3 N+1 Query Problems (8/9)
 - [x] 1.4 Orphaned Foreign Key (model updated)
 - [x] 1.5 Force Unwraps (4/4)
-- [ ] 1.6 ToastView Cancellation
+- [x] 1.6 ToastView Cancellation
 - [x] 1.7 MainActor Synchronization
 - [x] 1.8 Input Validation
 
@@ -401,5 +409,5 @@ TBD
 
 ---
 
-**Last Updated:** January 8, 2026
+**Last Updated:** January 9, 2026
 **Next Review:** TBD

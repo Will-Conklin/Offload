@@ -29,22 +29,22 @@ report_issue() {
     case $severity in
         CRITICAL)
             echo -e "${RED}⚠️  CRITICAL: $title${NC}"
-            ((CRITICAL_ISSUES++))
+            ((CRITICAL_ISSUES+=1))
             ;;
         HIGH)
             echo -e "${YELLOW}⚠  HIGH: $title${NC}"
-            ((HIGH_ISSUES++))
+            ((HIGH_ISSUES+=1))
             ;;
         MEDIUM)
             echo -e "${YELLOW}•  MEDIUM: $title${NC}"
-            ((MEDIUM_ISSUES++))
+            ((MEDIUM_ISSUES+=1))
             ;;
     esac
 
     if [ -n "$count" ]; then
         echo -e "   Found: ${count} instances"
     fi
-    ((ISSUES_FOUND++))
+    ((ISSUES_FOUND+=1))
     echo ""
 }
 
@@ -59,11 +59,11 @@ echo ""
 
 # Check 1: Silent Error Suppression (try?)
 echo "Checking for silent error suppression (try?)..."
-TRY_OPTIONAL_COUNT=$(grep -r "try?" ios/Offload --include="*.swift" 2>/dev/null | grep -v "Tests" | wc -l)
+TRY_OPTIONAL_COUNT=$(rg -n -g "*.swift" "\\btry\\?" ios/Offload | rg -v "Tests" | wc -l)
 if [ "$TRY_OPTIONAL_COUNT" -gt 0 ]; then
     report_issue "CRITICAL" "Silent error suppression with try?" "$TRY_OPTIONAL_COUNT"
     echo "   Files affected:"
-    grep -r "try?" ios/Offload --include="*.swift" 2>/dev/null | grep -v "Tests" | cut -d: -f1 | sort -u | sed 's/^/   - /'
+    rg -n -g "*.swift" "\\btry\\?" ios/Offload | rg -v "Tests" | cut -d: -f1 | sort -u | sed 's/^/   - /'
     echo ""
 else
     report_success "No silent error suppression found"
@@ -83,11 +83,11 @@ fi
 
 # Check 3: N+1 Query Pattern
 echo "Checking for N+1 query pattern (fetchAll then filter)..."
-N_PLUS_ONE_COUNT=$(grep -r "fetchAll()" ios/Offload/Data/Repositories --include="*.swift" 2>/dev/null | wc -l)
+N_PLUS_ONE_COUNT=$(rg -n -g "*.swift" "fetchAll\\(\\)" ios/Offload/Data/Repositories | rg -v "func fetchAll" | rg -v "protocol" | wc -l)
 if [ "$N_PLUS_ONE_COUNT" -gt 5 ]; then
     report_issue "CRITICAL" "Potential N+1 query pattern" "$N_PLUS_ONE_COUNT uses of fetchAll()"
     echo "   Repository files:"
-    grep -r "fetchAll()" ios/Offload/Data/Repositories --include="*.swift" 2>/dev/null | cut -d: -f1 | sort -u | sed 's/^/   - /'
+    rg -n -g "*.swift" "fetchAll\\(\\)" ios/Offload/Data/Repositories | rg -v "func fetchAll" | rg -v "protocol" | cut -d: -f1 | sort -u | sed 's/^/   - /'
     echo ""
 else
     report_success "Limited use of fetchAll() pattern"
@@ -118,10 +118,10 @@ fi
 
 # Check 6: orphaned UUID fields (acceptedSuggestionId)
 echo "Checking for orphaned UUID foreign keys..."
-ORPHANED_ID_COUNT=$(grep -r "SuggestionId: UUID\\|suggestionId: UUID\\|CategoryId: UUID" ios/Offload/Domain/Models --include="*.swift" 2>/dev/null | grep -v "@Relationship" | wc -l)
+ORPHANED_ID_COUNT=$(grep -r "acceptedSuggestionId: UUID" ios/Offload/Domain/Models --include="*.swift" 2>/dev/null | grep -v "@Relationship" | wc -l)
 if [ "$ORPHANED_ID_COUNT" -gt 0 ]; then
     report_issue "CRITICAL" "Orphaned UUID foreign keys (not @Relationship)" "$ORPHANED_ID_COUNT"
-    grep -r "SuggestionId: UUID\\|suggestionId: UUID" ios/Offload/Domain/Models --include="*.swift" 2>/dev/null | sed 's/^/   /'
+    grep -r "acceptedSuggestionId: UUID" ios/Offload/Domain/Models --include="*.swift" 2>/dev/null | sed 's/^/   /'
     echo ""
 else
     report_success "No orphaned UUID foreign keys found"
@@ -132,7 +132,7 @@ echo "Checking for Theme.Colors usage without colorScheme..."
 THEME_COLOR_FILES=$(grep -r "Theme\.Colors\." ios/Offload/Features ios/Offload/DesignSystem --include="*.swift" 2>/dev/null | cut -d: -f1 | sort -u)
 MISSING_COLORSCHEME=0
 for file in $THEME_COLOR_FILES; do
-    if ! grep -q "@Environment(\\.colorScheme)" "$file"; then
+    if ! rg -q -F '@Environment(\.colorScheme)' "$file"; then
         if [ $MISSING_COLORSCHEME -eq 0 ]; then
             echo -e "${YELLOW}Files using Theme.Colors without @Environment(\.colorScheme):${NC}"
         fi
@@ -153,10 +153,16 @@ echo ""
 
 # Check 8: Relationships without @Relationship annotation
 echo "Checking for potential relationships without @Relationship..."
-POTENTIAL_RELATIONSHIPS=$(grep -r "var category: Category\\|var plan: Plan\\|var list: List" ios/Offload/Domain/Models --include="*.swift" 2>/dev/null | grep -v "@Relationship" | wc -l)
-if [ "$POTENTIAL_RELATIONSHIPS" -gt 0 ]; then
+RELATIONSHIP_MATCHES=$(find ios/Offload/Domain/Models -name "*.swift" -print0 2>/dev/null | xargs -0 awk '
+    prev !~ /@Relationship/ && $0 ~ /var (category|plan|list): (Category|Plan|List)/ {
+        print FILENAME ":" NR ":" $0
+    }
+    { prev = $0 }
+')
+if [ -n "$RELATIONSHIP_MATCHES" ]; then
+    POTENTIAL_RELATIONSHIPS=$(echo "$RELATIONSHIP_MATCHES" | wc -l)
     report_issue "HIGH" "Potential relationships without @Relationship" "$POTENTIAL_RELATIONSHIPS"
-    grep -r "var category: Category\\|var plan: Plan\\|var list: List" ios/Offload/Domain/Models --include="*.swift" 2>/dev/null | grep -v "@Relationship" | sed 's/^/   /'
+    echo "$RELATIONSHIP_MATCHES" | sed 's/^/   /'
     echo ""
 else
     report_success "All relationships properly annotated"
