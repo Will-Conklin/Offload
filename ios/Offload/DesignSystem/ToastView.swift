@@ -80,6 +80,7 @@ struct ToastView: View {
 // MARK: - Toast Manager
 
 @Observable
+@MainActor
 class ToastManager {
     var currentToast: Toast?
     private var dismissTask: _Concurrency.Task<Void, Never>?
@@ -92,11 +93,16 @@ class ToastManager {
         currentToast = Toast(message: message, type: type)
 
         // Auto-dismiss after duration
-        dismissTask = _Concurrency.Task { [weak self] in
+        dismissTask = _Concurrency.Task { @MainActor [weak self] in
             guard let self else { return }
 
-            try? await _Concurrency.Task.sleep(for: .seconds(duration))
-            await MainActor.run {
+            do {
+                try await _Concurrency.Task.sleep(for: .seconds(duration))
+                try _Concurrency.Task.checkCancellation()
+                self.currentToast = nil
+            } catch is CancellationError {
+                return
+            } catch {
                 self.currentToast = nil
             }
         }
