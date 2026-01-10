@@ -70,6 +70,21 @@ Users experience stress when ideas, tasks, or plans accumulate faster than they 
 - ≥40% of users hit on-device AI limitations (drives cloud upgrade)
 - 8–12% conversion from free → paid for cloud AI features
 
+### Measurement approach
+
+**V1.0 (Local-only):**
+- App Store rating: App Store Connect
+- Crash rate: Xcode Organizer / App Store Connect
+- Retention & usage: *Deferred* — v1.0 ships without analytics to minimize complexity
+
+**Post-v1.0:**
+- Add privacy-respecting analytics (e.g., TelemetryDeck, Aptabase)
+- No PII collection; aggregate metrics only
+- Opt-out available in Settings
+- Required for measuring retention, feature adoption, and conversion
+
+> **Note:** V1.0 success evaluated qualitatively (App Store reviews, TestFlight feedback) until analytics are implemented.
+
 ---
 
 ## 7. Core user flows
