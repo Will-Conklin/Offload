@@ -32,7 +32,7 @@ struct OrganizeView: View {
                     } else {
                         ForEach(plans) { plan in
                             NavigationLink(destination: PlanDetailView(plan: plan)) {
-                                VStack(alignment: .leading, spacing: 4) {
+                                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                                     Text(plan.title)
                                         .font(.headline)
 
@@ -57,6 +57,7 @@ struct OrganizeView: View {
                                     }
                                 }
                             }
+                            .listRowBackground(Theme.Materials.glass)
                         }
                         .onDelete(perform: deletePlans)
                     }
@@ -75,7 +76,7 @@ struct OrganizeView: View {
                     } else {
                         ForEach(lists) { list in
                             NavigationLink(destination: ListDetailView(list: list)) {
-                                VStack(alignment: .leading, spacing: 4) {
+                                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                                     HStack {
                                         Text(list.title)
                                             .font(Theme.Typography.cardTitle)
@@ -83,7 +84,7 @@ struct OrganizeView: View {
                                         Text(list.listKind.rawValue.capitalized)
                                             .font(Theme.Typography.badge)
                                             .padding(.horizontal, Theme.Spacing.sm)
-                                            .padding(.vertical, 2)
+                                            .padding(.vertical, Theme.Spacing.xs)
                                             .background(Theme.Colors.accentPrimary(colorScheme).opacity(0.2))
                                             .cornerRadius(Theme.CornerRadius.sm)
                                     }
@@ -96,6 +97,7 @@ struct OrganizeView: View {
                                     }
                                 }
                             }
+                            .listRowBackground(Theme.Materials.glass)
                         }
                         .onDelete(perform: deleteLists)
                     }
@@ -113,7 +115,7 @@ struct OrganizeView: View {
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(communications) { comm in
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                                 HStack {
                                     Image(systemName: iconForChannel(comm.communicationChannel))
                                         .foregroundStyle(Theme.Colors.accentPrimary(colorScheme))
@@ -135,6 +137,7 @@ struct OrganizeView: View {
                                     .font(Theme.Typography.metadata)
                                     .foregroundStyle(Theme.Colors.textSecondary(colorScheme))
                             }
+                            .listRowBackground(Theme.Materials.glass)
                         }
                         .onDelete(perform: deleteCommunications)
                     }
@@ -147,6 +150,8 @@ struct OrganizeView: View {
                 }
             }
             .navigationTitle("Organize")
+            .scrollContentBackground(.hidden)
+            .background(Theme.Colors.background(colorScheme))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Menu {

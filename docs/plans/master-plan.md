@@ -104,6 +104,7 @@ All implementation complete, testing pending:
 
 **Progress:**
 - ✅ Applied glass treatment + Theme spacing to CaptureSheetView
+- ✅ Applied glass list row styling + Theme spacing to OrganizeView
 
 **Estimated:** 4 days
 
@@ -1130,6 +1131,7 @@ find ios/Offload -name "*.swift" | xargs wc -l
 
 ### January 10, 2026 (v1.2)
 - ✅ Applied glass treatment and Theme spacing updates to CaptureSheetView
+- ✅ Applied glass list row styling and Theme spacing updates to OrganizeView
 
 ### January 9, 2026 (v1.0)
 - ✅ Toast cancellation fix merged (commit 688110b)
