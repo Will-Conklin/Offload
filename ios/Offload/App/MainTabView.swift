@@ -71,8 +71,9 @@ struct MainTabView: View {
                 .accessibilityLabel("Capture new entry")
                 .accessibilityHint("Opens quick capture sheet; you can organize later")
             }
-            .padding(.trailing, Theme.Spacing.lg)
-            .padding(.bottom, Theme.Spacing.xs)
+            .padding(.horizontal, Theme.Spacing.lg)
+            .padding(.top, Theme.Spacing.sm)
+            .padding(.bottom, Theme.Spacing.md)
             .background(Color.clear)
         }
         .sheet(isPresented: $showingCapture) {
