@@ -53,7 +53,27 @@ erase_device() {
 boot_once() {
   shutdown_device
   xcrun simctl boot "${UDID}"
-  xcrun simctl bootstatus "${UDID}" -b -t "${BOOT_TIMEOUT}"
+
+  # Wait for boot status (without -t flag for compatibility with older Xcode versions)
+  # Use a manual timeout loop instead
+  local start_time=$(date +%s)
+  local timeout_reached=false
+
+  while true; do
+    if xcrun simctl bootstatus "${UDID}" -b 2>/dev/null; then
+      return 0
+    fi
+
+    local current_time=$(date +%s)
+    local elapsed=$((current_time - start_time))
+
+    if (( elapsed >= BOOT_TIMEOUT )); then
+      timeout_reached=true
+      return 1
+    fi
+
+    sleep 2
+  done
 }
 
 main() {
