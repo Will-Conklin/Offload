@@ -1,6 +1,6 @@
 # Offload — V1 Product Requirements Document (PRD)
 
-**Version:** 1.2
+**Version:** 1.3
 **Date:** 2026-01-09
 **Status:** Active
 **Owner:** Will Conklin
@@ -59,16 +59,16 @@ Users experience stress when ideas, tasks, or plans accumulate faster than they 
 
 ## 6. Success metrics (30-day post-launch)
 
-### V1.0 (Manual-only)
+### V1.0 (On-device AI)
 - ≥30% Day-30 retention for users who create ≥5 captures
+- ≥50% of users use AI organize at least once
 - ≥20% of users create at least one Plan
 - App Store rating ≥4.5
-- <2% crash-free session rate
+- <2% crash rate
 
-### Post-v1.0 (AI-enabled)
-- ≥25% Day-30 retention for users who complete ≥1 AI organize action
-- ≥40% of free users hit monthly AI limit
-- 8–12% conversion from free → paid after limit hit
+### Post-v1.0 (Cloud AI upgrade)
+- ≥40% of users hit on-device AI limitations (drives cloud upgrade)
+- 8–12% conversion from free → paid for cloud AI features
 
 ---
 
@@ -133,18 +133,33 @@ Captures are never auto-cleared; user controls retention.
 
 Triggered only by user action (creates HandOffRequest).
 
-AI analyzes CaptureEntry and returns Suggestions for:
+#### V1.0: On-Device AI (Apple Natural Language Framework)
 
-- **Plan** with Tasks (multi-step projects)
-- **ListEntity** with ListItems (shopping, packing, etc.)
-- **CommunicationItem** (calls, emails, messages)
-- **Task** (standalone actionable item)
+Uses Apple's on-device ML for instant, offline-capable organization:
 
-**AI output requirements (Suggestion)**
+**Capabilities:**
+- **Intent detection** — Identifies if capture is a task, list, note, or multi-step plan
+- **Entity extraction** — Pulls out items, quantities, names, dates from text
+- **Categorization** — Suggests appropriate destination (Plan, List, Task)
+- **Keyword tagging** — Auto-suggests tags based on content
 
-- Strict structured JSON
+**Limitations (drives cloud upgrade):**
+- No complex reasoning or multi-step decomposition
+- Limited context awareness (single capture only)
+- No clarification questions
+- English-primary (other languages best-effort)
+
+#### Post-v1.0: Cloud AI Enhancement
+
+Cloud LLM for advanced organization:
+- Multi-step project decomposition
+- Cross-capture context awareness
+- Clarification questions
+- Higher accuracy for complex inputs
+
+**AI output (Suggestion)**
+
 - Confidence score per suggestion
-- Optional clarification questions
 - Never invent items beyond user intent
 - Each HandOffRun tracks the AI attempt and response
 
@@ -185,46 +200,78 @@ No reminders in V1.
 
 ---
 
-## 9. Pricing & limits (hybrid model)
+## 9. Pricing & limits
 
-### Free tier
+### V1.0: Free (On-Device AI)
 
-- 30 AI organization actions per month
+- Unlimited on-device AI organization
 - Unlimited capture
-- Unlimited manual lists
+- Unlimited Plans and Lists
+- No account required
 
-### Paid tier (single SKU)
+### Post-v1.0: Freemium (Cloud AI)
 
-- Unlimited AI (soft caps enforced)
-- Faster processing
-- Early feature access
+**Free tier:**
+- On-device AI (unlimited)
+- 30 cloud AI actions per month
+- All v1.0 features
+
+**Paid tier (single SKU):**
+- Unlimited cloud AI
+- Advanced organization features
+- Priority processing
 
 ### Enforcement
 
-- Limits enforced server-side
-- Graceful fallback messaging
+- On-device: No limits (v1.0)
+- Cloud: Limits enforced server-side (post-v1.0)
 - No dark patterns
 
 ---
 
 ## 10. AI & backend requirements
 
-> **Note:** This section applies to post-v1.0 releases. V1.0 is manual-only with no backend dependency.
+### V1.0: On-Device AI
 
-### Architecture (Post-v1.0)
+**Architecture:**
+```
+iOS App → Apple Natural Language Framework (on-device)
+```
 
-iOS App → Backend API → LLM Provider
+**Framework:** Apple Natural Language + Create ML (if custom model needed)
 
-### Backend responsibilities
+**Capabilities used:**
+- `NLTagger` — Part-of-speech, named entity recognition
+- `NLEmbedding` — Semantic similarity for categorization
+- `NLLanguageRecognizer` — Language detection
 
+**Benefits:**
+- No backend dependency
+- Works offline
+- No API costs
+- Data never leaves device
+- Instant responses (<100ms)
+
+**Privacy:**
+- All processing on-device
+- No network calls for AI
+- No data collection
+
+### Post-v1.0: Cloud AI (Optional Upgrade)
+
+**Architecture:**
+```
+iOS App → Backend API → LLM Provider (Claude/GPT)
+```
+
+**Backend responsibilities:**
 - User/session identification
 - Quota enforcement
 - LLM request/response handling
 - JSON schema validation
 - Minimal logging
 
-### Privacy constraints
-
+**Privacy constraints:**
 - No API keys on device
 - No training on user data
 - Minimal retention
@@ -429,11 +476,12 @@ See [master-plan.md](../plans/master-plan.md) for current status and detailed ta
 | Decision | Status | Notes |
 |----------|--------|-------|
 | Final app name | Decided | "Offload" |
-| v1.0 scope | Decided | Manual-only; AI in post-v1.0 |
+| v1.0 scope | Decided | On-device AI; cloud AI in post-v1.0 |
+| v1.0 AI approach | Decided | Apple Natural Language Framework (on-device) |
 | Platform | Decided | iPhone only; no iPad in v1.0 |
-| AI provider/model | Open | Evaluate options in AI integration phase (post-v1.0) |
-| Paid tier soft cap numbers | Open | Determine based on cost analysis (post-v1.0) |
-| Sign in with Apple | Deferred | Not required for local-only v1.0 |
+| Cloud AI provider | Open | Evaluate Claude/GPT in post-v1.0 phase |
+| Paid tier pricing | Open | Determine based on cloud AI costs (post-v1.0) |
+| Sign in with Apple | Deferred | Not required for on-device v1.0 |
 | Glassmorphism implementation level | Open | Due Jan 15, 2026 |
 
 ---
@@ -445,3 +493,4 @@ See [master-plan.md](../plans/master-plan.md) for current status and detailed ta
 | 1.0 | 2025-12-30 | Initial PRD |
 | 1.1 | 2026-01-09 | Terminology alignment (ADR-0002), ADHD UX guardrails (ADR-0003), updated data model, linked to master-plan |
 | 1.2 | 2026-01-09 | Clarified v1.0 scope (manual-only, iPhone-only), split success metrics, marked AI/backend as post-v1.0, added Speech framework details |
+| 1.3 | 2026-01-09 | **Scope change:** v1.0 now includes on-device AI via Apple Natural Language Framework. Updated §6 metrics, §8.3 AI capabilities, §9 pricing, §10 architecture |
