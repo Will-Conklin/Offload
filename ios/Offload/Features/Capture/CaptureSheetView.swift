@@ -177,4 +177,5 @@ struct CaptureSheetView: View {
 #Preview {
     CaptureSheetView()
         .modelContainer(PersistenceController.preview)
+        .environmentObject(ThemeManager.shared)
 }

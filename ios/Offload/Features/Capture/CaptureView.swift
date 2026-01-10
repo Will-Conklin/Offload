@@ -94,4 +94,5 @@ struct CaptureView: View {
 #Preview {
     CaptureView()
         .modelContainer(PersistenceController.preview)
+        .environmentObject(ThemeManager.shared)
 }

@@ -304,4 +304,5 @@ private struct EditListSheet: View {
         ListDetailView(list: list)
     }
     .modelContainer(PersistenceController.preview)
+    .environmentObject(ThemeManager.shared)
 }

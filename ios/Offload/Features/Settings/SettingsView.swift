@@ -440,6 +440,7 @@ private enum SettingsSheet: Identifiable {
 
 private struct VoiceSettingsView: View {
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
     @AppStorage("voiceRecordingQuality") private var recordingQuality = "high"
     @AppStorage("enableLiveTranscription") private var enableLiveTranscription = true
 
@@ -567,6 +568,7 @@ private struct APIConfigurationView: View {
 
 private struct AIInfoView: View {
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
         ScrollView {
@@ -633,6 +635,7 @@ private struct FeatureCard: View {
     let description: String
 
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -744,6 +747,7 @@ private struct StorageInfoView: View {
 private struct AboutSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
         NavigationStack {
@@ -831,6 +835,7 @@ private struct PhilosophyItem: View {
     let icon: String
     let text: String
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -1060,4 +1065,5 @@ private struct TagFormSheet: View {
 #Preview {
     SettingsView()
         .modelContainer(PersistenceController.preview)
+        .environmentObject(ThemeManager.shared)
 }

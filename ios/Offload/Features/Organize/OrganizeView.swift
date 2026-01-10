@@ -507,4 +507,5 @@ private struct CommunicationFormSheet: View {
 #Preview {
     OrganizeView()
         .modelContainer(PersistenceController.preview)
+        .environmentObject(ThemeManager.shared)
 }

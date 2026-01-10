@@ -158,6 +158,7 @@ extension View {
         ToastView(toast: Toast(message: "Item saved successfully!", type: .success))
             .padding(.top, 16)
     }
+    .environmentObject(ThemeManager.shared)
 }
 
 #Preview("Error Toast") {
@@ -170,6 +171,7 @@ extension View {
         ToastView(toast: Toast(message: "Failed to save item. Please try again.", type: .error))
             .padding(.top, 16)
     }
+    .environmentObject(ThemeManager.shared)
 }
 
 #Preview("Warning Toast") {
@@ -182,6 +184,7 @@ extension View {
         ToastView(toast: Toast(message: "Network connection is unstable.", type: .warning))
             .padding(.top, 16)
     }
+    .environmentObject(ThemeManager.shared)
 }
 
 #Preview("Info Toast") {
@@ -194,4 +197,5 @@ extension View {
         ToastView(toast: Toast(message: "AI suggestions are currently disabled.", type: .info))
             .padding(.top, 16)
     }
+    .environmentObject(ThemeManager.shared)
 }

@@ -91,4 +91,5 @@ struct MainTabView: View {
 #Preview {
     MainTabView()
         .modelContainer(PersistenceController.preview)
+        .environmentObject(ThemeManager.shared)
 }

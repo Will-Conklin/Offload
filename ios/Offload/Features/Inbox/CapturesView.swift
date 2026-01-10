@@ -140,4 +140,5 @@ struct CaptureRow: View {
         CapturesView()
     }
     .modelContainer(PersistenceController.preview)
+    .environmentObject(ThemeManager.shared)
 }
