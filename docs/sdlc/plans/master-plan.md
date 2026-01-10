@@ -908,13 +908,18 @@ find ios/Offload -name "*.swift" | xargs wc -l
 ---
 
 ### Document Links
-- [Remediation Plan](./remediation-plan.md) - **SUPERSEDED by this document**
-- [Remediation Tracking](./remediation-tracking.md) - **SUPERSEDED by this document**
-- [Consolidated Plan](./consolidated-implementation-plan.md) - **SUPERSEDED by this document**
-- [Polish Phase](./polish-phase.md) - **SUPERSEDED by this document**
-- [Brain Dump Model](./brain-dump-model.md) - Reference for feature development
+
+**Active:**
 - [UI Trends Research](../research/2025-ios-ui-trends-research.md) - Research findings
 - [ADHD UX Guardrails](../decisions/ADR-0003-adhd-ux-guardrails.md) - Design principles
+- [PRD](../prd/offload-prd-v1.md) - Product requirements
+
+**Archived** (superseded by this document):
+- [Remediation Plan](./_archived/remediation-plan.md)
+- [Remediation Tracking](./_archived/remediation-tracking.md)
+- [Consolidated Plan](./_archived/consolidated-implementation-plan.md)
+- [Polish Phase](./_archived/polish-phase.md)
+- [Brain Dump Model](./_archived/brain-dump-model.md)
 
 ---
 
