@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+// AGENT NAV
+// - Navigation Icons
+// - Action Icons
+// - Content Icons
+
 /// Centralized icon definitions using SF Symbols
 struct Icons {
     // MARK: - Navigation
@@ -15,6 +20,9 @@ struct Icons {
     static let capture = "plus.circle.fill"
     static let organize = "folder"
     static let settings = "gearshape"
+    static let plans = "folder"
+    static let lists = "list.bullet"
+    static let communications = "bubble.left.and.bubble.right"
 
     // MARK: - Actions
 

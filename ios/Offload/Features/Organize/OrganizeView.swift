@@ -11,7 +11,32 @@
 import SwiftUI
 import SwiftData
 
+// AGENT NAV
+// - Organize List
+// - Sheets + Forms
+// - CRUD Helpers
+
 struct OrganizeView: View {
+    enum Scope {
+        case all
+        case plans
+        case lists
+        case communications
+
+        var title: String {
+            switch self {
+            case .all:
+                return "Organize"
+            case .plans:
+                return "Plans"
+            case .lists:
+                return "Lists"
+            case .communications:
+                return "Communications"
+            }
+        }
+    }
+
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
@@ -20,173 +45,324 @@ struct OrganizeView: View {
     @Query(sort: \ListEntity.createdAt, order: .reverse) private var lists: [ListEntity]
     @Query(sort: \CommunicationItem.createdAt, order: .reverse) private var communications: [CommunicationItem]
 
+    let scope: Scope
     @State private var activeSheet: OrganizeSheet?
     @State private var errorMessage: String?
+    @State private var showingSettings = false
+    @State private var selectedPlanRoute: PlanRoute?
+    @State private var selectedList: ListEntity?
+
+    init(scope: Scope = .all) {
+        self.scope = scope
+    }
+
+    private var showsPlans: Bool { scope == .all || scope == .plans }
+    private var showsLists: Bool { scope == .all || scope == .lists }
+    private var showsCommunications: Bool { scope == .all || scope == .communications }
+
+    private var planSectionContent: some View {
+        Group {
+            if plans.isEmpty {
+                CardView {
+                    Text("No plans yet")
+                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                }
+                .frame(height: Theme.Cards.rowHeight)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                          leading: Theme.Cards.horizontalInset,
+                                          bottom: Theme.Cards.verticalInset,
+                                          trailing: Theme.Cards.horizontalInset))
+                .listRowSeparator(.hidden)
+            } else {
+                ForEach(plans) { plan in
+                    Button {
+                        selectedPlanRoute = PlanRoute(id: plan.id)
+                    } label: {
+                        CardView {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(plan.title)
+                                    .font(.headline)
+                                    .lineLimit(1)
+
+                                if let detail = plan.detail, !detail.isEmpty {
+                                    Text(detail)
+                                        .font(.subheadline)
+                                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                                        .lineLimit(2)
+                                }
+
+                                HStack {
+                                    Text(plan.createdAt, format: .dateTime.month().day().year())
+                                        .font(.caption)
+                                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+
+                                    if let taskCount = plan.tasks?.count, taskCount > 0 {
+                                        Spacer()
+                                        Text("\(taskCount) tasks")
+                                            .font(.caption)
+                                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                                    }
+                                }
+                            }
+                        }
+                        .frame(height: Theme.Cards.rowHeight)
+                    }
+                    .cardButtonStyle()
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                              leading: Theme.Cards.horizontalInset,
+                                              bottom: Theme.Cards.verticalInset,
+                                              trailing: Theme.Cards.horizontalInset))
+                    .listRowSeparator(.hidden)
+                }
+                .onDelete(perform: deletePlans)
+            }
+        }
+    }
+
+    private var listSectionContent: some View {
+        Group {
+            if lists.isEmpty {
+                CardView {
+                    Text("No lists yet")
+                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                }
+                .frame(height: Theme.Cards.rowHeight)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                          leading: Theme.Cards.horizontalInset,
+                                          bottom: Theme.Cards.verticalInset,
+                                          trailing: Theme.Cards.horizontalInset))
+                .listRowSeparator(.hidden)
+            } else {
+                ForEach(lists) { list in
+                    Button {
+                        selectedList = list
+                    } label: {
+                        CardView {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text(list.title)
+                                        .font(Theme.Typography.cardTitle)
+                                        .lineLimit(1)
+                                    Spacer()
+                                    Text(list.listKind.rawValue.capitalized)
+                                        .font(Theme.Typography.badge)
+                                        .padding(.horizontal, Theme.Spacing.sm)
+                                        .padding(.vertical, 2)
+                                        .background(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle).opacity(0.2))
+                                        .cornerRadius(Theme.CornerRadius.sm)
+                                }
+
+                                if let itemCount = list.items?.count, itemCount > 0 {
+                                    let checkedCount = list.items?.filter { $0.isChecked }.count ?? 0
+                                    Text("\(checkedCount)/\(itemCount) items")
+                                        .font(.caption)
+                                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                                }
+                            }
+                        }
+                        .frame(height: Theme.Cards.rowHeight)
+                    }
+                    .cardButtonStyle()
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                              leading: Theme.Cards.horizontalInset,
+                                              bottom: Theme.Cards.verticalInset,
+                                              trailing: Theme.Cards.horizontalInset))
+                    .listRowSeparator(.hidden)
+                }
+                .onDelete(perform: deleteLists)
+            }
+        }
+    }
+
+    private var communicationSectionContent: some View {
+        Group {
+            if communications.isEmpty {
+                CardView {
+                    Text("No communications yet")
+                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                }
+                .frame(height: Theme.Cards.rowHeight)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                          leading: Theme.Cards.horizontalInset,
+                                          bottom: Theme.Cards.verticalInset,
+                                          trailing: Theme.Cards.horizontalInset))
+                .listRowSeparator(.hidden)
+            } else {
+                ForEach(communications) { comm in
+                    CardView {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Image(systemName: iconForChannel(comm.communicationChannel))
+                                    .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
+                                Text(comm.recipient)
+                                    .font(Theme.Typography.cardTitle)
+                                    .lineLimit(1)
+                                Spacer()
+                                if comm.communicationStatus == .sent {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(Theme.Colors.success(colorScheme, style: themeManager.currentStyle))
+                                }
+                            }
+
+                            Text(comm.content)
+                                .font(Theme.Typography.cardBody)
+                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                                .lineLimit(2)
+
+                            Text(comm.createdAt, format: .dateTime.month().day().year())
+                                .font(Theme.Typography.metadata)
+                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                        }
+                    }
+                    .frame(height: Theme.Cards.rowHeight)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                              leading: Theme.Cards.horizontalInset,
+                                              bottom: Theme.Cards.verticalInset,
+                                              trailing: Theme.Cards.horizontalInset))
+                    .listRowSeparator(.hidden)
+                }
+                .onDelete(perform: deleteCommunications)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var addToolbarItem: some View {
+        switch scope {
+        case .all:
+            Menu {
+                Button("New Plan") {
+                    activeSheet = .plan
+                }
+                Button("New List") {
+                    activeSheet = .list
+                }
+                Button("New Communication") {
+                    activeSheet = .communication
+                }
+            } label: {
+                Label("Add", systemImage: Icons.add)
+            }
+        case .plans:
+            Button {
+                activeSheet = .plan
+            } label: {
+                Label("New Plan", systemImage: Icons.add)
+            }
+        case .lists:
+            Button {
+                activeSheet = .list
+            } label: {
+                Label("New List", systemImage: Icons.add)
+            }
+        case .communications:
+            Button {
+                activeSheet = .communication
+            } label: {
+                Label("New Communication", systemImage: Icons.add)
+            }
+        }
+    }
 
     var body: some View {
         NavigationStack {
-            List {
-                Section("Plans") {
-                    if plans.isEmpty {
-                        Text("No plans yet")
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(plans) { plan in
-                            NavigationLink(destination: PlanDetailView(plan: plan)) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(plan.title)
-                                        .font(.headline)
+            ZStack {
+                Theme.Gradients.appBackground(colorScheme, style: themeManager.currentStyle)
+                    .ignoresSafeArea()
 
-                                    if let detail = plan.detail, !detail.isEmpty {
-                                        Text(detail)
-                                            .font(.subheadline)
-                                            .foregroundStyle(.secondary)
-                                            .lineLimit(2)
-                                    }
-
-                                    HStack {
-                                        Text(plan.createdAt, format: .dateTime.month().day().year())
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-
-                                        if let taskCount = plan.tasks?.count, taskCount > 0 {
-                                            Spacer()
-                                            Text("\(taskCount) tasks")
-                                                .font(.caption)
-                                                .foregroundStyle(.tertiary)
-                                        }
-                                    }
-                                }
+                List {
+                    if showsPlans {
+                        if scope == .all {
+                            Section("Plans") {
+                                planSectionContent
+                            }
+                        } else {
+                            Section {
+                                planSectionContent
                             }
                         }
-                        .onDelete(perform: deletePlans)
                     }
 
-                    Button {
-                        activeSheet = .plan
-                    } label: {
-                        Label("New Plan", systemImage: "plus.circle.fill")
-                    }
-                }
-
-                Section("Lists") {
-                    if lists.isEmpty {
-                        Text("No lists yet")
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(lists) { list in
-                            NavigationLink(destination: ListDetailView(list: list)) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    HStack {
-                                        Text(list.title)
-                                            .font(Theme.Typography.cardTitle)
-                                        Spacer()
-                                        Text(list.listKind.rawValue.capitalized)
-                                            .font(Theme.Typography.badge)
-                                            .padding(.horizontal, Theme.Spacing.sm)
-                                            .padding(.vertical, 2)
-                                            .background(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle).opacity(0.2))
-                                            .cornerRadius(Theme.CornerRadius.sm)
-                                    }
-
-                                    if let itemCount = list.items?.count, itemCount > 0 {
-                                        let checkedCount = list.items?.filter { $0.isChecked }.count ?? 0
-                                        Text("\(checkedCount)/\(itemCount) items")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
+                    if showsLists {
+                        if scope == .all {
+                            Section("Lists") {
+                                listSectionContent
+                            }
+                        } else {
+                            Section {
+                                listSectionContent
                             }
                         }
-                        .onDelete(perform: deleteLists)
                     }
 
-                    Button {
-                        activeSheet = .list
-                    } label: {
-                        Label("New List", systemImage: "plus.circle.fill")
-                    }
-                }
-
-                Section("Communications") {
-                    if communications.isEmpty {
-                        Text("No communications yet")
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(communications) { comm in
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Image(systemName: iconForChannel(comm.communicationChannel))
-                                        .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
-                                    Text(comm.recipient)
-                                        .font(Theme.Typography.cardTitle)
-                                    Spacer()
-                                    if comm.communicationStatus == .sent {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(Theme.Colors.success(colorScheme, style: themeManager.currentStyle))
-                                    }
-                                }
-
-                                Text(comm.content)
-                                    .font(Theme.Typography.cardBody)
-                                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
-                                    .lineLimit(2)
-
-                                Text(comm.createdAt, format: .dateTime.month().day().year())
-                                    .font(Theme.Typography.metadata)
-                                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                    if showsCommunications {
+                        if scope == .all {
+                            Section("Communications") {
+                                communicationSectionContent
+                            }
+                        } else {
+                            Section {
+                                communicationSectionContent
                             }
                         }
-                        .onDelete(perform: deleteCommunications)
+                    }
+                }
+                .scrollContentBackground(.hidden)
+                .listStyle(.plain)
+                .listRowSeparator(.hidden)
+                .navigationTitle(scope.title)
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        addToolbarItem
                     }
 
-                    Button {
-                        activeSheet = .communication
-                    } label: {
-                        Label("New Communication", systemImage: "plus.circle.fill")
-                    }
-                }
-            }
-            .navigationTitle("Organize")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Menu {
-                        Button("New Plan") {
-                            activeSheet = .plan
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showingSettings = true
+                        } label: {
+                            Image(systemName: Icons.settings)
                         }
-                        Button("New List") {
-                            activeSheet = .list
+                        .accessibilityLabel("Settings")
+                    }
+                }
+                .sheet(item: $activeSheet) { sheet in
+                    switch sheet {
+                    case .plan:
+                        PlanFormSheet { title, detail in
+                            try createPlan(title: title, detail: detail)
                         }
-                        Button("New Communication") {
-                            activeSheet = .communication
+                    case .list:
+                        ListFormSheet { title, kind in
+                            try createList(title: title, kind: kind)
                         }
-                    } label: {
-                        Label("Add", systemImage: "plus")
+                    case .communication:
+                        CommunicationFormSheet { channel, recipient, content in
+                            try createCommunication(channel: channel, recipient: recipient, content: content)
+                        }
                     }
                 }
-            }
-            .sheet(item: $activeSheet) { sheet in
-                switch sheet {
-                case .plan:
-                    PlanFormSheet { title, detail in
-                        try createPlan(title: title, detail: detail)
+                .alert("Error", isPresented: .constant(errorMessage != nil), presenting: errorMessage) { _ in
+                    Button("OK") {
+                        errorMessage = nil
                     }
-                case .list:
-                    ListFormSheet { title, kind in
-                        try createList(title: title, kind: kind)
-                    }
-                case .communication:
-                    CommunicationFormSheet { channel, recipient, content in
-                        try createCommunication(channel: channel, recipient: recipient, content: content)
-                    }
+                } message: { message in
+                    Text(message)
                 }
-            }
-            .alert("Error", isPresented: .constant(errorMessage != nil), presenting: errorMessage) { _ in
-                Button("OK") {
-                    errorMessage = nil
+                .navigationDestination(item: $selectedPlanRoute) { route in
+                    PlanDetailView(planID: route.id)
                 }
-            } message: { message in
-                Text(message)
+                .navigationDestination(item: $selectedList) { list in
+                    ListDetailView(list: list)
+                }
+                .sheet(isPresented: $showingSettings) {
+                    SettingsView()
+                }
             }
         }
     }
@@ -309,6 +485,10 @@ private enum OrganizeSheet: Identifiable {
             return "communication"
         }
     }
+}
+
+private struct PlanRoute: Identifiable, Hashable {
+    let id: UUID
 }
 
 private struct PlanFormSheet: View {

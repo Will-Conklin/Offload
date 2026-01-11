@@ -10,6 +10,11 @@
 
 import SwiftUI
 
+// AGENT NAV
+// - Form Container
+// - Toolbar Actions
+// - Save Handling
+
 struct FormSheet<Content: View>: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
@@ -26,16 +31,24 @@ struct FormSheet<Content: View>: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                content()
+            ZStack {
+                Theme.Gradients.appBackground(colorScheme, style: themeManager.currentStyle)
+                    .ignoresSafeArea()
 
-                if let errorMessage {
-                    Section {
-                        Text(errorMessage)
-                            .font(Theme.Typography.errorText)
-                            .foregroundStyle(Theme.Colors.destructive(colorScheme, style: themeManager.currentStyle))
+                Form {
+                    content()
+
+                    if let errorMessage {
+                        Section {
+                            Text(errorMessage)
+                                .font(Theme.Typography.errorText)
+                                .foregroundStyle(Theme.Colors.destructive(colorScheme, style: themeManager.currentStyle))
+                        }
                     }
                 }
+                .scrollContentBackground(.hidden)
+                .listStyle(.insetGrouped)
+                .tint(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
             }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
@@ -61,17 +74,13 @@ struct FormSheet<Content: View>: View {
         isSaving = true
         errorMessage = nil
 
-        _Concurrency.Task {
+        _Concurrency.Task { @MainActor in
             do {
                 try await onSave()
-                await MainActor.run {
-                    dismiss()
-                }
+                dismiss()
             } catch {
-                await MainActor.run {
-                    errorMessage = error.localizedDescription
-                    isSaving = false
-                }
+                errorMessage = error.localizedDescription
+                isSaving = false
             }
         }
     }

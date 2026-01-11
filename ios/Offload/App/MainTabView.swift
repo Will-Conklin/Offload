@@ -9,6 +9,11 @@
 import SwiftUI
 import SwiftData
 
+// AGENT NAV
+// - TabView Shell
+// - Floating Capture Button
+// - Capture Sheet Presentation
+
 struct MainTabView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
@@ -23,18 +28,25 @@ struct MainTabView: View {
                 }
                 .tag(Tab.captures)
 
-            OrganizeView()
+            OrganizeView(scope: .plans)
                 .tabItem {
-                    Label("Organize", systemImage: Icons.organize)
+                    Label("Plans", systemImage: Icons.plans)
                 }
-                .tag(Tab.organize)
+                .tag(Tab.plans)
 
-            SettingsView()
+            OrganizeView(scope: .lists)
                 .tabItem {
-                    Label("Settings", systemImage: Icons.settings)
+                    Label("Lists", systemImage: Icons.lists)
                 }
-                .tag(Tab.settings)
+                .tag(Tab.lists)
+
+            OrganizeView(scope: .communications)
+                .tabItem {
+                    Label("Comms", systemImage: Icons.communications)
+                }
+                .tag(Tab.communications)
         }
+        .tint(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
         .safeAreaInset(edge: .bottom) {
             HStack {
                 Spacer()
@@ -73,7 +85,8 @@ struct MainTabView: View {
             }
             .padding(.horizontal, Theme.Spacing.lg)
             .padding(.top, Theme.Spacing.sm)
-            .padding(.bottom, Theme.Spacing.md)
+            .padding(.bottom, Theme.Spacing.sm)
+            .offset(y: -Theme.Spacing.lg)
             .background(Color.clear)
         }
         .sheet(isPresented: $showingCapture) {
@@ -83,8 +96,9 @@ struct MainTabView: View {
 
     enum Tab {
         case captures
-        case organize
-        case settings
+        case plans
+        case lists
+        case communications
     }
 }
 
