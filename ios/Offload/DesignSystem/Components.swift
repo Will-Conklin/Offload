@@ -689,7 +689,7 @@ struct ErrorView: View {
         FloatingActionButton(title: "Capture", systemName: "mic.fill") {}
     }
     .padding(Theme.Spacing.lg)
-    .background(Theme.Colors.background(.light, style: .lavenderCalm))
+    .background(Theme.Colors.background(.light, style: .violetPop))
     .environmentObject(ThemeManager.shared)
 }
 
@@ -701,7 +701,7 @@ struct ErrorView: View {
                     .font(Theme.Typography.cardTitle)
                 Text("A quick summary of the content inside this card.")
                     .font(Theme.Typography.cardBody)
-                    .foregroundStyle(Theme.Colors.textSecondary(.light, style: .blueCool))
+                    .foregroundStyle(Theme.Colors.textSecondary(.light, style: .oceanTeal))
             }
         }
 
@@ -711,7 +711,7 @@ struct ErrorView: View {
                     .font(Theme.Typography.cardTitle)
                 Text("Softer shadows and more generous padding.")
                     .font(Theme.Typography.cardBody)
-                    .foregroundStyle(Theme.Colors.textSecondary(.light, style: .blueCool))
+                    .foregroundStyle(Theme.Colors.textSecondary(.light, style: .oceanTeal))
             }
         }
 
@@ -721,7 +721,7 @@ struct ErrorView: View {
                     .font(Theme.Typography.cardTitle)
                 Text("Minimal border, flat surface.")
                     .font(Theme.Typography.cardBody)
-                    .foregroundStyle(Theme.Colors.textSecondary(.light, style: .blueCool))
+                    .foregroundStyle(Theme.Colors.textSecondary(.light, style: .oceanTeal))
             }
         }
 
@@ -731,12 +731,12 @@ struct ErrorView: View {
                     .font(Theme.Typography.cardTitle)
                 Text("Selected state uses accent border.")
                     .font(Theme.Typography.cardBody)
-                    .foregroundStyle(Theme.Colors.textSecondary(.light, style: .blueCool))
+                    .foregroundStyle(Theme.Colors.textSecondary(.light, style: .oceanTeal))
             }
         }
     }
     .padding(Theme.Spacing.lg)
-    .background(Theme.Colors.background(.light, style: .blueCool))
+    .background(Theme.Colors.background(.light, style: .oceanTeal))
     .environmentObject(ThemeManager.shared)
 }
 
@@ -765,20 +765,20 @@ struct ErrorView: View {
         )
     }
     .padding(.vertical, Theme.Spacing.lg)
-    .background(Theme.Colors.background(.light, style: .oceanMinimal))
+    .background(Theme.Colors.background(.light, style: .oceanTeal))
     .environmentObject(ThemeManager.shared)
 }
 
 #Preview("Overlays") {
     ZStack {
-        Theme.Gradients.appBackground(.light, style: .lavenderCalm)
+        Theme.Gradients.appBackground(.light, style: .violetPop)
             .ignoresSafeArea()
 
         BottomSheet(isPresented: .constant(true), title: "Quick Actions") {
             VStack(spacing: Theme.Spacing.sm) {
                 Text("Add a capture, plan, or list.")
                     .font(Theme.Typography.body)
-                    .foregroundStyle(Theme.Colors.textSecondary(.light, style: .lavenderCalm))
+                    .foregroundStyle(Theme.Colors.textSecondary(.light, style: .violetPop))
                 PrimaryButton(title: "New Capture") {}
             }
         }
@@ -786,7 +786,7 @@ struct ErrorView: View {
         ModalCard(isPresented: .constant(true), title: "Focus Mode") {
             Text("Reduce distractions and capture fast.")
                 .font(Theme.Typography.body)
-                .foregroundStyle(Theme.Colors.textSecondary(.light, style: .lavenderCalm))
+                .foregroundStyle(Theme.Colors.textSecondary(.light, style: .violetPop))
         }
     }
     .environmentObject(ThemeManager.shared)
