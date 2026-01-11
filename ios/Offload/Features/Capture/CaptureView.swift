@@ -9,6 +9,11 @@
 import SwiftUI
 import SwiftData
 
+// AGENT NAV
+// - Capture Form
+// - Inline Guidance
+// - Save Handling
+
 /// Legacy placeholder capture view
 /// Use CaptureSheetView for the actual app (supports voice + text)
 struct CaptureView: View {
@@ -23,34 +28,70 @@ struct CaptureView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Quick Capture") {
-                    TextField("What's on your mind?", text: $title, axis: .vertical)
-                        .focused($isFocused)
-                        .textInputAutocapitalization(.sentences)
-                        .disableAutocorrection(false)
-                        .font(.headline)
+            ZStack {
+                Theme.Gradients.appBackground(colorScheme, style: themeManager.currentStyle)
+                    .ignoresSafeArea()
 
-                    TextField("Notes (optional)", text: $notes, axis: .vertical)
-                        .lineLimit(3...6)
-                        .textInputAutocapitalization(.sentences)
-                        .disableAutocorrection(false)
+                Form {
+                    Section("Quick Capture") {
+                        CardView {
+                            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                                Text("Thought")
+                                    .font(Theme.Typography.inputLabel)
+                                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+
+                                TextField("What's on your mind?", text: $title, axis: .vertical)
+                                    .focused($isFocused)
+                                    .textInputAutocapitalization(.sentences)
+                                    .disableAutocorrection(false)
+                                    .font(Theme.Typography.body)
+                                    .padding(Theme.Spacing.sm)
+                                    .background(Theme.Colors.surface(colorScheme, style: themeManager.currentStyle))
+                                    .cornerRadius(Theme.CornerRadius.md)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
+                                            .stroke(Theme.Colors.borderMuted(colorScheme, style: themeManager.currentStyle).opacity(0.6), lineWidth: 0.8)
+                                    )
+                                    .shadow(color: Theme.Shadows.ambient(colorScheme), radius: Theme.Shadows.elevationXs, y: 1)
+
+                                ThemedTextEditor(label: "Notes", text: $notes, placeholder: "Add more detail (optional)", minHeight: 120)
+                            }
+                        }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                                  leading: Theme.Cards.horizontalInset,
+                                                  bottom: Theme.Cards.verticalInset,
+                                                  trailing: Theme.Cards.horizontalInset))
+                        .listRowSeparator(.hidden)
+                    }
+
+                    Section {
+                        CardView {
+                            Label("Captured items can be organized later. Undo is available from the inbox.",
+                                  systemImage: "checkmark.seal")
+                                .font(.footnote)
+                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                                .padding(.vertical, Theme.Spacing.xs)
+                        }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                                  leading: Theme.Cards.horizontalInset,
+                                                  bottom: Theme.Cards.verticalInset,
+                                                  trailing: Theme.Cards.horizontalInset))
+                        .listRowSeparator(.hidden)
+                    }
+
+                    // TODO: Add capture type selection (task, note, idea, etc.)
+                    // TODO: Add quick tags/categories
+                    // TODO: Add priority selection
+                    // TODO: Add due date picker
+                    // TODO: Add voice memo recording
+                    // TODO: Add photo/file attachment
                 }
-
-                Section {
-                    Label("Captured items can be organized later. Undo is available from the inbox.",
-                          systemImage: "checkmark.seal")
-                        .font(.footnote)
-                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
-                        .padding(.vertical, Theme.Spacing.xs)
-                }
-
-                // TODO: Add capture type selection (task, note, idea, etc.)
-                // TODO: Add quick tags/categories
-                // TODO: Add priority selection
-                // TODO: Add due date picker
-                // TODO: Add voice memo recording
-                // TODO: Add photo/file attachment
+                .scrollContentBackground(.hidden)
+                .listStyle(.plain)
+                .listRowSeparator(.hidden)
+                .tint(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
             }
             .navigationTitle("Capture")
             .navigationBarTitleDisplayMode(.inline)

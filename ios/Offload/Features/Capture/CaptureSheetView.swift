@@ -12,6 +12,11 @@ import SwiftUI
 import SwiftData
 import UIKit
 
+// AGENT NAV
+// - Capture Form
+// - Voice Controls
+// - Save Handling
+
 struct CaptureSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -26,59 +31,88 @@ struct CaptureSheetView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Quick Capture") {
-                    HStack(alignment: .top, spacing: Theme.Spacing.md) {
-                        TextField("What's on your mind?", text: $rawText, axis: .vertical)
-                            .lineLimit(3...10)
+            ZStack {
+                Theme.Gradients.appBackground(colorScheme, style: themeManager.currentStyle)
+                    .ignoresSafeArea()
 
-                        VStack(spacing: Theme.Spacing.sm) {
-                            Button(action: handleVoiceButtonTap) {
-                                Image(systemName: voiceService.isRecording ? "stop.circle.fill" : "mic.circle.fill")
-                                    .font(.system(size: 28))
-                                    .foregroundStyle(voiceService.isRecording ? Theme.Colors.destructive(colorScheme, style: themeManager.currentStyle) : Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
-                            }
-                            .buttonStyle(.plain)
+                Form {
+                    Section("Quick Capture") {
+                        CardView {
+                            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                                HStack(alignment: .top, spacing: Theme.Spacing.md) {
+                                    TextField("What's on your mind?", text: $rawText, axis: .vertical)
+                                        .lineLimit(3...10)
 
-                            if voiceService.isRecording {
-                                Text(formatDuration(voiceService.recordingDuration))
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
+                                    VStack(spacing: Theme.Spacing.sm) {
+                                        Button(action: handleVoiceButtonTap) {
+                                            Image(systemName: voiceService.isRecording ? "stop.circle.fill" : "mic.circle.fill")
+                                                .font(.system(size: 28))
+                                                .foregroundStyle(voiceService.isRecording ? Theme.Colors.destructive(colorScheme, style: themeManager.currentStyle) : Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        if voiceService.isRecording {
+                                            Text(formatDuration(voiceService.recordingDuration))
+                                                .font(.caption2)
+                                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                                        }
+                                    }
+                                }
+
+                                if voiceService.isTranscribing && !voiceService.transcribedText.isEmpty {
+                                    Text("Transcribing...")
+                                        .font(.caption)
+                                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: themeManager.currentStyle))
+                                }
                             }
+                        }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                                  leading: Theme.Cards.horizontalInset,
+                                                  bottom: Theme.Cards.verticalInset,
+                                                  trailing: Theme.Cards.horizontalInset))
+                        .listRowSeparator(.hidden)
+                    }
+
+                    if let errorMessage = voiceService.errorMessage {
+                        Section {
+                            CardView {
+                                Text(errorMessage)
+                                    .font(Theme.Typography.errorText)
+                                    .foregroundStyle(Theme.Colors.destructive(colorScheme, style: themeManager.currentStyle))
+                            }
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                                      leading: Theme.Cards.horizontalInset,
+                                                      bottom: Theme.Cards.verticalInset,
+                                                      trailing: Theme.Cards.horizontalInset))
+                            .listRowSeparator(.hidden)
                         }
                     }
 
-                    if voiceService.isTranscribing && !voiceService.transcribedText.isEmpty {
-                        Text("Transcribing...")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    if let errorMessage = workflowService?.errorMessage {
+                        Section {
+                            CardView {
+                                Text(errorMessage)
+                                    .font(Theme.Typography.errorText)
+                                    .foregroundStyle(Theme.Colors.destructive(colorScheme, style: themeManager.currentStyle))
+                            }
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                                      leading: Theme.Cards.horizontalInset,
+                                                      bottom: Theme.Cards.verticalInset,
+                                                      trailing: Theme.Cards.horizontalInset))
+                            .listRowSeparator(.hidden)
+                        }
                     }
                 }
-
-                if let errorMessage = voiceService.errorMessage {
-                    Section {
-                        Text(errorMessage)
-                            .font(Theme.Typography.errorText)
-                            .foregroundStyle(Theme.Colors.destructive(colorScheme, style: themeManager.currentStyle))
-                    }
-                }
-
-                if let errorMessage = workflowService?.errorMessage {
-                    Section {
-                        Text(errorMessage)
-                            .font(Theme.Typography.errorText)
-                            .foregroundStyle(Theme.Colors.destructive(colorScheme, style: themeManager.currentStyle))
-                    }
-                }
+                .scrollContentBackground(.hidden)
+                .listStyle(.plain)
+                .listRowSeparator(.hidden)
+                .tint(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
             }
             .navigationTitle("Capture")
             .navigationBarTitleDisplayMode(.inline)
-            .scrollContentBackground(.hidden)
-            .background(Theme.Materials.glass)
-            .overlay(
-                Theme.Materials.glassOverlay(colorScheme)
-                    .opacity(Theme.Materials.glassOverlayOpacity)
-            )
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

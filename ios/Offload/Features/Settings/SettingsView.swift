@@ -12,6 +12,11 @@ import SwiftUI
 import SwiftData
 import OSLog
 
+// AGENT NAV
+// - Settings List
+// - Sections
+// - Actions + Alerts
+
 // MARK: - Constants
 
 private enum Constants {
@@ -40,28 +45,49 @@ struct SettingsView: View {
     @State private var activeSheet: SettingsSheet?
     @State private var errorMessage: String?
 
+    private func settingsCardRow<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        CardView {
+            content()
+        }
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                  leading: Theme.Cards.horizontalInset,
+                                  bottom: Theme.Cards.verticalInset,
+                                  trailing: Theme.Cards.horizontalInset))
+        .listRowSeparator(.hidden)
+    }
+
     var body: some View {
         NavigationStack {
-            List {
-                // App Info Section
-                appInfoSection
+            ZStack {
+                Theme.Gradients.appBackground(colorScheme, style: themeManager.currentStyle)
+                    .ignoresSafeArea()
 
-                // Preferences Section
-                preferencesSection
+                List {
+                    // App Info Section
+                    appInfoSection
 
-                // Organization Section
-                organizationSection
+                    // Preferences Section
+                    preferencesSection
 
-                // AI & Hand-Off Section
-                aiHandOffSection
+                    // Organization Section
+                    organizationSection
 
-                // Data Management Section
-                dataManagementSection
+                    // AI & Hand-Off Section
+                    aiHandOffSection
 
-                // About & Legal Section
-                aboutLegalSection
+                    // Data Management Section
+                    dataManagementSection
+
+                    // About & Legal Section
+                    aboutLegalSection
+                }
+                .scrollContentBackground(.hidden)
+                .listStyle(.plain)
+                .listRowSeparator(.hidden)
+                .tint(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
+                .navigationTitle("Settings")
             }
-            .navigationTitle("Settings")
         }
         .alert("Clear Completed Tasks?", isPresented: $showingClearCompletedAlert) {
             Button("Cancel", role: .cancel) { }
@@ -110,31 +136,33 @@ struct SettingsView: View {
 
     private var appInfoSection: some View {
         Section {
-            VStack(spacing: 12) {
-                Image(systemName: "brain.head.profile")
-                    .font(.system(size: 60))
-                    .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
+            settingsCardRow {
+                VStack(spacing: 12) {
+                    Image(systemName: "brain.head.profile")
+                        .font(.system(size: 60))
+                        .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
 
-                Text("Offload")
-                    .font(Theme.Typography.title2)
-                    .fontWeight(.bold)
+                    Text("Offload")
+                        .font(Theme.Typography.title2)
+                        .fontWeight(.bold)
 
-                Text("Capture First, Organize Later")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                HStack(spacing: 4) {
-                    Text("Version")
-                    Text(appVersion)
+                    Text("Capture First, Organize Later")
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    Text("(\(buildNumber))")
-                        .foregroundStyle(.tertiary)
-                        .font(.caption)
+
+                    HStack(spacing: 4) {
+                        Text("Version")
+                        Text(appVersion)
+                            .foregroundStyle(.secondary)
+                        Text("(\(buildNumber))")
+                            .foregroundStyle(.tertiary)
+                            .font(.caption)
+                    }
+                    .font(.caption)
                 }
-                .font(.caption)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Theme.Spacing.md)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, Theme.Spacing.md)
         }
     }
 
@@ -142,31 +170,39 @@ struct SettingsView: View {
 
     private var preferencesSection: some View {
         Section {
-            Picker("Color Theme", selection: $themeManager.currentStyle) {
-                ForEach(ThemeStyle.allCases) { style in
-                    VStack(alignment: .leading) {
-                        Text(style.rawValue)
-                        Text(style.description)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+            settingsCardRow {
+                Picker("Color Theme", selection: $themeManager.currentStyle) {
+                    ForEach(ThemeStyle.allCases) { style in
+                        VStack(alignment: .leading) {
+                            Text(style.rawValue)
+                            Text(style.description)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .tag(style)
                     }
-                    .tag(style)
                 }
             }
 
-            Picker("Default Capture Source", selection: $defaultCaptureSource) {
-                Text("App").tag(CaptureSource.app)
-                Text("Shortcut").tag(CaptureSource.shortcut)
-                Text("Share Sheet").tag(CaptureSource.shareSheet)
-                Text("Widget").tag(CaptureSource.widget)
+            settingsCardRow {
+                Picker("Default Capture Source", selection: $defaultCaptureSource) {
+                    Text("App").tag(CaptureSource.app)
+                    Text("Shortcut").tag(CaptureSource.shortcut)
+                    Text("Share Sheet").tag(CaptureSource.shareSheet)
+                    Text("Widget").tag(CaptureSource.widget)
+                }
             }
 
-            Toggle("Auto-Archive Completed Items", isOn: $autoArchiveCompleted)
+            settingsCardRow {
+                Toggle("Auto-Archive Completed Items", isOn: $autoArchiveCompleted)
+            }
 
-            NavigationLink {
-                VoiceSettingsView()
-            } label: {
-                Label("Voice Recording", systemImage: "waveform")
+            settingsCardRow {
+                NavigationLink {
+                    VoiceSettingsView()
+                } label: {
+                    Label("Voice Recording", systemImage: "waveform")
+                }
             }
         } header: {
             Text("Preferences")
@@ -179,75 +215,79 @@ struct SettingsView: View {
 
     private var organizationSection: some View {
         Section {
-            // Categories subsection
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Categories")
-                        .font(.headline)
-                    Spacer()
-                    Button {
-                        activeSheet = .category
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
-                    }
-                }
-
-                if categories.isEmpty {
-                    Text("No categories yet")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(categories) { category in
+            settingsCardRow {
+                VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    // Categories subsection
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Text(category.name)
+                            Text("Categories")
+                                .font(.headline)
                             Spacer()
-                            if let icon = category.icon, !icon.isEmpty {
-                                Text(icon)
-                                    .font(.title3)
+                            Button {
+                                activeSheet = .category
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
                             }
                         }
-                        .padding(.vertical, 4)
-                    }
-                }
-            }
-            .padding(.vertical, 4)
 
-            Divider()
-
-            // Tags subsection
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Tags")
-                        .font(.headline)
-                    Spacer()
-                    Button {
-                        activeSheet = .tag
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
-                    }
-                }
-
-                if tags.isEmpty {
-                    Text("No tags yet")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                } else {
-                    ForEach(tags) { tag in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(tag.name)
-                            if let color = tag.color, !color.isEmpty {
-                                Text(color)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                        if categories.isEmpty {
+                            Text("No categories yet")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(categories) { category in
+                                HStack {
+                                    Text(category.name)
+                                    Spacer()
+                                    if let icon = category.icon, !icon.isEmpty {
+                                        Text(icon)
+                                            .font(.title3)
+                                    }
+                                }
+                                .padding(.vertical, 4)
                             }
                         }
-                        .padding(.vertical, 4)
                     }
+                    .padding(.vertical, 4)
+
+                    Divider()
+
+                    // Tags subsection
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Tags")
+                                .font(.headline)
+                            Spacer()
+                            Button {
+                                activeSheet = .tag
+                            } label: {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
+                            }
+                        }
+
+                        if tags.isEmpty {
+                            Text("No tags yet")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(tags) { tag in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(tag.name)
+                                    if let color = tag.color, !color.isEmpty {
+                                        Text(color)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                .padding(.vertical, 4)
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
                 }
             }
-            .padding(.vertical, 4)
         } header: {
             Text("Organization")
         } footer: {
@@ -259,28 +299,34 @@ struct SettingsView: View {
 
     private var aiHandOffSection: some View {
         Section {
-            Toggle("Enable AI Suggestions", isOn: $enableAISuggestions)
-                .disabled(true) // Disabled until backend is implemented
-
-            if enableAISuggestions {
-                NavigationLink {
-                    APIConfigurationView(apiEndpoint: $apiEndpoint)
-                } label: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("API Configuration")
-                        Text(apiEndpoint)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-                .disabled(true)
+            settingsCardRow {
+                Toggle("Enable AI Suggestions", isOn: $enableAISuggestions)
+                    .disabled(true) // Disabled until backend is implemented
             }
 
-            NavigationLink {
-                AIInfoView()
-            } label: {
-                Label("How AI Suggestions Work", systemImage: "info.circle")
+            if enableAISuggestions {
+                settingsCardRow {
+                    NavigationLink {
+                        APIConfigurationView(apiEndpoint: $apiEndpoint)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("API Configuration")
+                            Text(apiEndpoint)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                    .disabled(true)
+                }
+            }
+
+            settingsCardRow {
+                NavigationLink {
+                    AIInfoView()
+                } label: {
+                    Label("How AI Suggestions Work", systemImage: "info.circle")
+                }
             }
         } header: {
             Text("AI & Organization")
@@ -293,24 +339,30 @@ struct SettingsView: View {
 
     private var dataManagementSection: some View {
         Section {
-            Button {
-                showingClearCompletedAlert = true
-            } label: {
-                Label("Clear Completed Tasks", systemImage: "checkmark.circle")
-                    .foregroundStyle(.primary)
+            settingsCardRow {
+                Button {
+                    showingClearCompletedAlert = true
+                } label: {
+                    Label("Clear Completed Tasks", systemImage: "checkmark.circle")
+                        .foregroundStyle(.primary)
+                }
             }
 
-            Button {
-                showingArchiveOldAlert = true
-            } label: {
-                Label("Archive Old Captures", systemImage: "archivebox")
-                    .foregroundStyle(.primary)
+            settingsCardRow {
+                Button {
+                    showingArchiveOldAlert = true
+                } label: {
+                    Label("Archive Old Captures", systemImage: "archivebox")
+                        .foregroundStyle(.primary)
+                }
             }
 
-            NavigationLink {
-                StorageInfoView()
-            } label: {
-                Label("Storage Usage", systemImage: "internaldrive")
+            settingsCardRow {
+                NavigationLink {
+                    StorageInfoView()
+                } label: {
+                    Label("Storage Usage", systemImage: "internaldrive")
+                }
             }
         } header: {
             Text("Data Management")
@@ -323,29 +375,37 @@ struct SettingsView: View {
 
     private var aboutLegalSection: some View {
         Section("About & Legal") {
-            Button {
-                showingAbout = true
-            } label: {
-                Label("About Offload", systemImage: "info.circle")
-                    .foregroundStyle(.primary)
+            settingsCardRow {
+                Button {
+                    showingAbout = true
+                } label: {
+                    Label("About Offload", systemImage: "info.circle")
+                        .foregroundStyle(.primary)
+                }
             }
 
-            Button {
-                showingPrivacyPolicy = true
-            } label: {
-                Label("Privacy Policy", systemImage: "hand.raised")
-                    .foregroundStyle(.primary)
+            settingsCardRow {
+                Button {
+                    showingPrivacyPolicy = true
+                } label: {
+                    Label("Privacy Policy", systemImage: "hand.raised")
+                        .foregroundStyle(.primary)
+                }
             }
 
-            Link(destination: Constants.githubURL) {
-                Label("View on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
+            settingsCardRow {
+                Link(destination: Constants.githubURL) {
+                    Label("View on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
+                }
             }
 
-            Button {
-                openURL(Constants.issuesURL)
-            } label: {
-                Label("Report an Issue", systemImage: "exclamationmark.bubble")
-                    .foregroundStyle(.primary)
+            settingsCardRow {
+                Button {
+                    openURL(Constants.issuesURL)
+                } label: {
+                    Label("Report an Issue", systemImage: "exclamationmark.bubble")
+                        .foregroundStyle(.primary)
+                }
             }
         }
     }

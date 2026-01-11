@@ -11,56 +11,94 @@
 import SwiftUI
 import SwiftData
 
+// AGENT NAV
+// - Captures List
+// - Capture Row
+// - Fetch + Delete
+
 struct CapturesView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
 
     @State private var showingCapture = false
+    @State private var showingSettings = false
     @State private var workflowService: CaptureWorkflowService?
     @State private var entries: [CaptureEntry] = []
     @State private var errorMessage: String?
 
     var body: some View {
-        List {
-            ForEach(entries) { entry in
-                CaptureRow(entry: entry)
+        NavigationStack {
+            ZStack {
+                Theme.Gradients.appBackground(colorScheme, style: themeManager.currentStyle)
+                    .ignoresSafeArea()
+
+                List {
+                    ForEach(entries) { entry in
+                        CardView {
+                            CaptureRow(entry: entry)
+                        }
+                        .frame(height: Theme.Cards.rowHeight)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: Theme.Cards.verticalInset,
+                                                  leading: Theme.Cards.horizontalInset,
+                                                  bottom: Theme.Cards.verticalInset,
+                                                  trailing: Theme.Cards.horizontalInset))
+                }
+                .onDelete(perform: deleteEntries)
             }
-            .onDelete(perform: deleteEntries)
-        }
-        .navigationTitle("Captures")
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    showingCapture = true
-                } label: {
-                    Label("Capture", systemImage: "plus")
+                .scrollContentBackground(.hidden)
+                .listStyle(.plain)
+                .listRowSeparator(.hidden)
+                .navigationTitle("Captures")
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button {
+                            showingCapture = true
+                        } label: {
+                            Label("Capture", systemImage: "plus")
+                        }
+                    }
+                    ToolbarItem(placement: .topBarLeading) {
+                        EditButton()
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showingSettings = true
+                        } label: {
+                            Image(systemName: Icons.settings)
+                        }
+                        .accessibilityLabel("Settings")
+                    }
+                }
+                .sheet(isPresented: $showingCapture, onDismiss: {
+                    _Concurrency.Task {
+                        await loadInbox()
+                    }
+                }) {
+                    CaptureSheetView()
+                }
+                .task {
+                    if workflowService == nil {
+                        workflowService = CaptureWorkflowService(modelContext: modelContext)
+                    }
+                    await loadInbox()
+                }
+                .refreshable {
+                    await loadInbox()
+                }
+                .alert("Error", isPresented: .constant(errorMessage != nil), presenting: errorMessage) { _ in
+                    Button("OK") {
+                        errorMessage = nil
+                    }
+                } message: { message in
+                    Text(message)
+                }
+                .sheet(isPresented: $showingSettings) {
+                    SettingsView()
                 }
             }
-            ToolbarItem(placement: .topBarLeading) {
-                EditButton()
-            }
-        }
-        .sheet(isPresented: $showingCapture, onDismiss: {
-            _Concurrency.Task {
-                await loadInbox()
-            }
-        }) {
-            CaptureSheetView()
-        }
-        .task {
-            if workflowService == nil {
-                workflowService = CaptureWorkflowService(modelContext: modelContext)
-            }
-            await loadInbox()
-        }
-        .refreshable {
-            await loadInbox()
-        }
-        .alert("Error", isPresented: .constant(errorMessage != nil), presenting: errorMessage) { _ in
-            Button("OK") {
-                errorMessage = nil
-            }
-        } message: { message in
-            Text(message)
         }
     }
 
@@ -108,6 +146,7 @@ struct CaptureRow: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(entry.rawText)
                 .font(Theme.Typography.body)
+                .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: themeManager.currentStyle))
                 .lineLimit(2)
 
             HStack {
@@ -136,9 +175,7 @@ struct CaptureRow: View {
 }
 
 #Preview {
-    NavigationStack {
-        CapturesView()
-    }
+    CapturesView()
     .modelContainer(PersistenceController.preview)
     .environmentObject(ThemeManager.shared)
 }

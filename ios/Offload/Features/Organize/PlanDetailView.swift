@@ -10,12 +10,19 @@
 import SwiftUI
 import SwiftData
 
+// AGENT NAV
+// - Plan Summary
+// - Task Lists
+// - Sheets + Alerts
+// - CRUD Helpers
+
 struct PlanDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
 
-    @Bindable var plan: Plan
+    @Query private var plans: [Plan]
+    let planID: UUID
 
     @State private var showingEditPlan = false
     @State private var showingAddTask = false
@@ -23,16 +30,28 @@ struct PlanDetailView: View {
     @State private var taskToEdit: Task?
     @State private var errorMessage: String?
 
-    private var activeTasks: [Task] {
-        plan.tasks?.filter { !$0.isDone }.sorted { $0.importance > $1.importance } ?? []
+    init(planID: UUID) {
+        self.planID = planID
+        _plans = Query(filter: #Predicate<Plan> { $0.id == planID })
     }
 
-    private var completedTasks: [Task] {
-        plan.tasks?.filter { $0.isDone }.sorted { $0.createdAt > $1.createdAt } ?? []
+    private var plan: Plan? {
+        plans.first
     }
 
     var body: some View {
-        List {
+        if let plan {
+            planDetailView(plan)
+        } else {
+            missingPlanView
+        }
+    }
+
+    private func planDetailView(_ plan: Plan) -> some View {
+        let activeTasks = activeTasks(for: plan)
+        let completedTasks = completedTasks(for: plan)
+
+        return List {
             // Plan Details Section
             Section {
                 VStack(alignment: .leading, spacing: 8) {
@@ -68,13 +87,15 @@ struct PlanDetailView: View {
             if !activeTasks.isEmpty {
                 Section("Active Tasks") {
                     ForEach(activeTasks) { task in
-                        TaskRowView(task: task, plan: plan)
+                        TaskRowView(task: task)
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 taskToEdit = task
                             }
                     }
-                    .onDelete(perform: deleteTasks)
+                    .onDelete { offsets in
+                        deleteTasks(activeTasks, offsets: offsets)
+                    }
                 }
             }
 
@@ -82,13 +103,15 @@ struct PlanDetailView: View {
             if !completedTasks.isEmpty {
                 Section("Completed") {
                     ForEach(completedTasks) { task in
-                        TaskRowView(task: task, plan: plan)
+                        TaskRowView(task: task)
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 taskToEdit = task
                             }
                     }
-                    .onDelete(perform: deleteCompletedTasks)
+                    .onDelete { offsets in
+                        deleteCompletedTasks(completedTasks, offsets: offsets)
+                    }
                 }
             }
 
@@ -126,19 +149,19 @@ struct PlanDetailView: View {
             EditPlanSheet(plan: plan)
         }
         .sheet(isPresented: $showingAddTask) {
-            TaskFormSheet(plan: plan) { title, detail, importance, dueDate in
-                try createTask(title: title, detail: detail, importance: importance, dueDate: dueDate)
+            TaskFormSheet { title, detail, importance, dueDate in
+                try createTask(plan, title: title, detail: detail, importance: importance, dueDate: dueDate)
             }
         }
         .sheet(item: $taskToEdit) { task in
-            TaskFormSheet(plan: plan, existingTask: task) { title, detail, importance, dueDate in
+            TaskFormSheet(existingTask: task) { title, detail, importance, dueDate in
                 try updateTask(task, title: title, detail: detail, importance: importance, dueDate: dueDate)
             }
         }
         .alert("Delete Plan?", isPresented: $showingDeleteConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
-                deletePlan()
+                deletePlan(plan)
             }
         } message: {
             Text("This will delete the plan and all its tasks. This cannot be undone.")
@@ -152,7 +175,25 @@ struct PlanDetailView: View {
         }
     }
 
-    private func createTask(title: String, detail: String?, importance: Int, dueDate: Date?) throws {
+    private var missingPlanView: some View {
+        VStack(spacing: 16) {
+            ContentUnavailableView(
+                "Plan Missing",
+                systemImage: "doc.text.magnifyingglass",
+                description: Text("This plan no longer exists.")
+            )
+
+            Button("Close") {
+                dismiss()
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationTitle("Plan")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func createTask(_ plan: Plan, title: String, detail: String?, importance: Int, dueDate: Date?) throws {
         let task = Task(
             title: title,
             detail: detail,
@@ -174,9 +215,9 @@ struct PlanDetailView: View {
         try modelContext.save()
     }
 
-    private func deleteTasks(offsets: IndexSet) {
+    private func deleteTasks(_ tasks: [Task], offsets: IndexSet) {
         // Capture tasks to delete before modifying
-        let tasksToDelete = offsets.map { activeTasks[$0] }
+        let tasksToDelete = offsets.map { tasks[$0] }
 
         for task in tasksToDelete {
             modelContext.delete(task)
@@ -190,9 +231,9 @@ struct PlanDetailView: View {
         }
     }
 
-    private func deleteCompletedTasks(offsets: IndexSet) {
+    private func deleteCompletedTasks(_ tasks: [Task], offsets: IndexSet) {
         // Capture tasks to delete before modifying
-        let tasksToDelete = offsets.map { completedTasks[$0] }
+        let tasksToDelete = offsets.map { tasks[$0] }
 
         for task in tasksToDelete {
             modelContext.delete(task)
@@ -206,7 +247,15 @@ struct PlanDetailView: View {
         }
     }
 
-    private func deletePlan() {
+    private func activeTasks(for plan: Plan) -> [Task] {
+        plan.tasks?.filter { !$0.isDone }.sorted { $0.importance > $1.importance } ?? []
+    }
+
+    private func completedTasks(for plan: Plan) -> [Task] {
+        plan.tasks?.filter { $0.isDone }.sorted { $0.createdAt > $1.createdAt } ?? []
+    }
+
+    private func deletePlan(_ plan: Plan) {
         modelContext.delete(plan)
 
         do {
@@ -221,7 +270,6 @@ struct PlanDetailView: View {
 
 private struct TaskRowView: View {
     @Bindable var task: Task
-    let plan: Plan
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -316,7 +364,6 @@ private struct EditPlanSheet: View {
 }
 
 private struct TaskFormSheet: View {
-    let plan: Plan
     let existingTask: Task?
     let onSave: (String, String?, Int, Date?) async throws -> Void
 
@@ -326,8 +373,7 @@ private struct TaskFormSheet: View {
     @State private var hasDueDate: Bool
     @State private var dueDate: Date
 
-    init(plan: Plan, existingTask: Task? = nil, onSave: @escaping (String, String?, Int, Date?) async throws -> Void) {
-        self.plan = plan
+    init(existingTask: Task? = nil, onSave: @escaping (String, String?, Int, Date?) async throws -> Void) {
         self.existingTask = existingTask
         self.onSave = onSave
 
@@ -389,11 +435,13 @@ private struct TaskFormSheet: View {
 
 
 #Preview {
+    let container = PersistenceController.preview
     let plan = Plan(title: "Sample Plan", detail: "A plan for testing")
+    container.mainContext.insert(plan)
 
-    NavigationStack {
-        PlanDetailView(plan: plan)
+    return NavigationStack {
+        PlanDetailView(planID: plan.id)
     }
-    .modelContainer(PersistenceController.preview)
+    .modelContainer(container)
     .environmentObject(ThemeManager.shared)
 }
