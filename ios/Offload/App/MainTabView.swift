@@ -1,18 +1,12 @@
-// Intent: Provide shallow navigation with a persistent capture entry point aligned to ADHD-friendly guardrails.
 //
 //  MainTabView.swift
 //  Offload
 //
-//  Created by Claude Code on 12/30/25.
+//  Flat design with floating pill tab bar and center capture button
 //
 
 import SwiftUI
 import SwiftData
-
-// AGENT NAV
-// - TabView Shell
-// - Floating Capture Button
-// - Capture Sheet Presentation
 
 struct MainTabView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -20,85 +14,186 @@ struct MainTabView: View {
     @State private var selectedTab: Tab = .captures
     @State private var showingCapture = false
 
+    private var style: ThemeStyle { themeManager.currentStyle }
+
     var body: some View {
-        TabView(selection: $selectedTab) {
-            CapturesView()
-                .tabItem {
-                    Label("Captures", systemImage: Icons.inbox)
-                }
-                .tag(Tab.captures)
+        ZStack(alignment: .bottom) {
+            // Content
+            TabContent(selectedTab: selectedTab)
+                .ignoresSafeArea(edges: .bottom)
 
-            OrganizeView(scope: .plans)
-                .tabItem {
-                    Label("Plans", systemImage: Icons.plans)
-                }
-                .tag(Tab.plans)
-
-            OrganizeView(scope: .lists)
-                .tabItem {
-                    Label("Lists", systemImage: Icons.lists)
-                }
-                .tag(Tab.lists)
-
-            OrganizeView(scope: .communications)
-                .tabItem {
-                    Label("Comms", systemImage: Icons.communications)
-                }
-                .tag(Tab.communications)
-        }
-        .tint(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
-        .safeAreaInset(edge: .bottom) {
-            HStack {
-                Spacer()
-                // Floating Action Button for quick capture
-                Button {
-                    showingCapture = true
-                } label: {
-                    Label {
-                        Text("Capture")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundStyle(Color.white)
-                            .padding(.top, 2)
-                    } icon: {
-                        Image(systemName: Icons.capture)
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(Color.white)
-                    }
-                    .padding(.vertical, Theme.Spacing.sm)
-                    .padding(.horizontal, Theme.Spacing.md)
-                    .frame(minWidth: Theme.HitTarget.minimum.width,
-                           minHeight: Theme.HitTarget.minimum.height)
-                    .background(
-                        Capsule()
-                            .fill(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle))
-                    )
-                    .overlay(
-                        Capsule()
-                            .strokeBorder(Theme.Colors.focusRing(colorScheme, style: themeManager.currentStyle), lineWidth: 2)
-                    )
-                    .shadow(color: Theme.Colors.focusRing(colorScheme, style: themeManager.currentStyle).opacity(0.35),
-                            radius: Theme.Shadows.elevationMd,
-                            y: 4)
-                }
-                .accessibilityLabel("Capture new entry")
-                .accessibilityHint("Opens quick capture sheet; you can organize later")
-            }
+            // Floating tab bar
+            FloatingTabBar(
+                selectedTab: $selectedTab,
+                onCaptureTap: { showingCapture = true },
+                colorScheme: colorScheme,
+                style: style
+            )
             .padding(.horizontal, Theme.Spacing.lg)
-            .padding(.top, Theme.Spacing.sm)
             .padding(.bottom, Theme.Spacing.sm)
-            .offset(y: -Theme.Spacing.lg)
-            .background(Color.clear)
         }
         .sheet(isPresented: $showingCapture) {
             CaptureView()
         }
     }
 
-    enum Tab {
+    enum Tab: CaseIterable {
         case captures
         case plans
         case lists
         case communications
+
+        var icon: String {
+            switch self {
+            case .captures: return Icons.inbox
+            case .plans: return Icons.plans
+            case .lists: return Icons.lists
+            case .communications: return Icons.communications
+            }
+        }
+
+        var label: String {
+            switch self {
+            case .captures: return "Captures"
+            case .plans: return "Plans"
+            case .lists: return "Lists"
+            case .communications: return "Comms"
+            }
+        }
+    }
+}
+
+// MARK: - Tab Content
+
+private struct TabContent: View {
+    let selectedTab: MainTabView.Tab
+
+    var body: some View {
+        switch selectedTab {
+        case .captures:
+            CapturesView()
+        case .plans:
+            OrganizeView(scope: .plans)
+        case .lists:
+            OrganizeView(scope: .lists)
+        case .communications:
+            OrganizeView(scope: .communications)
+        }
+    }
+}
+
+// MARK: - Floating Tab Bar
+
+private struct FloatingTabBar: View {
+    @Binding var selectedTab: MainTabView.Tab
+    let onCaptureTap: () -> Void
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+
+    var body: some View {
+        HStack(spacing: 0) {
+            // Left tabs
+            TabButton(
+                tab: .captures,
+                isSelected: selectedTab == .captures,
+                colorScheme: colorScheme,
+                style: style
+            ) { selectedTab = .captures }
+
+            TabButton(
+                tab: .plans,
+                isSelected: selectedTab == .plans,
+                colorScheme: colorScheme,
+                style: style
+            ) { selectedTab = .plans }
+
+            // Center capture button
+            CaptureButton(
+                colorScheme: colorScheme,
+                style: style,
+                action: onCaptureTap
+            )
+            .padding(.horizontal, Theme.Spacing.sm)
+
+            // Right tabs
+            TabButton(
+                tab: .lists,
+                isSelected: selectedTab == .lists,
+                colorScheme: colorScheme,
+                style: style
+            ) { selectedTab = .lists }
+
+            TabButton(
+                tab: .communications,
+                isSelected: selectedTab == .communications,
+                colorScheme: colorScheme,
+                style: style
+            ) { selectedTab = .communications }
+        }
+        .padding(.horizontal, Theme.Spacing.sm)
+        .padding(.vertical, Theme.Spacing.sm)
+        .background(
+            Capsule()
+                .fill(Theme.Colors.surface(colorScheme, style: style))
+                .overlay(
+                    Capsule()
+                        .stroke(Theme.Colors.border(colorScheme, style: style), lineWidth: 1)
+                )
+        )
+    }
+}
+
+// MARK: - Tab Button
+
+private struct TabButton: View {
+    let tab: MainTabView.Tab
+    let isSelected: Bool
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 2) {
+                Image(systemName: tab.icon)
+                    .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
+                Text(tab.label)
+                    .font(.system(size: 10, weight: isSelected ? .medium : .regular))
+            }
+            .foregroundStyle(
+                isSelected
+                    ? Theme.Colors.primary(colorScheme, style: style)
+                    : Theme.Colors.textSecondary(colorScheme, style: style)
+            )
+            .frame(minWidth: 56, minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(tab.label)
+    }
+}
+
+// MARK: - Center Capture Button
+
+private struct CaptureButton: View {
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: Icons.capture)
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(Color.white)
+                .frame(width: 52, height: 52)
+                .background(
+                    Circle()
+                        .fill(Theme.Colors.primary(colorScheme, style: style))
+                )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Capture")
+        .accessibilityHint("Opens quick capture sheet")
     }
 }
 
