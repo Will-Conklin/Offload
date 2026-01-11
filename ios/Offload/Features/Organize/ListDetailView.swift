@@ -2,9 +2,7 @@
 //  ListDetailView.swift
 //  Offload
 //
-//  Created by Claude Code on 1/5/26.
-//
-//  Intent: Detail view for managing a list and its items.
+//  Flat design list detail with simple checkboxes
 //
 
 import SwiftUI
@@ -18,189 +16,145 @@ struct ListDetailView: View {
 
     @Bindable var list: ListEntity
 
-    @State private var showingEditList = false
-    @State private var showingAddItem = false
-    @State private var showingDeleteConfirmation = false
+    @State private var showingEdit = false
+    @State private var showingDelete = false
     @State private var newItemText = ""
-    @State private var errorMessage: String?
 
-    private var uncheckedItems: [ListItem] {
-        list.items?.filter { !$0.isChecked }.sorted { $0.text < $1.text } ?? []
-    }
-
-    private var checkedItems: [ListItem] {
-        list.items?.filter { $0.isChecked }.sorted { $0.text < $1.text } ?? []
-    }
+    private var style: ThemeStyle { themeManager.currentStyle }
 
     var body: some View {
-        List {
-            // List Details Section
-            Section {
-                VStack(alignment: .leading, spacing: 8) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                // Header card
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     HStack {
                         Text(list.title)
-                            .font(.title2)
-                            .fontWeight(.bold)
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
 
                         Spacer()
 
                         Text(list.listKind.rawValue.capitalized)
-                            .font(Theme.Typography.badge)
-                            .padding(.horizontal, 10)
+                            .font(.caption)
+                            .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                            .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Theme.Colors.accentPrimary(colorScheme, style: themeManager.currentStyle).opacity(0.2))
-                            .cornerRadius(Theme.CornerRadius.sm)
+                            .background(Theme.Colors.primary(colorScheme, style: style).opacity(0.15))
+                            .clipShape(Capsule())
                     }
 
-                    if let itemCount = list.items?.count, itemCount > 0 {
-                        let checkedCount = checkedItems.count
+                    if let count = list.items?.count, count > 0 {
+                        let checked = list.items?.filter { $0.isChecked }.count ?? 0
                         HStack {
-                            Text("\(checkedCount)/\(itemCount) items")
+                            Text("\(checked)/\(count) items")
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
 
                             Spacer()
 
                             Text(list.createdAt, format: .dateTime.month().day().year())
                                 .font(.caption)
-                                .foregroundStyle(.tertiary)
+                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
                         }
                     }
                 }
-                .padding(.vertical, 4)
-            }
+                .padding(Theme.Spacing.md)
+                .background(Theme.Colors.card(colorScheme, style: style))
+                .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.md))
 
-            // Quick Add Section
-            Section {
-                HStack {
+                // Quick add
+                HStack(spacing: Theme.Spacing.sm) {
                     TextField("Add item...", text: $newItemText)
-                        .onSubmit {
-                            addQuickItem()
-                        }
+                        .font(.body)
+                        .padding(Theme.Spacing.sm)
+                        .background(Theme.Colors.surface(colorScheme, style: style))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.md))
+                        .onSubmit { addItem() }
 
                     if !newItemText.isEmpty {
-                        Button("Add") {
-                            addQuickItem()
+                        Button(action: addItem) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                        }
+                    }
+                }
+
+                // Items
+                if let items = list.items, !items.isEmpty {
+                    let unchecked = items.filter { !$0.isChecked }.sorted { $0.text < $1.text }
+                    let checked = items.filter { $0.isChecked }.sorted { $0.text < $1.text }
+
+                    if !unchecked.isEmpty {
+                        Text("Items")
+                            .font(.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                            .padding(.top, Theme.Spacing.sm)
+
+                        ForEach(unchecked) { item in
+                            ItemRow(item: item, colorScheme: colorScheme, style: style)
+                        }
+                    }
+
+                    if !checked.isEmpty {
+                        Text("Completed")
+                            .font(.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                            .padding(.top, Theme.Spacing.sm)
+
+                        ForEach(checked) { item in
+                            ItemRow(item: item, colorScheme: colorScheme, style: style)
                         }
                     }
                 }
             }
-
-            // Unchecked Items Section
-            if !uncheckedItems.isEmpty {
-                Section("Items") {
-                    ForEach(uncheckedItems) { item in
-                        ListItemRowView(item: item)
-                    }
-                    .onDelete(perform: deleteUncheckedItems)
-                }
-            }
-
-            // Checked Items Section
-            if !checkedItems.isEmpty {
-                Section("Completed") {
-                    ForEach(checkedItems) { item in
-                        ListItemRowView(item: item)
-                    }
-                    .onDelete(perform: deleteCheckedItems)
-                }
-            }
+            .padding(.horizontal, Theme.Spacing.md)
+            .padding(.top, Theme.Spacing.md)
+            .padding(.bottom, 100)
         }
+        .background(Theme.Colors.background(colorScheme, style: style))
         .navigationTitle("List")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button {
-                        showingEditList = true
-                    } label: {
-                        Label("Edit List", systemImage: "pencil")
+                    Button { showingEdit = true } label: {
+                        Label("Edit", systemImage: "pencil")
                     }
-
-                    if let items = list.items, !items.isEmpty {
-                        Button {
-                            clearCompleted()
-                        } label: {
+                    if let items = list.items, items.filter({ $0.isChecked }).count > 0 {
+                        Button { clearCompleted() } label: {
                             Label("Clear Completed", systemImage: "trash")
                         }
                     }
-
-                    Button(role: .destructive) {
-                        showingDeleteConfirmation = true
-                    } label: {
-                        Label("Delete List", systemImage: "trash")
+                    Button(role: .destructive) { showingDelete = true } label: {
+                        Label("Delete", systemImage: "trash")
                     }
                 } label: {
-                    Label("More", systemImage: "ellipsis.circle")
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
-        .sheet(isPresented: $showingEditList) {
+        .sheet(isPresented: $showingEdit) {
             EditListSheet(list: list)
         }
-        .alert("Delete List?", isPresented: $showingDeleteConfirmation) {
-            Button("Cancel", role: .cancel) { }
+        .alert("Delete List?", isPresented: $showingDelete) {
+            Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
-                deleteList()
+                modelContext.delete(list)
+                dismiss()
             }
         } message: {
-            Text("This will delete the list and all its items. This cannot be undone.")
-        }
-        .alert("Error", isPresented: .constant(errorMessage != nil), presenting: errorMessage) { _ in
-            Button("OK") {
-                errorMessage = nil
-            }
-        } message: { message in
-            Text(message)
+            Text("This will delete the list and all items.")
         }
     }
 
-    private func addQuickItem() {
+    private func addItem() {
         let trimmed = newItemText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
         let item = ListItem(text: trimmed, list: list)
         modelContext.insert(item)
-
-        do {
-            try modelContext.save()
-            newItemText = ""
-        } catch {
-            modelContext.rollback()
-            errorMessage = "Failed to add item: \(error.localizedDescription)"
-        }
-    }
-
-    private func deleteUncheckedItems(offsets: IndexSet) {
-        // Capture items to delete before modifying
-        let itemsToDelete = offsets.map { uncheckedItems[$0] }
-
-        for item in itemsToDelete {
-            modelContext.delete(item)
-        }
-
-        do {
-            try modelContext.save()
-        } catch {
-            modelContext.rollback()
-            errorMessage = "Failed to delete items: \(error.localizedDescription)"
-        }
-    }
-
-    private func deleteCheckedItems(offsets: IndexSet) {
-        // Capture items to delete before modifying
-        let itemsToDelete = offsets.map { checkedItems[$0] }
-
-        for item in itemsToDelete {
-            modelContext.delete(item)
-        }
-
-        do {
-            try modelContext.save()
-        } catch {
-            modelContext.rollback()
-            errorMessage = "Failed to delete items: \(error.localizedDescription)"
-        }
+        newItemText = ""
     }
 
     private func clearCompleted() {
@@ -208,54 +162,47 @@ struct ListDetailView: View {
         for item in items where item.isChecked {
             modelContext.delete(item)
         }
-
-        do {
-            try modelContext.save()
-        } catch {
-            modelContext.rollback()
-            errorMessage = "Failed to clear completed items: \(error.localizedDescription)"
-        }
-    }
-
-    private func deleteList() {
-        modelContext.delete(list)
-
-        do {
-            try modelContext.save()
-            dismiss()
-        } catch {
-            modelContext.rollback()
-            errorMessage = "Failed to delete list: \(error.localizedDescription)"
-        }
     }
 }
 
-private struct ListItemRowView: View {
+// MARK: - Item Row
+
+private struct ItemRow: View {
     @Bindable var item: ListItem
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
 
     var body: some View {
-        HStack(spacing: 12) {
-            Button {
-                item.isChecked.toggle()
-            } label: {
+        HStack(alignment: .center, spacing: Theme.Spacing.sm) {
+            Button { item.isChecked.toggle() } label: {
                 Image(systemName: item.isChecked ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
-                    .foregroundStyle(item.isChecked ? .green : .secondary)
+                    .foregroundStyle(item.isChecked ? Theme.Colors.success(colorScheme, style: style) : Theme.Colors.textSecondary(colorScheme, style: style))
             }
             .buttonStyle(.plain)
 
             Text(item.text)
+                .font(.body)
                 .strikethrough(item.isChecked)
-                .foregroundStyle(item.isChecked ? .secondary : .primary)
+                .foregroundStyle(item.isChecked ? Theme.Colors.textSecondary(colorScheme, style: style) : Theme.Colors.textPrimary(colorScheme, style: style))
+
+            Spacer()
         }
+        .padding(Theme.Spacing.md)
+        .background(Theme.Colors.surface(colorScheme, style: style))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
+                .stroke(Theme.Colors.border(colorScheme, style: style), lineWidth: 1)
+        )
     }
 }
 
+// MARK: - Edit List Sheet
+
 private struct EditListSheet: View {
-    @Environment(\.modelContext) private var modelContext
-
     @Bindable var list: ListEntity
-
+    @Environment(\.dismiss) private var dismiss
     @State private var title: String
     @State private var kind: ListKind
 
@@ -266,36 +213,34 @@ private struct EditListSheet: View {
     }
 
     var body: some View {
-        FormSheet(
-            title: "Edit List",
-            saveButtonTitle: "Save",
-            isSaveDisabled: title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-            onSave: {
-                let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
-
-                guard !trimmedTitle.isEmpty else {
-                    throw ValidationError("List title is required.")
-                }
-
-                list.title = trimmedTitle
-                list.listKind = kind
-
-                try modelContext.save()
-            }
-        ) {
-            Section("Details") {
-                TextField("List title", text: $title)
+        NavigationStack {
+            Form {
+                TextField("Title", text: $title)
                 Picker("Type", selection: $kind) {
-                    ForEach(ListKind.allCases, id: \.self) { kind in
-                        Text(kind.rawValue.capitalized).tag(kind)
+                    ForEach(ListKind.allCases, id: \.self) { k in
+                        Text(k.rawValue.capitalized).tag(k)
                     }
                 }
                 .pickerStyle(.segmented)
             }
+            .navigationTitle("Edit List")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        list.title = title
+                        list.listKind = kind
+                        dismiss()
+                    }
+                    .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
         }
     }
 }
-
 
 #Preview {
     let list = ListEntity(title: "Sample List", kind: .shopping)
