@@ -27,16 +27,16 @@ class ThemeManager: ObservableObject {
     /// - Parameter loadFromUserDefaults: Whether to load saved theme from UserDefaults (default: true)
     init(loadFromUserDefaults: Bool = true) {
         if loadFromUserDefaults {
-            // Load saved theme from UserDefaults, default to blueCool
+            // Load saved theme from UserDefaults, default to oceanTeal
             if let savedStyleString = UserDefaults.standard.string(forKey: "selectedThemeStyle"),
                let savedStyle = ThemeStyle(rawValue: savedStyleString) {
                 self.currentStyle = savedStyle
             } else {
-                self.currentStyle = .blueCool
+                self.currentStyle = .oceanTeal
             }
         } else {
             // For testing: use default theme without persisting
-            self.currentStyle = .blueCool
+            self.currentStyle = .oceanTeal
         }
     }
 
