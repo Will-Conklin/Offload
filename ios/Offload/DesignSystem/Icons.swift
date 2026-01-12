@@ -22,7 +22,6 @@ struct Icons {
     static let settings = "gearshape"
     static let plans = "folder"
     static let lists = "list.bullet"
-    static let communications = "bubble.left.and.bubble.right"
 
     // MARK: - Actions
 
@@ -39,12 +38,6 @@ struct Icons {
     static let incomplete = "circle"
     static let waiting = "clock"
     static let someday = "calendar"
-
-    // MARK: - Priority
-
-    static let highPriority = "exclamationmark.3"
-    static let mediumPriority = "exclamationmark.2"
-    static let lowPriority = "exclamationmark"
 
     // MARK: - Content Types
 
