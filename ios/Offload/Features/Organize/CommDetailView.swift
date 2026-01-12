@@ -24,6 +24,7 @@ struct CommDetailView: View {
 
     @State private var showingEdit = false
     @State private var showingDelete = false
+    @State private var commConversion: CommConversion?
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
@@ -109,6 +110,23 @@ struct CommDetailView: View {
                     Button { showingEdit = true } label: {
                         Label("Edit", systemImage: "pencil")
                     }
+
+                    Divider()
+
+                    Button {
+                        commConversion = .toTask(comm)
+                    } label: {
+                        Label("Convert to Task", systemImage: Icons.plans)
+                    }
+
+                    Button {
+                        commConversion = .toListItem(comm)
+                    } label: {
+                        Label("Convert to List Item", systemImage: Icons.lists)
+                    }
+
+                    Divider()
+
                     Button(role: .destructive) { showingDelete = true } label: {
                         Label("Delete", systemImage: "trash")
                     }
@@ -119,6 +137,18 @@ struct CommDetailView: View {
         }
         .sheet(isPresented: $showingEdit) {
             EditCommSheet(comm: comm)
+        }
+        .sheet(item: $commConversion) { conversion in
+            switch conversion {
+            case .toTask(let comm):
+                CommToTaskSheet(comm: comm, modelContext: modelContext) {
+                    commConversion = nil
+                }
+            case .toListItem(let comm):
+                CommToListSheet(comm: comm, modelContext: modelContext) {
+                    commConversion = nil
+                }
+            }
         }
         .alert("Delete Communication?", isPresented: $showingDelete) {
             Button("Cancel", role: .cancel) {}
@@ -202,6 +232,256 @@ private struct EditCommSheet: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Comm Conversion
+
+enum CommConversion: Identifiable {
+    case toTask(CommunicationItem)
+    case toListItem(CommunicationItem)
+
+    var id: String {
+        switch self {
+        case .toTask(let comm): return "task-\(comm.id)"
+        case .toListItem(let comm): return "list-\(comm.id)"
+        }
+    }
+}
+
+// MARK: - Comm to Task Sheet
+
+private struct CommToTaskSheet: View {
+    let comm: CommunicationItem
+    let modelContext: ModelContext
+    let onComplete: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
+
+    @Query(sort: \Plan.createdAt, order: .reverse) private var plans: [Plan]
+    @State private var selectedPlan: Plan?
+    @State private var createNew = false
+    @State private var newPlanTitle = ""
+    @State private var newPlanDetail = ""
+
+    private var style: ThemeStyle { themeManager.currentStyle }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if !plans.isEmpty {
+                    Section("Select Plan") {
+                        ForEach(plans) { plan in
+                            Button {
+                                selectedPlan = plan
+                                convertToSelectedPlan()
+                            } label: {
+                                HStack {
+                                    Text(plan.title)
+                                        .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+                                    Spacer()
+                                    if let count = plan.tasks?.count {
+                                        Text("\(count) tasks")
+                                            .font(.caption)
+                                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Section {
+                    Button {
+                        createNew = true
+                    } label: {
+                        Label("Create New Plan", systemImage: "plus.circle.fill")
+                            .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                    }
+                }
+            }
+            .navigationTitle("Convert to Task")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+            .sheet(isPresented: $createNew) {
+                NavigationStack {
+                    Form {
+                        TextField("Plan title", text: $newPlanTitle)
+                        TextField("Description (optional)", text: $newPlanDetail, axis: .vertical)
+                            .lineLimit(3...6)
+                    }
+                    .navigationTitle("New Plan")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") { createNew = false }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Create") {
+                                createNewPlanAndConvert()
+                            }
+                            .disabled(newPlanTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func convertToSelectedPlan() {
+        guard let plan = selectedPlan else { return }
+        let task = Task(
+            title: comm.content,
+            detail: "To: \(comm.recipient) via \(comm.communicationChannel.rawValue)",
+            importance: 3,
+            dueDate: nil,
+            plan: plan
+        )
+        modelContext.insert(task)
+        modelContext.delete(comm)
+        dismiss()
+        onComplete()
+    }
+
+    private func createNewPlanAndConvert() {
+        let trimmed = newPlanTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        let plan = Plan(
+            title: trimmed,
+            detail: newPlanDetail.isEmpty ? nil : newPlanDetail
+        )
+        modelContext.insert(plan)
+
+        let task = Task(
+            title: comm.content,
+            detail: "To: \(comm.recipient) via \(comm.communicationChannel.rawValue)",
+            importance: 3,
+            dueDate: nil,
+            plan: plan
+        )
+        modelContext.insert(task)
+        modelContext.delete(comm)
+        createNew = false
+        dismiss()
+        onComplete()
+    }
+}
+
+// MARK: - Comm to List Sheet
+
+private struct CommToListSheet: View {
+    let comm: CommunicationItem
+    let modelContext: ModelContext
+    let onComplete: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
+
+    @Query(sort: \ListEntity.createdAt, order: .reverse) private var lists: [ListEntity]
+    @State private var selectedList: ListEntity?
+    @State private var createNew = false
+    @State private var newListTitle = ""
+    @State private var newListKind: ListKind = .reference
+
+    private var style: ThemeStyle { themeManager.currentStyle }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if !lists.isEmpty {
+                    Section("Select List") {
+                        ForEach(lists) { list in
+                            Button {
+                                selectedList = list
+                                convertToSelectedList()
+                            } label: {
+                                HStack {
+                                    Text(list.title)
+                                        .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+                                    Spacer()
+                                    Text(list.listKind.rawValue.capitalized)
+                                        .font(.caption)
+                                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Section {
+                    Button {
+                        createNew = true
+                    } label: {
+                        Label("Create New List", systemImage: "plus.circle.fill")
+                            .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                    }
+                }
+            }
+            .navigationTitle("Convert to List")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+            .sheet(isPresented: $createNew) {
+                NavigationStack {
+                    Form {
+                        TextField("List title", text: $newListTitle)
+                        Picker("Type", selection: $newListKind) {
+                            ForEach(ListKind.allCases, id: \.self) { kind in
+                                Text(kind.rawValue.capitalized).tag(kind)
+                            }
+                        }
+                    }
+                    .navigationTitle("New List")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") { createNew = false }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Create") {
+                                createNewListAndConvert()
+                            }
+                            .disabled(newListTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func convertToSelectedList() {
+        guard let list = selectedList else { return }
+        let item = ListItem(text: "\(comm.recipient): \(comm.content)", list: list)
+        modelContext.insert(item)
+        modelContext.delete(comm)
+        dismiss()
+        onComplete()
+    }
+
+    private func createNewListAndConvert() {
+        let trimmed = newListTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        let list = ListEntity(title: trimmed, kind: newListKind)
+        modelContext.insert(list)
+
+        let item = ListItem(text: "\(comm.recipient): \(comm.content)", list: list)
+        modelContext.insert(item)
+        modelContext.delete(comm)
+        createNew = false
+        dismiss()
+        onComplete()
     }
 }
 
