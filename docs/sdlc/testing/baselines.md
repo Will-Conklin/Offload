@@ -9,7 +9,7 @@ Record wall-clock durations for key test commands to watch for regressions.
 ## Environment
 
 - Xcode: 16.2
-- Simulator: iPhone 16 Pro (iOS 18.3.1)
+- Simulator: iPhone 16 Pro (iOS 18.3)
 - Scheme: `offload`
 
 Command:
