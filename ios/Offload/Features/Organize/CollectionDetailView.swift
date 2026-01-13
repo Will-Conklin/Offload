@@ -173,14 +173,6 @@ private struct ItemRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-            // Position indicator for structured collections
-            if isStructured, let position = collectionItem.position {
-                Text("\(position + 1).")
-                    .font(.caption)
-                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-                    .frame(width: 30, alignment: .trailing)
-            }
-
             // Content
             VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                 Text(item.content)
