@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 // AGENT NAV
 // - State
@@ -178,6 +179,15 @@ private struct ItemCard: View {
             Text(item.content)
                 .font(.body)
                 .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+
+            if let attachmentData = item.attachmentData,
+               let uiImage = UIImage(data: attachmentData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 140)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
+            }
 
             // Tags and metadata
             HStack(spacing: Theme.Spacing.sm) {

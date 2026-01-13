@@ -33,6 +33,7 @@ struct CollectionDetailView: View {
     @State private var showingAddItem = false
     @State private var showingEdit = false
     @State private var linkedCollection: Collection?
+    @State private var editingItem: Item?
     @State private var tagPickerItem: Item?
 
     private var style: ThemeStyle { themeManager.currentStyle }
@@ -61,6 +62,7 @@ struct CollectionDetailView: View {
                                         style: style,
                                         onAddTag: { tagPickerItem = item },
                                         onDelete: { deleteItem(collectionItem) },
+                                        onEdit: { editingItem = item },
                                         onOpenLink: { openLinkedCollection($0) }
                                     )
                                 }
@@ -97,6 +99,9 @@ struct CollectionDetailView: View {
             if let collection = collection {
                 EditCollectionSheet(collection: collection)
             }
+        }
+        .sheet(item: $editingItem) { item in
+            ItemEditSheet(item: item)
         }
         .sheet(item: $tagPickerItem) { item in
             TagPickerSheet(
@@ -230,6 +235,7 @@ private struct ItemRow: View {
     let style: ThemeStyle
     let onAddTag: () -> Void
     let onDelete: () -> Void
+    let onEdit: () -> Void
     let onOpenLink: (UUID) -> Void
 
     @Environment(\.modelContext) private var modelContext
@@ -247,6 +253,15 @@ private struct ItemRow: View {
                 Text(displayTitle)
                     .font(.body)
                     .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+
+                if let attachmentData = item.attachmentData,
+                   let uiImage = UIImage(data: attachmentData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 140)
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
+                }
 
                 HStack(spacing: Theme.Spacing.sm) {
                     // Type indicator
@@ -331,6 +346,8 @@ private struct ItemRow: View {
         .onTapGesture {
             if isLink, let linkedId = item.linkedCollectionId {
                 onOpenLink(linkedId)
+            } else {
+                onEdit()
             }
         }
         .onAppear {
@@ -492,6 +509,57 @@ private struct TagSelectionSheet: View {
             .onAppear {
                 let desc = FetchDescriptor<Tag>(sortBy: [SortDescriptor(\.name)])
                 allTags = (try? modelContext.fetch(desc)) ?? []
+            }
+        }
+    }
+}
+
+// MARK: - Item Edit Sheet
+
+private struct ItemEditSheet: View {
+    let item: Item
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @State private var content: String
+
+    init(item: Item) {
+        self.item = item
+        _content = State(initialValue: item.content)
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Content") {
+                    TextEditor(text: $content)
+                        .frame(minHeight: 120)
+                }
+
+                if let attachmentData = item.attachmentData,
+                   let uiImage = UIImage(data: attachmentData) {
+                    Section("Attachment") {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 180)
+                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
+                    }
+                }
+            }
+            .navigationTitle("Edit Item")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        item.content = content.trimmingCharacters(in: .whitespacesAndNewlines)
+                        try? modelContext.save()
+                        dismiss()
+                    }
+                }
             }
         }
     }
