@@ -8,6 +8,13 @@
 import SwiftUI
 import SwiftData
 
+// AGENT NAV
+// - State
+// - Layout
+// - Actions
+// - Item Card
+// - Tag Picker
+
 struct CapturesView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
@@ -45,6 +52,7 @@ struct CapturesView: View {
                                 style: style,
                                 onTap: { selectedItem = item },
                                 onAddTag: { tagPickerItem = item },
+                                onToggleStar: { toggleStar(item) },
                                 onDelete: { deleteItem(item) },
                                 onComplete: { completeItem(item) },
                                 onMoveTo: { destination in
@@ -136,6 +144,10 @@ struct CapturesView: View {
             item.tags.append(tag.name)
         }
     }
+
+    private func toggleStar(_ item: Item) {
+        item.isStarred.toggle()
+    }
 }
 
 // MARK: - Move Destination
@@ -153,6 +165,7 @@ private struct ItemCard: View {
     let style: ThemeStyle
     let onTap: () -> Void
     let onAddTag: () -> Void
+    let onToggleStar: () -> Void
     let onDelete: () -> Void
     let onComplete: () -> Void
     let onMoveTo: (MoveDestination) -> Void
@@ -168,11 +181,14 @@ private struct ItemCard: View {
 
             // Tags and metadata
             HStack(spacing: Theme.Spacing.sm) {
-                // Star indicator
-                if item.isStarred {
-                    Image(systemName: "star.fill")
+                // Star toggle
+                Button(action: onToggleStar) {
+                    Image(systemName: item.isStarred ? "star.fill" : "star")
                         .font(.caption2)
-                        .foregroundStyle(Theme.Colors.caution(colorScheme, style: style))
+                        .foregroundStyle(item.isStarred
+                            ? Theme.Colors.caution(colorScheme, style: style)
+                            : Theme.Colors.textSecondary(colorScheme, style: style))
+                        .frame(width: 24, height: 24)
                 }
 
                 // Tags
@@ -193,6 +209,7 @@ private struct ItemCard: View {
                     Image(systemName: "plus")
                         .font(.caption)
                         .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                        .frame(width: 24, height: 24)
                 }
             }
 
