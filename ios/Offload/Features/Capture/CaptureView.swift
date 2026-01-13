@@ -2,7 +2,7 @@
 //  CaptureView.swift
 //  Offload
 //
-//  Minimal capture: text + mic + photo, optional tags/category/priority
+//  Minimal capture: text + mic + photo, optional tags/starred
 //
 
 import SwiftUI
@@ -16,7 +16,7 @@ struct CaptureView: View {
     @EnvironmentObject private var themeManager: ThemeManager
 
     @State private var text: String = ""
-    @State private var isPriority: Bool = false
+    @State private var isStarred: Bool = false
     @State private var selectedTags: [Tag] = []
     @State private var showingTags = false
     @State private var selectedPhoto: PhotosPickerItem?
@@ -143,13 +143,13 @@ struct CaptureView: View {
                             .frame(width: 44, height: 44)
                     }
 
-                    // Priority
-                    Button { isPriority.toggle() } label: {
-                        Image(systemName: isPriority ? "exclamationmark.circle.fill" : "exclamationmark.circle")
+                    // Star
+                    Button { isStarred.toggle() } label: {
+                        Image(systemName: isStarred ? "star.fill" : "star")
                             .font(.title3)
                             .foregroundStyle(
-                                isPriority
-                                    ? Theme.Colors.caution(colorScheme, style: style)
+                                isStarred
+                                    ? Theme.Colors.warning(colorScheme, style: style)
                                     : Theme.Colors.textSecondary(colorScheme, style: style)
                             )
                             .frame(width: 44, height: 44)
@@ -241,7 +241,7 @@ struct CaptureView: View {
             type: nil, // Uncategorized capture
             content: text.trimmingCharacters(in: .whitespacesAndNewlines),
             tags: selectedTags.map { $0.name },
-            isStarred: isPriority
+            isStarred: isStarred
         )
         // TODO: Store photoData in metadata when needed
         modelContext.insert(item)
