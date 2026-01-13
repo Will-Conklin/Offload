@@ -172,7 +172,7 @@ private struct ItemCard: View {
                 if item.isStarred {
                     Image(systemName: "star.fill")
                         .font(.caption2)
-                        .foregroundStyle(Theme.Colors.warning(colorScheme, style: style))
+                        .foregroundStyle(Theme.Colors.caution(colorScheme, style: style))
                 }
 
                 // Tags

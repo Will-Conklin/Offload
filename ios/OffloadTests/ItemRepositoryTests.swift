@@ -9,6 +9,13 @@ import XCTest
 import SwiftData
 @testable import offload
 
+// AGENT NAV
+// - Setup
+// - Create Tests
+// - Fetch Tests
+// - Update Tests
+// - Delete Tests
+
 @MainActor
 final class ItemRepositoryTests: XCTestCase {
     var modelContainer: ModelContainer!
@@ -75,7 +82,11 @@ final class ItemRepositoryTests: XCTestCase {
         let item = try repository.create(content: "Follow up item", followUpDate: followUpDate)
 
         XCTAssertNotNil(item.followUpDate)
-        XCTAssertEqual(item.followUpDate?.timeIntervalSince1970, followUpDate.timeIntervalSince1970, accuracy: 1.0)
+        if let storedDate = item.followUpDate {
+            XCTAssertEqual(storedDate.timeIntervalSince1970, followUpDate.timeIntervalSince1970, accuracy: 1.0)
+        } else {
+            XCTFail("Expected followUpDate to be set")
+        }
     }
 
     // MARK: - Fetch Tests
@@ -328,7 +339,11 @@ final class ItemRepositoryTests: XCTestCase {
         try repository.updateFollowUpDate(item, date: tomorrow)
 
         XCTAssertNotNil(item.followUpDate)
-        XCTAssertEqual(item.followUpDate?.timeIntervalSince1970, tomorrow.timeIntervalSince1970, accuracy: 1.0)
+        if let storedDate = item.followUpDate {
+            XCTAssertEqual(storedDate.timeIntervalSince1970, tomorrow.timeIntervalSince1970, accuracy: 1.0)
+        } else {
+            XCTFail("Expected followUpDate to be set")
+        }
 
         // Can clear follow up date
         try repository.updateFollowUpDate(item, date: nil)

@@ -10,6 +10,11 @@
 import SwiftUI
 import Combine
 
+// AGENT NAV
+// - State
+// - Persistence
+// - Updates
+
 /// Manages the app's color theme selection and persistence
 @MainActor
 class ThemeManager: ObservableObject {
@@ -43,17 +48,5 @@ class ThemeManager: ObservableObject {
     /// Update the current theme style
     func setTheme(_ style: ThemeStyle) {
         currentStyle = style
-    }
-}
-
-/// Environment key for ThemeManager
-struct ThemeManagerKey: EnvironmentKey {
-    static let defaultValue = ThemeManager.shared
-}
-
-extension EnvironmentValues {
-    var themeManager: ThemeManager {
-        get { self[ThemeManagerKey.self] }
-        set { self[ThemeManagerKey.self] = newValue }
     }
 }

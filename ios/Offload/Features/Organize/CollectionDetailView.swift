@@ -219,7 +219,7 @@ private struct ItemRow: View {
                 } label: {
                     Image(systemName: item.isStarred ? "star.fill" : "star")
                         .font(.caption)
-                        .foregroundStyle(item.isStarred ? Theme.Colors.warning(colorScheme, style: style) : Theme.Colors.textSecondary(colorScheme, style: style))
+                        .foregroundStyle(item.isStarred ? Theme.Colors.caution(colorScheme, style: style) : Theme.Colors.textSecondary(colorScheme, style: style))
                         .frame(width: 28, height: 28)
                 }
 
@@ -307,8 +307,8 @@ private struct AddItemSheet: View {
         let item = Item(
             type: type.rawValue,
             content: content,
-            isStarred: isStarred,
-            tags: tags
+            tags: tags,
+            isStarred: isStarred
         )
         modelContext.insert(item)
 

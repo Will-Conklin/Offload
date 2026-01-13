@@ -1,6 +1,11 @@
 import Foundation
 import SwiftData
 
+// AGENT NAV
+// - Model
+// - Relationships
+// - Helpers
+
 @Model
 final class CollectionItem {
     var id: UUID
@@ -34,8 +39,11 @@ final class CollectionItem {
 
     // Helper to check if this has children
     func hasChildren(in context: ModelContext) -> Bool {
+        let parentId: UUID? = id
         let descriptor = FetchDescriptor<CollectionItem>(
-            predicate: #Predicate { $0.parentId == self.id }
+            predicate: #Predicate<CollectionItem> { item in
+                item.parentId == parentId
+            }
         )
         let children = (try? context.fetch(descriptor)) ?? []
         return !children.isEmpty
