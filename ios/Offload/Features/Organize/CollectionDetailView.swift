@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 // AGENT NAV
 // - State
@@ -25,12 +26,14 @@ struct CollectionDetailView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
 
+    @Query(sort: \Tag.name) private var allTags: [Tag]
+
     @State private var collection: Collection?
     @State private var items: [CollectionItem] = []
     @State private var showingAddItem = false
     @State private var showingEdit = false
     @State private var linkedCollection: Collection?
-    @State private var newItemContent = ""
+    @State private var tagPickerItem: Item?
 
     private var style: ThemeStyle { themeManager.currentStyle }
     private var quickAddBottomPadding: CGFloat { Theme.Spacing.xxl + Theme.Spacing.xl }
@@ -56,6 +59,7 @@ struct CollectionDetailView: View {
                                         isStructured: collection.isStructured,
                                         colorScheme: colorScheme,
                                         style: style,
+                                        onAddTag: { tagPickerItem = item },
                                         onDelete: { deleteItem(collectionItem) },
                                         onOpenLink: { openLinkedCollection($0) }
                                     )
@@ -93,6 +97,21 @@ struct CollectionDetailView: View {
             if let collection = collection {
                 EditCollectionSheet(collection: collection)
             }
+        }
+        .sheet(item: $tagPickerItem) { item in
+            TagPickerSheet(
+                item: item,
+                allTags: allTags,
+                colorScheme: colorScheme,
+                style: style,
+                onCreateTag: { name in
+                    createTag(name: name, for: item)
+                },
+                onToggleTag: { tag in
+                    toggleTag(tag, for: item)
+                }
+            )
+            .presentationDetents([.medium, .large])
         }
         .navigationDestination(item: $linkedCollection) { collection in
             CollectionDetailView(collectionID: collection.id)
@@ -167,6 +186,22 @@ struct CollectionDetailView: View {
         loadItems()
     }
 
+    private func createTag(name: String, for item: Item) {
+        let tag = Tag(name: name)
+        modelContext.insert(tag)
+        if !item.tags.contains(name) {
+            item.tags.append(name)
+        }
+    }
+
+    private func toggleTag(_ tag: Tag, for item: Item) {
+        if let index = item.tags.firstIndex(of: tag.name) {
+            item.tags.remove(at: index)
+        } else {
+            item.tags.append(tag.name)
+        }
+    }
+
     private func openLinkedCollection(_ collectionID: UUID) {
         let targetId = collectionID
         let descriptor = FetchDescriptor<Collection>(
@@ -188,6 +223,7 @@ private struct ItemRow: View {
     let isStructured: Bool
     let colorScheme: ColorScheme
     let style: ThemeStyle
+    let onAddTag: () -> Void
     let onDelete: () -> Void
     let onOpenLink: (UUID) -> Void
 
@@ -238,7 +274,7 @@ private struct ItemRow: View {
             HStack(spacing: Theme.Spacing.xs) {
                 // Add tag button
                 Button {
-                    // TODO: Show tag picker
+                    onAddTag()
                 } label: {
                     Image(systemName: "plus")
                         .font(.caption)
@@ -330,6 +366,132 @@ private struct ItemRow: View {
     }
 }
 
+// MARK: - Tag Picker Sheet
+
+private struct TagPickerSheet: View {
+    let item: Item
+    let allTags: [Tag]
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let onCreateTag: (String) -> Void
+    let onToggleTag: (Tag) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var newTagName = ""
+    @FocusState private var focused: Bool
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section("Create New Tag") {
+                    HStack {
+                        TextField("Tag name", text: $newTagName)
+                            .focused($focused)
+                        Button("Add") {
+                            onCreateTag(newTagName)
+                            newTagName = ""
+                        }
+                        .disabled(newTagName.isEmpty)
+                    }
+                }
+
+                Section("Select Tags") {
+                    ForEach(allTags) { tag in
+                        Button {
+                            onToggleTag(tag)
+                        } label: {
+                            HStack {
+                                Text(tag.name)
+                                    .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+                                Spacer()
+                                if item.tags.contains(tag.name) {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Tags")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Tag Selection Sheet
+
+private struct TagSelectionSheet: View {
+    @Binding var selectedTags: [Tag]
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @State private var allTags: [Tag] = []
+    @State private var newName = ""
+    @FocusState private var focused: Bool
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    HStack {
+                        TextField("New tag", text: $newName)
+                            .focused($focused)
+                        Button("Add") {
+                            let tag = Tag(name: newName)
+                            modelContext.insert(tag)
+                            allTags.append(tag)
+                            selectedTags.append(tag)
+                            newName = ""
+                        }
+                        .disabled(newName.isEmpty)
+                    }
+                }
+
+                Section("Tags") {
+                    ForEach(allTags) { tag in
+                        Button {
+                            if let index = selectedTags.firstIndex(where: { $0.id == tag.id }) {
+                                selectedTags.remove(at: index)
+                            } else {
+                                selectedTags.append(tag)
+                            }
+                        } label: {
+                            HStack {
+                                Text(tag.name)
+                                    .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+                                Spacer()
+                                if selectedTags.contains(where: { $0.id == tag.id }) {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Tags")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .onAppear {
+                let desc = FetchDescriptor<Tag>(sortBy: [SortDescriptor(\.name)])
+                allTags = (try? modelContext.fetch(desc)) ?? []
+            }
+        }
+    }
+}
+
 // MARK: - Add Item Sheet
 
 private struct AddItemSheet: View {
@@ -339,12 +501,27 @@ private struct AddItemSheet: View {
     @Query(sort: \Collection.name) private var collections: [Collection]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
 
     @State private var content = ""
     @State private var type: ItemType = .task
     @State private var isStarred = false
-    @State private var tags: [String] = []
+    @State private var selectedTags: [Tag] = []
     @State private var linkedCollectionId: UUID?
+    @State private var attachmentData: Data?
+    @State private var showingTags = false
+    @State private var voiceService = VoiceRecordingService()
+    @State private var preRecordingText = ""
+    @State private var showingPermissionAlert = false
+    @State private var showingAttachmentSource = false
+    @State private var showingImagePicker = false
+    @State private var imagePickerSource: UIImagePickerController.SourceType = .photoLibrary
+    @State private var showingCameraUnavailableAlert = false
+
+    @FocusState private var isFocused: Bool
+
+    private var style: ThemeStyle { themeManager.currentStyle }
 
     private var linkableCollections: [Collection] {
         collections.filter { $0.id != collectionID }
@@ -352,63 +529,74 @@ private struct AddItemSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                if type != .link {
-                    Section("Content") {
-                        TextField("Item content", text: $content, axis: .vertical)
-                            .lineLimit(3...6)
-                    }
-                }
-
-                Section("Type") {
-                    Picker("Type", selection: $type) {
-                        ForEach(ItemType.allCases, id: \.self) { itemType in
-                            Text(itemType.displayName).tag(itemType)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                }
-
-                if type == .link {
-                    Section("Linked Collection") {
-                        if linkableCollections.isEmpty {
-                            Text("No other collections available.")
-                                .foregroundStyle(.secondary)
-                        } else {
-                            Picker("Collection", selection: $linkedCollectionId) {
-                                ForEach(linkableCollections) { collection in
-                                    Text(collection.name).tag(Optional(collection.id))
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Section("Options") {
-                    Toggle("Starred", isOn: $isStarred)
-                }
+            VStack(spacing: 0) {
+                inputSection
+                Spacer()
+                bottomBar
             }
+            .background(Theme.Colors.background(colorScheme, style: style))
             .navigationTitle("Add Item")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
-                        addItem()
-                        dismiss()
+            }
+            .sheet(isPresented: $showingTags) {
+                TagSelectionSheet(
+                    selectedTags: $selectedTags,
+                    colorScheme: colorScheme,
+                    style: style
+                )
+                .presentationDetents([.medium])
+            }
+            .confirmationDialog("Add Attachment", isPresented: $showingAttachmentSource) {
+                Button("Camera") {
+                    if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                        imagePickerSource = .camera
+                        showingImagePicker = true
+                    } else {
+                        showingCameraUnavailableAlert = true
                     }
-                    .disabled(isAddDisabled)
+                }
+                Button("Photo Library") {
+                    imagePickerSource = .photoLibrary
+                    showingImagePicker = true
+                }
+                Button("Cancel", role: .cancel) {}
+            }
+            .sheet(isPresented: $showingImagePicker) {
+                ImagePicker(sourceType: imagePickerSource, imageData: $attachmentData)
+            }
+            .alert("Mic Permission Required", isPresented: $showingPermissionAlert) {
+                Button("OK", role: .cancel) {}
+                Button("Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
                 }
             }
+            .alert("Camera Unavailable", isPresented: $showingCameraUnavailableAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("This device does not support camera capture.")
+            }
+            .onChange(of: voiceService.transcribedText) { _, newValue in
+                guard type != .link, !newValue.isEmpty else { return }
+                let sep = preRecordingText.isEmpty || preRecordingText.hasSuffix(" ") ? "" : " "
+                content = preRecordingText + sep + newValue
+            }
             .onAppear {
+                isFocused = true
                 if type == .link && linkedCollectionId == nil {
                     linkedCollectionId = linkableCollections.first?.id
                 }
             }
             .onChange(of: type) { _, newValue in
                 if newValue == .link {
+                    if voiceService.isRecording {
+                        voiceService.stopRecording()
+                    }
                     linkedCollectionId = linkableCollections.first?.id
                 } else {
                     linkedCollectionId = nil
@@ -417,34 +605,221 @@ private struct AddItemSheet: View {
         }
     }
 
+    private var inputSection: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+            Picker("Type", selection: $type) {
+                ForEach(ItemType.allCases, id: \.self) { itemType in
+                    Text(itemType.displayName).tag(itemType)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            if type == .link {
+                linkPicker
+            } else {
+                TextEditor(text: $content)
+                    .font(.body)
+                    .frame(minHeight: 100)
+                    .focused($isFocused)
+                    .scrollContentBackground(.hidden)
+                    .overlay(alignment: .topLeading) {
+                        if content.isEmpty && !isFocused {
+                            Text("Add details...")
+                                .font(.body)
+                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                                .padding(.top, 8)
+                                .padding(.leading, 5)
+                                .allowsHitTesting(false)
+                        }
+                    }
+
+                if voiceService.isRecording {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(Theme.Colors.destructive(colorScheme, style: style))
+                            .frame(width: 8, height: 8)
+                        Text(formatDuration(voiceService.recordingDuration))
+                            .font(.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                    }
+                }
+
+                if let attachmentData, let uiImage = UIImage(data: attachmentData) {
+                    ZStack(alignment: .topTrailing) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 150)
+                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
+
+                        Button {
+                            self.attachmentData = nil
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.white)
+                                .shadow(radius: 2)
+                        }
+                        .padding(4)
+                    }
+                }
+
+            }
+
+            if !selectedTags.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(selectedTags) { tag in
+                            Text(tag.name)
+                                .font(.caption)
+                                .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Theme.Colors.primary(colorScheme, style: style).opacity(0.15))
+                                .clipShape(Capsule())
+                        }
+                    }
+                }
+            }
+        }
+        .padding(Theme.Spacing.md)
+        .background(Theme.Colors.card(colorScheme, style: style))
+    }
+
+    private var linkPicker: some View {
+        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+            Text("Linked Collection")
+                .font(.caption)
+                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+
+            if linkableCollections.isEmpty {
+                Text("No other collections available.")
+                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+            } else {
+                Picker("Collection", selection: $linkedCollectionId) {
+                    ForEach(linkableCollections) { collection in
+                        Text(collection.name).tag(Optional(collection.id))
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+        }
+    }
+
+    private var bottomBar: some View {
+        HStack(spacing: Theme.Spacing.md) {
+            if type != .link {
+                Button(action: handleVoice) {
+                    Image(systemName: voiceService.isRecording ? "stop.fill" : "mic")
+                        .font(.title3)
+                        .foregroundStyle(
+                            voiceService.isRecording
+                                ? Theme.Colors.destructive(colorScheme, style: style)
+                                : Theme.Colors.textSecondary(colorScheme, style: style)
+                        )
+                        .frame(width: 44, height: 44)
+                }
+
+                Button { showingAttachmentSource = true } label: {
+                    Image(systemName: attachmentData != nil ? "camera.fill" : "camera")
+                        .font(.title3)
+                        .foregroundStyle(
+                            attachmentData != nil
+                                ? Theme.Colors.primary(colorScheme, style: style)
+                                : Theme.Colors.textSecondary(colorScheme, style: style)
+                        )
+                        .frame(width: 44, height: 44)
+                }
+            }
+
+            Button { showingTags = true } label: {
+                Image(systemName: selectedTags.isEmpty ? "tag" : "tag.fill")
+                    .font(.title3)
+                    .foregroundStyle(
+                        selectedTags.isEmpty
+                            ? Theme.Colors.textSecondary(colorScheme, style: style)
+                            : Theme.Colors.primary(colorScheme, style: style)
+                    )
+                    .frame(width: 44, height: 44)
+            }
+
+            Button { isStarred.toggle() } label: {
+                Image(systemName: isStarred ? "star.fill" : "star")
+                    .font(.title3)
+                    .foregroundStyle(
+                        isStarred
+                            ? Theme.Colors.caution(colorScheme, style: style)
+                            : Theme.Colors.textSecondary(colorScheme, style: style)
+                    )
+                    .frame(width: 44, height: 44)
+            }
+
+            Spacer()
+
+            Button(action: save) {
+                Text("Save")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, Theme.Spacing.lg)
+                    .padding(.vertical, Theme.Spacing.sm)
+                    .background(Theme.Colors.primary(colorScheme, style: style))
+                    .clipShape(Capsule())
+            }
+            .disabled(isAddDisabled)
+            .opacity(isAddDisabled ? 0.5 : 1)
+        }
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
+        .background(Theme.Colors.surface(colorScheme, style: style))
+    }
+
+    private func handleVoice() {
+        if voiceService.isRecording {
+            voiceService.stopRecording()
+        } else {
+            preRecordingText = content
+            _Concurrency.Task {
+                do { try await voiceService.startRecording() }
+                catch { showingPermissionAlert = true }
+            }
+        }
+    }
+
+    private func formatDuration(_ d: TimeInterval) -> String {
+        String(format: "%d:%02d", Int(d) / 60, Int(d) % 60)
+    }
+
     private var isAddDisabled: Bool {
         if type == .link {
             return linkedCollectionId == nil
         }
-        return content.trimmingCharacters(in: .whitespaces).isEmpty
+        return content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private func save() {
+        if voiceService.isRecording { voiceService.stopRecording() }
+        addItem()
+        dismiss()
     }
 
     private func addItem() {
         let linkedId = type == .link ? linkedCollectionId : nil
         let linkedName = linkableCollections.first { $0.id == linkedId }?.name
         let resolvedContent = type == .link ? (linkedName ?? "Linked Collection") : content
-        // Create item
         let item = Item(
             type: type.rawValue,
-            content: resolvedContent,
+            content: resolvedContent.trimmingCharacters(in: .whitespacesAndNewlines),
+            attachmentData: attachmentData,
             linkedCollectionId: linkedId,
-            tags: tags,
+            tags: selectedTags.map { $0.name },
             isStarred: isStarred
         )
         modelContext.insert(item)
 
-        // Get next position for structured collections
         var position: Int? = nil
         if let collection = collection, collection.isStructured {
             position = collection.collectionItems?.count ?? 0
         }
 
-        // Link to collection
         let collectionItem = CollectionItem(
             collectionId: collectionID,
             itemId: item.id,

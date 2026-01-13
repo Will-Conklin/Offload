@@ -1,12 +1,18 @@
 import Foundation
 import SwiftData
 
+// AGENT NAV
+// - Model
+// - Init
+// - Computed Properties
+
 @Model
 final class Item {
     var id: UUID
     var type: String? // "task", "link" - nullable for uncategorized captures
     var content: String
     var metadata: String // JSON string for flexible future features
+    var attachmentData: Data? // Optional attachment data (photo, etc.)
     var linkedCollectionId: UUID? // for type="link" items pointing to collections
     var tags: [String] // array of tag names
     var isStarred: Bool
@@ -23,6 +29,7 @@ final class Item {
         type: String? = nil,
         content: String,
         metadata: String = "{}",
+        attachmentData: Data? = nil,
         linkedCollectionId: UUID? = nil,
         tags: [String] = [],
         isStarred: Bool = false,
@@ -34,6 +41,7 @@ final class Item {
         self.type = type
         self.content = content
         self.metadata = metadata
+        self.attachmentData = attachmentData
         self.linkedCollectionId = linkedCollectionId
         self.tags = tags
         self.isStarred = isStarred

@@ -2,12 +2,20 @@
 //  CaptureView.swift
 //  Offload
 //
-//  Minimal capture: text + mic + photo, optional tags/starred
+//  Minimal capture: text + mic + attachment, optional tags/starred
 //
 
 import SwiftUI
 import SwiftData
-import PhotosUI
+import UIKit
+
+// AGENT NAV
+// - State
+// - Layout
+// - Input
+// - Bottom Bar
+// - Media
+// - Save
 
 struct CaptureView: View {
     @Environment(\.dismiss) private var dismiss
@@ -19,8 +27,11 @@ struct CaptureView: View {
     @State private var isStarred: Bool = false
     @State private var selectedTags: [Tag] = []
     @State private var showingTags = false
-    @State private var selectedPhoto: PhotosPickerItem?
-    @State private var photoData: Data?
+    @State private var attachmentData: Data?
+    @State private var showingAttachmentSource = false
+    @State private var showingImagePicker = false
+    @State private var imagePickerSource: UIImagePickerController.SourceType = .photoLibrary
+    @State private var showingCameraUnavailableAlert = false
     @State private var voiceService = VoiceRecordingService()
     @State private var preRecordingText = ""
     @State private var showingPermissionAlert = false
@@ -36,7 +47,7 @@ struct CaptureView: View {
     }
 
     private var canSave: Bool {
-        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || photoData != nil
+        !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private var captureContent: some View {
@@ -73,10 +84,30 @@ struct CaptureView: View {
             let sep = preRecordingText.isEmpty || preRecordingText.hasSuffix(" ") ? "" : " "
             text = preRecordingText + sep + newValue
         }
-        .onChange(of: selectedPhoto) { _, item in
-            loadPhoto(item)
-        }
         .onAppear { isFocused = true }
+        .confirmationDialog("Add Attachment", isPresented: $showingAttachmentSource) {
+            Button("Camera") {
+                if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                    imagePickerSource = .camera
+                    showingImagePicker = true
+                } else {
+                    showingCameraUnavailableAlert = true
+                }
+            }
+            Button("Photo Library") {
+                imagePickerSource = .photoLibrary
+                showingImagePicker = true
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .sheet(isPresented: $showingImagePicker) {
+            ImagePicker(sourceType: imagePickerSource, imageData: $attachmentData)
+        }
+        .alert("Camera Unavailable", isPresented: $showingCameraUnavailableAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("This device does not support camera capture.")
+        }
     }
 
     private var textInputSection: some View {
@@ -109,8 +140,8 @@ struct CaptureView: View {
                 }
             }
 
-            // Photo preview
-            if let photoData, let uiImage = UIImage(data: photoData) {
+            // Attachment preview
+            if let attachmentData, let uiImage = UIImage(data: attachmentData) {
                 ZStack(alignment: .topTrailing) {
                     Image(uiImage: uiImage)
                         .resizable()
@@ -119,8 +150,7 @@ struct CaptureView: View {
                         .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
 
                     Button {
-                        self.photoData = nil
-                        self.selectedPhoto = nil
+                        self.attachmentData = nil
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.white)
@@ -165,12 +195,12 @@ struct CaptureView: View {
                     .frame(width: 44, height: 44)
             }
 
-            // Photo
-            PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                Image(systemName: photoData != nil ? "photo.fill" : "photo")
+            // Attachment
+            Button { showingAttachmentSource = true } label: {
+                Image(systemName: attachmentData != nil ? "camera.fill" : "camera")
                     .font(.title3)
                     .foregroundStyle(
-                        photoData != nil
+                        attachmentData != nil
                             ? Theme.Colors.primary(colorScheme, style: style)
                             : Theme.Colors.textSecondary(colorScheme, style: style)
                     )
@@ -233,15 +263,6 @@ struct CaptureView: View {
         }
     }
 
-    private func loadPhoto(_ item: PhotosPickerItem?) {
-        guard let item else { return }
-        _Concurrency.Task {
-            if let data = try? await item.loadTransferable(type: Data.self) {
-                await MainActor.run { photoData = data }
-            }
-        }
-    }
-
     private func formatDuration(_ d: TimeInterval) -> String {
         String(format: "%d:%02d", Int(d) / 60, Int(d) % 60)
     }
@@ -252,10 +273,10 @@ struct CaptureView: View {
         let item = Item(
             type: nil, // Uncategorized capture
             content: text.trimmingCharacters(in: .whitespacesAndNewlines),
+            attachmentData: attachmentData,
             tags: selectedTags.map { $0.name },
             isStarred: isStarred
         )
-        // TODO: Store photoData in metadata when needed
         modelContext.insert(item)
         dismiss()
     }

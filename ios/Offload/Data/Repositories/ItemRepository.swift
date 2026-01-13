@@ -1,6 +1,13 @@
 import Foundation
 import SwiftData
 
+// AGENT NAV
+// - Init
+// - Create
+// - Fetch
+// - Update
+// - Delete
+
 @MainActor
 final class ItemRepository {
     private let modelContext: ModelContext
@@ -14,6 +21,7 @@ final class ItemRepository {
         type: String? = nil,
         content: String,
         metadata: String = "{}",
+        attachmentData: Data? = nil,
         linkedCollectionId: UUID? = nil,
         tags: [String] = [],
         isStarred: Bool = false,
@@ -23,6 +31,7 @@ final class ItemRepository {
             type: type,
             content: content,
             metadata: metadata,
+            attachmentData: attachmentData,
             linkedCollectionId: linkedCollectionId,
             tags: tags,
             isStarred: isStarred,
