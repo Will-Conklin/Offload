@@ -1,5 +1,5 @@
 //
-//  CaptureView.swift
+//  CaptureComposeView.swift
 //  Offload
 //
 //  Minimal capture: text + mic + attachment, optional tags/starred
@@ -17,7 +17,7 @@ import UIKit
 // - Media
 // - Save
 
-struct CaptureView: View {
+struct CaptureComposeView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
@@ -350,7 +350,7 @@ private struct TagSheet: View {
 }
 
 #Preview {
-    CaptureView()
+    CaptureComposeView()
         .modelContainer(PersistenceController.preview)
         .environmentObject(ThemeManager.shared)
 }

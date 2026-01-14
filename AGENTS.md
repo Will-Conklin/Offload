@@ -77,8 +77,7 @@ offload/
         AppRootView.swift       # Root navigation
         MainTabView.swift       # Tab shell (inbox/organize/settings)
       Features/                 # Feature modules
-        Inbox/InboxView.swift   # Inbox list
-        Capture/                # Capture flows (sheet + full screen)
+        Captures/               # Capture compose + list
         Organize/OrganizeView.swift
         ContentView.swift       # Legacy scaffold view
       Domain/                   # Business logic, models
@@ -146,7 +145,7 @@ TBD - Backend implementation coming soon.
 Code is organized by feature and layer:
 
 - **App/**: App lifecycle, configuration, dependency injection
-- **Features/**: UI screens and flows grouped by feature (Inbox, Capture, Organize)
+- **Features/**: UI screens and flows grouped by feature (Captures, Organize)
 - **Domain/**: Business logic, models (simplified Item/Collection schema)
 - **Data/**: Persistence, repositories, services, networking
 - **DesignSystem/**: Reusable UI components, themes, design tokens

@@ -15,9 +15,10 @@ The app compiles with functional capture and organization flows using a simplifi
 - **MainTabView.swift**: Main tab navigation with Captures, Plans, and Lists tabs, plus a floating capture button.
 
 ### 2) Features (`Features/`)
-- **Capture/**: `CaptureView` provides text + voice capture through `VoiceRecordingService`, creating Items with type=nil (uncategorized captures). Items can be starred and tagged.
+- **Captures/**:
+  - `CaptureComposeView`: Provides text + voice capture through `VoiceRecordingService`, creating Items with type=nil (uncategorized captures). Items can be starred and tagged.
+  - `CapturesListView`: Lists uncategorized Items (type=nil) with completion and deletion.
 - **Organize/**:
-  - `CapturesView`: Lists uncategorized Items (type=nil) with completion and deletion.
   - `OrganizeView`: Unified view for Plans (isStructured=true) and Lists (isStructured=false) with create/edit flows.
   - `CollectionDetailView`: Unified detail view showing Collection items with inline editing, starring, tagging, and move operations.
 
@@ -45,7 +46,7 @@ The app compiles with functional capture and organization flows using a simplifi
 
 ### ✅ Working
 - Capture via text or voice, saved as Item with type=nil (uncategorized).
-- CapturesView lists uncategorized Items with completion and deletion.
+- CapturesListView lists uncategorized Items with completion and deletion.
 - Organization views for Plans and Lists with create/edit/delete operations.
 - CollectionDetailView with inline item editing, starring, tagging, and move operations.
 - Simplified 4-model SwiftData schema registered for production and preview.

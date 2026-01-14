@@ -221,7 +221,7 @@ struct Materials {
 ```
 
 **Usage:**
-- Apply to: CaptureSheetView modal, OrganizeView cards, Settings sections
+- Apply to: CaptureComposeView modal, OrganizeView cards, Settings sections
 - Keep: Content backgrounds solid for readability
 - Result: Modern depth without overwhelming ADHD-friendly simplicity
 

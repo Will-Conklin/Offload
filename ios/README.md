@@ -22,7 +22,7 @@ SwiftUI iOS application for Offload — a friction-free thought capture and orga
 Offload/
 ├── App/                    # Application entry point & root navigation
 ├── Features/               # Feature modules organized by screen/flow
-│   ├── Capture/           # Quick capture flow (text + voice)
+│   ├── Captures/          # Capture compose + list
 │   └── Organize/          # Organization views (plans and lists, collections, items)
 ├── Domain/                 # Business logic & models (SwiftData)
 │   └── Models/            # Item, Collection, CollectionItem, Tag

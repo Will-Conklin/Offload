@@ -1,5 +1,5 @@
 //
-//  CapturesView.swift
+//  CapturesListView.swift
 //  Offload
 //
 //  Flat design captures list with inline tagging and swipe actions
@@ -16,7 +16,7 @@ import UIKit
 // - Item Card
 // - Tag Picker
 
-struct CapturesView: View {
+struct CapturesListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
@@ -88,7 +88,7 @@ struct CapturesView: View {
                 SettingsView()
             }
             .sheet(item: $selectedItem) { item in
-                ItemEditView(item: item)
+                CaptureDetailView(item: item)
             }
             .sheet(item: $tagPickerItem) { item in
                 TagPickerSheet(
@@ -394,7 +394,7 @@ private struct TagPickerSheet: View {
 
 // MARK: - Item Edit View
 
-private struct ItemEditView: View {
+private struct CaptureDetailView: View {
     let item: Item
 
     @Environment(\.dismiss) private var dismiss
@@ -414,7 +414,7 @@ private struct ItemEditView: View {
                         .frame(minHeight: 100)
                 }
             }
-            .navigationTitle("Edit Item")
+            .navigationTitle("Capture Detail")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -666,7 +666,7 @@ private struct MoveToListSheet: View {
 }
 
 #Preview {
-    CapturesView()
+    CapturesListView()
         .modelContainer(PersistenceController.preview)
         .environmentObject(ThemeManager.shared)
 }

@@ -143,8 +143,8 @@ Feature-based modular architecture with clear separation of concerns:
 ```mermaid
 graph LR
     subgraph "Presentation Layer"
-        CAPTURES[CapturesView]
-        CAPTURE[CaptureView]
+        CAPTURES[CapturesListView]
+        CAPTURE[CaptureComposeView]
         ORGANIZE[OrganizeView]
         COLLECTION[CollectionDetailView]
     end
@@ -219,26 +219,26 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     participant User
-    participant CaptureView
+    participant CaptureComposeView
     participant VoiceService
     participant SwiftData
 
-    User->>CaptureView: Tap microphone
-    CaptureView->>VoiceService: startRecording()
+    User->>CaptureComposeView: Tap microphone
+    CaptureComposeView->>VoiceService: startRecording()
     VoiceService->>User: Request mic + speech permissions
-    VoiceService-->>CaptureView: Partial transcription
-    CaptureView->>User: Show live text
+    VoiceService-->>CaptureComposeView: Partial transcription
+    CaptureComposeView->>User: Show live text
 
     loop Real-time transcription
         User->>VoiceService: Speak
-        VoiceService->>CaptureView: Update transcribedText
-        CaptureView->>User: Display text
+        VoiceService->>CaptureComposeView: Update transcribedText
+        CaptureComposeView->>User: Display text
     end
 
-    User->>CaptureView: Tap save
-    CaptureView->>SwiftData: Insert Item (type=nil)
-    SwiftData-->>CaptureView: Persisted
-    CaptureView-->>User: Item appears in Captures
+    User->>CaptureComposeView: Tap save
+    CaptureComposeView->>SwiftData: Insert Item (type=nil)
+    SwiftData-->>CaptureComposeView: Persisted
+    CaptureComposeView-->>User: Item appears in Captures
 ```
 
 ## Project Structure
@@ -251,8 +251,7 @@ offload/
 │   ├── Offload/
 │   │   ├── App/                  # Application entry point
 │   │   ├── Features/             # Feature modules
-│   │   │   ├── Capture/          # Voice & text capture
-│   │   │   ├── Inbox/            # Captures view (inbox)
+│   │   │   ├── Captures/         # Capture compose + list
 │   │   │   └── Organize/         # Plan/list organization
 │   │   ├── Domain/               # Business logic
 │   │   │   └── Models/           # SwiftData models

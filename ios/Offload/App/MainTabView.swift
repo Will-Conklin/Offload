@@ -40,7 +40,7 @@ struct MainTabView: View {
             .padding(.bottom, Theme.Spacing.sm)
         }
         .sheet(isPresented: $showingCapture) {
-            CaptureView()
+            CaptureComposeView()
         }
     }
 
@@ -72,7 +72,7 @@ private struct TabContent: View {
     var body: some View {
         switch selectedTab {
         case .captures:
-            CapturesView()
+            CapturesListView()
         case .organize:
             OrganizeView()
         }
