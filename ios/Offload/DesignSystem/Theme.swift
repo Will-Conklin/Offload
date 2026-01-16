@@ -2,7 +2,7 @@
 //  Theme.swift
 //  Offload
 //
-//  Cooper lavender/cream design system
+//  Elijah lavender/cream design system
 //
 
 import SwiftUI
@@ -25,11 +25,11 @@ import SwiftUI
 
 /// Available color themes for the app
 enum ThemeStyle: String, CaseIterable, Identifiable {
-    case cooper
+    case elijah
 
     var id: String { rawValue }
 
-    var displayName: String { "Cooper" }
+    var displayName: String { "Elijah" }
 
     var description: String { "Lavender + cream calm" }
 }
@@ -45,7 +45,7 @@ struct Theme {
 
         // MARK: Primary Accent
 
-        static func primary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func primary(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "C4B5FD") // Lavender (dark mode)
                 : Color(hex: "DDD6FE") // Lavender (light mode)
@@ -53,7 +53,7 @@ struct Theme {
 
         // MARK: Secondary Accent
 
-        static func secondary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func secondary(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "FDE68A") // Cream (dark mode)
                 : Color(hex: "FEF3C7") // Cream (light mode)
@@ -61,13 +61,13 @@ struct Theme {
 
         // MARK: Backgrounds
 
-        static func background(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func background(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "0E1116") // Soft dark
                 : Color(hex: "FAF5FF") // Lavender-tinted light
         }
 
-        static func surface(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func surface(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "161A22") // Deep slate
                 : Color(hex: "FFFFFF") // Clean white
@@ -81,13 +81,13 @@ struct Theme {
 
         // MARK: Card (tinted backgrounds)
 
-        static func card(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func card(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             cardPalette(colorScheme, style: style).first ?? surface(colorScheme, style: style)
         }
 
         // MARK: Multi-accent palette (for varied card surfaces)
 
-        static func cardPalette(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> [Color] {
+        static func cardPalette(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> [Color] {
             if colorScheme == .dark {
                 return [
                     Color(hex: "2B2248"), // Deep lavender
@@ -107,52 +107,52 @@ struct Theme {
             ]
         }
 
-        static func cardColor(index: Int, _ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func cardColor(index: Int, _ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             let palette = cardPalette(colorScheme, style: style)
             guard !palette.isEmpty else { return card(colorScheme, style: style) }
             let i = ((index % palette.count) + palette.count) % palette.count
             return palette[i]
         }
 
-        static func tagColor(for name: String, _ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func tagColor(for name: String, _ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             primary(colorScheme, style: style)
         }
 
         // MARK: Text
 
-        static func textPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func textPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "F5F5F5") // Off white
                 : Color(hex: "1B1B1B") // Charcoal
         }
 
-        static func cardTextPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func cardTextPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             textPrimary(colorScheme, style: style)
         }
 
-        static func textSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func textSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "9CA3AF") // Muted gray
                 : Color(hex: "6B7280") // Cool gray
         }
 
-        static func cardTextSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func cardTextSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             textSecondary(colorScheme, style: style)
         }
 
-        static func icon(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func icon(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             textSecondary(colorScheme, style: style)
         }
 
         // MARK: Borders
 
-        static func border(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func border(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "232830") // Soft dark border
                 : Color(hex: "E5E7EB") // Neutral light border
         }
 
-        static func borderMuted(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func borderMuted(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "1A1F27") // Subtle dark border
                 : Color(hex: "EEF2F7") // Neutral muted border
@@ -160,19 +160,19 @@ struct Theme {
 
         // MARK: Semantic Colors
 
-        static func success(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func success(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "22C55E") // Green
                 : Color(hex: "16A34A") // Dark green
         }
 
-        static func caution(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func caution(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "FACC15") // Yellow
                 : Color(hex: "CA8A04") // Dark yellow
         }
 
-        static func destructive(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func destructive(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             colorScheme == .dark
                 ? Color(hex: "EF4444") // Red
                 : Color(hex: "DC2626") // Dark red
@@ -180,19 +180,19 @@ struct Theme {
 
         // MARK: Compatibility
 
-        static func accentPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func accentPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             primary(colorScheme, style: style)
         }
 
-        static func accentSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func accentSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             secondary(colorScheme, style: style)
         }
 
-        static func cardBackground(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func cardBackground(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             card(colorScheme, style: style)
         }
 
-        static func focusRing(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func focusRing(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             primary(colorScheme, style: style).opacity(0.5)
         }
     }
@@ -200,15 +200,15 @@ struct Theme {
     // MARK: - Surfaces
 
     struct Surface {
-        static func background(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func background(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             Colors.background(colorScheme, style: style)
         }
 
-        static func card(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func card(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             Colors.card(colorScheme, style: style)
         }
 
-        static func highlight(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func highlight(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             Colors.card(colorScheme, style: style)
         }
     }
@@ -216,7 +216,7 @@ struct Theme {
     // MARK: - Content
 
     struct Content {
-        static func secondary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+        static func secondary(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> Color {
             Colors.textSecondary(colorScheme, style: style)
         }
     }
@@ -442,7 +442,7 @@ struct Theme {
 
     struct Gradients {
         // Only use when needed for visual interest
-        static func accentPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> LinearGradient {
+        static func accentPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> LinearGradient {
             let color = Colors.buttonDark(colorScheme)
             return LinearGradient(
                 colors: [
@@ -455,7 +455,7 @@ struct Theme {
         }
 
         // Subtle background - nearly flat
-        static func appBackground(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> LinearGradient {
+        static func appBackground(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> LinearGradient {
             LinearGradient(
                 colors: [
                     Colors.background(colorScheme, style: style),
@@ -466,7 +466,7 @@ struct Theme {
             )
         }
 
-        static func surfaceGlow(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> RadialGradient {
+        static func surfaceGlow(_ colorScheme: ColorScheme, style: ThemeStyle = .elijah) -> RadialGradient {
             RadialGradient(
                 colors: [
                     Colors.primary(colorScheme, style: style).opacity(0.08),

@@ -39,16 +39,22 @@ class ThemeManager: ObservableObject {
     /// - Parameter loadFromUserDefaults: Whether to load saved theme from UserDefaults (default: true)
     init(loadFromUserDefaults: Bool = true) {
         if loadFromUserDefaults {
-            // Load saved theme from UserDefaults, default to cooper
-            if let savedStyleString = UserDefaults.standard.string(forKey: Keys.selectedThemeStyle),
-               let savedStyle = ThemeStyle(rawValue: savedStyleString) {
-                self.currentStyle = savedStyle
+            // Load saved theme from UserDefaults, default to Elijah.
+            if let savedStyleString = UserDefaults.standard.string(forKey: Keys.selectedThemeStyle) {
+                if savedStyleString == "cooper" {
+                    self.currentStyle = .elijah
+                    UserDefaults.standard.set(ThemeStyle.elijah.rawValue, forKey: Keys.selectedThemeStyle)
+                } else if let savedStyle = ThemeStyle(rawValue: savedStyleString) {
+                    self.currentStyle = savedStyle
+                } else {
+                    self.currentStyle = .elijah
+                }
             } else {
-                self.currentStyle = .cooper
+                self.currentStyle = .elijah
             }
         } else {
-            // For testing: use default theme without persisting
-            self.currentStyle = .cooper
+            // For testing: use default theme without persisting.
+            self.currentStyle = .elijah
         }
     }
 

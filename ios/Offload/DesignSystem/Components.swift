@@ -612,12 +612,12 @@ struct TagSelectionSheet: View {
                 iconName: Icons.settings,
                 iconSize: 18,
                 tileSize: 36,
-                style: .secondaryOutlined(Theme.Colors.primary(previewScheme, style: .cooper))
+                style: .secondaryOutlined(Theme.Colors.primary(previewScheme, style: .elijah))
             )
 
             TagPill(
                 name: "Personal",
-                color: Theme.Colors.tagColor(for: "Personal", previewScheme, style: .cooper)
+                color: Theme.Colors.tagColor(for: "Personal", previewScheme, style: .elijah)
             )
 
             TypeChip(type: "task")
@@ -625,12 +625,12 @@ struct TagSelectionSheet: View {
 
         ItemActionButton(
             iconName: Icons.starFilled,
-            tint: Theme.Colors.primary(previewScheme, style: .cooper),
+            tint: Theme.Colors.primary(previewScheme, style: .elijah),
             variant: .primaryFilled
         ) {}
     }
     .padding(Theme.Spacing.lg)
-    .background(Theme.Colors.background(previewScheme, style: .cooper))
+    .background(Theme.Colors.background(previewScheme, style: .elijah))
     .environment(\.colorScheme, previewScheme)
     .environmentObject(ThemeManager.shared)
 }
