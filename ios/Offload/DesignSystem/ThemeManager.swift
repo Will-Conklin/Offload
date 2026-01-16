@@ -4,7 +4,7 @@
 //
 //  Created by Claude Code on 1/10/26.
 //
-//  Intent: Manage user-selected theme style with persistence via AppStorage.
+//  Intent: Manage user-selected theme style with persistence via UserDefaults.
 //
 
 import SwiftUI
@@ -18,10 +18,17 @@ import Combine
 /// Manages the app's color theme selection and persistence
 @MainActor
 class ThemeManager: ObservableObject {
+    private enum Keys {
+        static let selectedThemeStyle = "selectedThemeStyle"
+    }
+
     /// The currently selected theme style
     @Published var currentStyle: ThemeStyle {
         didSet {
-            UserDefaults.standard.set(currentStyle.rawValue, forKey: "selectedThemeStyle")
+            guard oldValue.rawValue != currentStyle.rawValue else { return }
+            withAnimation(.easeInOut(duration: 0.25)) {
+                UserDefaults.standard.set(currentStyle.rawValue, forKey: Keys.selectedThemeStyle)
+            }
         }
     }
 
@@ -32,21 +39,23 @@ class ThemeManager: ObservableObject {
     /// - Parameter loadFromUserDefaults: Whether to load saved theme from UserDefaults (default: true)
     init(loadFromUserDefaults: Bool = true) {
         if loadFromUserDefaults {
-            // Load saved theme from UserDefaults, default to oceanTeal
-            if let savedStyleString = UserDefaults.standard.string(forKey: "selectedThemeStyle"),
+            // Load saved theme from UserDefaults, default to cooper
+            if let savedStyleString = UserDefaults.standard.string(forKey: Keys.selectedThemeStyle),
                let savedStyle = ThemeStyle(rawValue: savedStyleString) {
                 self.currentStyle = savedStyle
             } else {
-                self.currentStyle = .oceanTeal
+                self.currentStyle = .cooper
             }
         } else {
             // For testing: use default theme without persisting
-            self.currentStyle = .oceanTeal
+            self.currentStyle = .cooper
         }
     }
 
     /// Update the current theme style
     func setTheme(_ style: ThemeStyle) {
-        currentStyle = style
+        withAnimation(.easeInOut(duration: 0.25)) {
+            currentStyle = style
+        }
     }
 }

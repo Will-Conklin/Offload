@@ -34,7 +34,7 @@ enum ToastType {
         }
     }
 
-    func color(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+    func color(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
         switch self {
         case .success: return Theme.Colors.success(colorScheme, style: style)
         case .error: return Theme.Colors.destructive(colorScheme, style: style)
@@ -77,9 +77,13 @@ struct ToastView: View {
             Spacer(minLength: 0)
         }
         .padding(Theme.Spacing.md)
-        .background(Theme.Colors.surface(colorScheme, style: themeManager.currentStyle))
-        .cornerRadius(Theme.CornerRadius.lg)
-        .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+        .background(Theme.Surface.card(colorScheme, style: themeManager.currentStyle))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.cardSoft, style: .continuous))
+        .shadow(
+            color: Theme.Shadows.ultraLight(colorScheme),
+            radius: Theme.Shadows.elevationUltraLight,
+            y: Theme.Shadows.offsetYUltraLight
+        )
         .padding(.horizontal, Theme.Spacing.md)
     }
 }

@@ -45,6 +45,7 @@ struct OrganizeView: View {
     @AppStorage("organize.scope") private var selectedScopeRaw = Scope.plans.rawValue
     @State private var showingCreate = false
     @State private var showingSettings = false
+    @State private var showingAccount = false
     @State private var selectedCollection: Collection?
 
     private var style: ThemeStyle { themeManager.currentStyle }
@@ -70,7 +71,7 @@ struct OrganizeView: View {
                     scopePicker
 
                     ScrollView {
-                        LazyVStack(spacing: Theme.Spacing.sm) {
+                        LazyVStack(spacing: Theme.Spacing.md) {
                             collectionsContent
                         }
                         .padding(.horizontal, Theme.Spacing.md)
@@ -84,18 +85,28 @@ struct OrganizeView: View {
                 }
             }
             .navigationTitle("Organize")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {} label: {
-                        AppIcon(name: Icons.account, size: 22)
-                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                    Button {
+                        showingAccount = true
+                    } label: {
+                        IconTile(
+                            iconName: Icons.account,
+                            iconSize: 18,
+                            tileSize: 32,
+                            style: .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                        )
                     }
                     .accessibilityLabel("Account")
 
                     Button { showingSettings = true } label: {
-                        AppIcon(name: Icons.settings, size: 22)
-                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                        IconTile(
+                            iconName: Icons.settings,
+                            iconSize: 18,
+                            tileSize: 32,
+                            style: .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                        )
                     }
                     .accessibilityLabel("Settings")
                 }
@@ -105,6 +116,9 @@ struct OrganizeView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
+            }
+            .sheet(isPresented: $showingAccount) {
+                AccountView()
             }
             .navigationDestination(item: $selectedCollection) { collection in
                 CollectionDetailView(collectionID: collection.id)
@@ -119,9 +133,14 @@ struct OrganizeView: View {
         if filteredCollections.isEmpty {
             emptyState
         } else {
-            ForEach(filteredCollections) { collection in
-                CollectionCard(collection: collection, colorScheme: colorScheme, style: style)
-                    .onTapGesture { selectedCollection = collection }
+            ForEach(Array(filteredCollections.enumerated()), id: \.element.id) { index, collection in
+                Button {
+                    selectedCollection = collection
+                } label: {
+                    CollectionCard(paletteIndex: index, collection: collection, colorScheme: colorScheme, style: style)
+                }
+                .buttonStyle(.plain)
+                .cardButtonStyle()
             }
 
             addCollectionButton
@@ -136,7 +155,7 @@ struct OrganizeView: View {
             AppIcon(name: selectedScope == .plans ? Icons.plans : Icons.lists, size: 34)
                 .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
             Text("No \(selectedScope.title.lowercased()) yet")
-                .font(.body)
+                .font(Theme.Typography.body)
                 .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
             addCollectionButton
                 .padding(.top, Theme.Spacing.sm)
@@ -146,36 +165,41 @@ struct OrganizeView: View {
     }
 
     private var addCollectionButton: some View {
-        Button { showingCreate = true } label: {
-            HStack(spacing: Theme.Spacing.xs) {
-                AppIcon(name: Icons.addCircleFilled, size: 18)
-                Text("Add \(selectedScope == .plans ? "Plan" : "List")")
-            }
-            .font(.headline)
-            .foregroundStyle(.white)
-            .padding(.horizontal, Theme.Spacing.lg)
-            .padding(.vertical, Theme.Spacing.md)
-            .background(Theme.Colors.primary(colorScheme, style: style))
-            .clipShape(Capsule())
-            .shadow(radius: 4)
+        FloatingActionButton(
+            title: "Add \(selectedScope == .plans ? "Plan" : "List")",
+            iconName: Icons.addCircleFilled
+        ) {
+            showingCreate = true
         }
-        .buttonStyle(.plain)
         .accessibilityLabel("Add \(selectedScope.title)")
     }
 
     // MARK: - Scope Picker
 
     private var scopePicker: some View {
-        HStack(spacing: Theme.Spacing.xs) {
+        let fill = Theme.Colors.surface(colorScheme, style: style)
+
+        return HStack(spacing: Theme.Spacing.xs) {
             scopeButton(.plans)
             scopeButton(.lists)
         }
         .padding(Theme.Spacing.xs)
-        .background(Theme.Colors.surface(colorScheme, style: style))
-        .clipShape(Capsule())
-        .overlay(
-            Capsule()
-                .stroke(Theme.Colors.border(colorScheme, style: style), lineWidth: 1)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.CornerRadius.cardSoft, style: .continuous)
+                .fill(fill)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Theme.CornerRadius.cardSoft, style: .continuous)
+                        .stroke(
+                            Theme.Colors.borderMuted(colorScheme, style: style)
+                                .opacity(Theme.Opacity.borderMuted(colorScheme)),
+                            lineWidth: 0.6
+                        )
+                )
+        )
+        .shadow(
+            color: Theme.Shadows.ultraLight(colorScheme),
+            radius: Theme.Shadows.elevationUltraLight,
+            y: Theme.Shadows.offsetYUltraLight
         )
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.top, Theme.Spacing.sm)
@@ -186,7 +210,7 @@ struct OrganizeView: View {
             selectedScopeRaw = scope.rawValue
         } label: {
             Text(scope.title)
-                .font(.subheadline.weight(selectedScope == scope ? .semibold : .regular))
+                .font(selectedScope == scope ? Theme.Typography.subheadlineSemibold : Theme.Typography.subheadline)
                 .foregroundStyle(
                     selectedScope == scope
                         ? Theme.Colors.cardTextPrimary(colorScheme, style: style)
@@ -196,7 +220,7 @@ struct OrganizeView: View {
                 .padding(.vertical, Theme.Spacing.xs)
                 .background(
                     selectedScope == scope
-                        ? Theme.Colors.card(colorScheme, style: style)
+                        ? Theme.Surface.card(colorScheme, style: style)
                         : Color.clear
                 )
                 .clipShape(Capsule())
@@ -218,38 +242,57 @@ struct OrganizeView: View {
 // MARK: - Collection Card
 
 private struct CollectionCard: View {
+    let paletteIndex: Int
     let collection: Collection
     let colorScheme: ColorScheme
     let style: ThemeStyle
 
+    private var tagNames: [String] {
+        let names = collection.collectionItems?
+            .compactMap { $0.item?.tags }
+            .flatMap { $0 } ?? []
+        return Array(Set(names)).sorted()
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            HStack {
-                Text(collection.name)
-                    .font(.headline)
-                    .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+        CardSurface {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                HStack {
+                    Text(collection.name)
+                        .font(Theme.Typography.cardTitle)
+                        .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
 
-                Spacer()
-            }
+                    Spacer()
+                }
 
-            HStack {
-                Text(collection.createdAt, format: .dateTime.month(.abbreviated).day())
-                    .font(.caption)
-                    .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
-
-                Spacer()
-
-                if let count = collection.collectionItems?.count, count > 0 {
-                    Text("\(count) item\(count == 1 ? "" : "s")")
-                        .font(.caption)
+                HStack {
+                    Text(collection.createdAt, format: .dateTime.month(.abbreviated).day())
+                        .font(Theme.Typography.metadata)
                         .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
+
+                    Spacer()
+
+                    if let count = collection.collectionItems?.count, count > 0 {
+                        Text("\(count) item\(count == 1 ? "" : "s")")
+                            .font(Theme.Typography.metadata)
+                            .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
+                    }
+                }
+
+                if !tagNames.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: Theme.Spacing.xs) {
+                            ForEach(tagNames, id: \.self) { tagName in
+                                TagPill(
+                                    name: tagName,
+                                    color: Theme.Colors.tagColor(for: tagName, colorScheme, style: style)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
-        .padding(Theme.Spacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.Colors.card(colorScheme, style: style))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.md))
     }
 }
 
@@ -267,7 +310,7 @@ private struct CollectionFormSheet: View {
                 TextField(isStructured ? "Plan name" : "List name", text: $name)
             }
             .navigationTitle(isStructured ? "New Plan" : "New List")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

@@ -56,7 +56,7 @@ struct CollectionDetailView: View {
                         collectionHeader(collection)
 
                         // Items list
-                        LazyVStack(spacing: Theme.Spacing.sm) {
+                        LazyVStack(spacing: Theme.Spacing.md) {
                             ForEach(items) { collectionItem in
                                 if let item = collectionItem.item {
                                     ItemRow(
@@ -92,7 +92,7 @@ struct CollectionDetailView: View {
             }
         }
         .navigationTitle(collection?.name ?? "Collection")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { showingEdit = true } label: {
@@ -112,19 +112,8 @@ struct CollectionDetailView: View {
             ItemEditSheet(item: item)
         }
         .sheet(item: $tagPickerItem) { item in
-            TagPickerSheet(
-                item: item,
-                allTags: allTags,
-                colorScheme: colorScheme,
-                style: style,
-                onCreateTag: { name in
-                    createTag(name: name, for: item)
-                },
-                onToggleTag: { tag in
-                    toggleTag(tag, for: item)
-                }
-            )
-            .presentationDetents([.medium, .large])
+            ItemTagPickerSheet(item: item)
+                .presentationDetents([.medium, .large])
         }
         .navigationDestination(item: $linkedCollection) { collection in
             CollectionDetailView(collectionID: collection.id)
@@ -145,15 +134,14 @@ struct CollectionDetailView: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
             HStack {
                 Text(collection.name)
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(Theme.Typography.title2)
                     .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
 
                 Spacer()
             }
 
             Text("\(items.count) item\(items.count == 1 ? "" : "s")")
-                .font(.caption)
+                .font(Theme.Typography.metadata)
                 .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
         }
         .padding(.horizontal, Theme.Spacing.md)
@@ -163,20 +151,8 @@ struct CollectionDetailView: View {
     // MARK: - Quick Add Button
 
     private var quickAddButton: some View {
-        Button {
+        FloatingActionButton(title: "Add Item", iconName: Icons.addCircleFilled) {
             showingAddItem = true
-        } label: {
-            HStack {
-                AppIcon(name: Icons.addCircleFilled, size: 18)
-                Text("Add Item")
-            }
-            .font(.headline)
-            .foregroundStyle(.white)
-            .padding(.horizontal, Theme.Spacing.lg)
-            .padding(.vertical, Theme.Spacing.md)
-            .background(Theme.Colors.primary(colorScheme, style: style))
-            .clipShape(Capsule())
-            .shadow(radius: 4)
         }
     }
 
@@ -201,22 +177,6 @@ struct CollectionDetailView: View {
         modelContext.delete(collectionItem)
         try? modelContext.save()
         loadItems()
-    }
-
-    private func createTag(name: String, for item: Item) {
-        let tag = Tag(name: name)
-        modelContext.insert(tag)
-        if !item.tags.contains(name) {
-            item.tags.append(name)
-        }
-    }
-
-    private func toggleTag(_ tag: Tag, for item: Item) {
-        if let index = item.tags.firstIndex(of: tag.name) {
-            item.tags.remove(at: index)
-        } else {
-            item.tags.append(tag.name)
-        }
     }
 
     private func openLinkedCollection(_ collectionID: UUID) {
@@ -255,96 +215,67 @@ private struct ItemRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    Text(displayTitle)
-                        .font(.body)
-                        .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
-
-                    if let attachmentData = item.attachmentData,
-                       let uiImage = UIImage(data: attachmentData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 140)
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
-                    }
-
-                    if let type = item.type {
-                        Text(type.capitalized)
-                            .font(.caption2)
-                            .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Theme.Colors.primary(colorScheme, style: style).opacity(0.15))
-                            .clipShape(Capsule())
-                    }
-                }
-
-                Spacer()
-
-                Button {
-                    showingMenu = true
-                } label: {
-                    AppIcon(name: Icons.more, size: 12)
-                        .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
-                        .frame(width: 28, height: 28)
-                }
-                .confirmationDialog("Item Actions", isPresented: $showingMenu) {
-                    Button("Remove from Collection", role: .destructive) {
-                        onDelete()
-                    }
-                }
-            }
-
-            HStack(spacing: Theme.Spacing.sm) {
-                ItemActionButton(
-                    iconName: Icons.add,
-                    tint: Theme.Colors.primary(colorScheme, style: style),
-                    action: onAddTag
-                )
-
-                if item.tags.isEmpty {
-                    Spacer()
-                } else {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: Theme.Spacing.xs) {
-                            ForEach(item.tags, id: \.self) { tagName in
-                                TagPill(
-                                    name: tagName,
-                                    color: tagLookup[tagName]
-                                        .flatMap { $0.color }
-                                        .map { Color(hex: $0) }
-                                        ?? Theme.Colors.primary(colorScheme, style: style),
-                                    colorScheme: colorScheme,
-                                    style: style
-                                )
-                            }
-                        }
-                    }
-                }
-
-                ItemActionButton(
-                    iconName: item.isStarred ? Icons.starFilled : Icons.star,
-                    tint: item.isStarred
-                        ? Theme.Colors.caution(colorScheme, style: style)
-                        : Theme.Colors.cardTextSecondary(colorScheme, style: style),
-                    action: toggleStar
-                )
-            }
-        }
-        .padding(Theme.Spacing.md)
-        .background(Theme.Colors.card(colorScheme, style: style))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.md))
-        .contentShape(Rectangle())
-        .onTapGesture {
+        Button {
             if isLink, let linkedId = item.linkedCollectionId {
                 onOpenLink(linkedId)
             } else {
                 onEdit()
             }
+        } label: {
+            CardSurface {
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                    HStack(alignment: .top, spacing: Theme.Spacing.sm) {
+                        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                            Text(displayTitle)
+                                .font(Theme.Typography.body)
+                                .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+
+                            if let attachmentData = item.attachmentData,
+                               let uiImage = UIImage(data: attachmentData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxHeight: 140)
+                                    .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
+                            }
+
+                            if let type = item.type {
+                                TypeChip(type: type)
+                            }
+                        }
+
+                        Spacer()
+
+                        Button {
+                            showingMenu = true
+                        } label: {
+                            IconTile(
+                                iconName: Icons.more,
+                                iconSize: 16,
+                                tileSize: 32,
+                                style: .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .confirmationDialog("Item Actions", isPresented: $showingMenu) {
+                            Button("Remove from Collection", role: .destructive) {
+                                onDelete()
+                            }
+                        }
+                    }
+
+                    ItemActionRow(
+                        tags: item.tags,
+                        tagLookup: tagLookup,
+                        isStarred: item.isStarred,
+                        onAddTag: onAddTag,
+                        onToggleStar: toggleStar
+                    )
+                }
+            }
         }
+        .buttonStyle(.plain)
+        .cardButtonStyle()
         .onAppear {
             loadLinkedCollectionName()
         }
@@ -383,180 +314,6 @@ private struct ItemRow: View {
     }
 }
 
-// MARK: - Tag Picker Sheet
-
-private struct TagPickerSheet: View {
-    let item: Item
-    let allTags: [Tag]
-    let colorScheme: ColorScheme
-    let style: ThemeStyle
-    let onCreateTag: (String) -> Void
-    let onToggleTag: (Tag) -> Void
-
-    @Environment(\.dismiss) private var dismiss
-    @State private var newTagName = ""
-    @FocusState private var focused: Bool
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section("Create New Tag") {
-                    HStack {
-                        TextField("Tag name", text: $newTagName)
-                            .focused($focused)
-                        Button("Add") {
-                            onCreateTag(newTagName)
-                            newTagName = ""
-                        }
-                        .disabled(newTagName.isEmpty)
-                    }
-                }
-
-                Section("Select Tags") {
-                    ForEach(allTags) { tag in
-                        Button {
-                            onToggleTag(tag)
-                        } label: {
-                            HStack {
-                                Text(tag.name)
-                                    .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
-                                Spacer()
-                                if item.tags.contains(tag.name) {
-                                    AppIcon(name: Icons.check, size: 12)
-                                        .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Tags")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Tag Selection Sheet
-
-private struct TagSelectionSheet: View {
-    @Binding var selectedTags: [Tag]
-    let colorScheme: ColorScheme
-    let style: ThemeStyle
-
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
-    @State private var allTags: [Tag] = []
-    @State private var newName = ""
-    @FocusState private var focused: Bool
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    HStack {
-                        TextField("New tag", text: $newName)
-                            .focused($focused)
-                        Button("Add") {
-                            let tag = Tag(name: newName)
-                            modelContext.insert(tag)
-                            allTags.append(tag)
-                            selectedTags.append(tag)
-                            newName = ""
-                        }
-                        .disabled(newName.isEmpty)
-                    }
-                }
-
-                Section("Tags") {
-                    ForEach(allTags) { tag in
-                        Button {
-                            if let index = selectedTags.firstIndex(where: { $0.id == tag.id }) {
-                                selectedTags.remove(at: index)
-                            } else {
-                                selectedTags.append(tag)
-                            }
-                        } label: {
-                            HStack {
-                                Text(tag.name)
-                                    .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
-                                Spacer()
-                                if selectedTags.contains(where: { $0.id == tag.id }) {
-                                    AppIcon(name: Icons.check, size: 12)
-                                        .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Tags")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                }
-            }
-            .onAppear {
-                let desc = FetchDescriptor<Tag>(sortBy: [SortDescriptor(\.name)])
-                allTags = (try? modelContext.fetch(desc)) ?? []
-            }
-        }
-    }
-}
-
-// MARK: - Tag Pill
-
-private struct TagPill: View {
-    let name: String
-    let color: Color
-    let colorScheme: ColorScheme
-    let style: ThemeStyle
-
-    var body: some View {
-        Text(name)
-            .font(.caption)
-            .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(
-                Capsule()
-                    .fill(Theme.Colors.cardTextPrimary(colorScheme, style: style).opacity(0.14))
-            )
-            .overlay(
-                Capsule()
-                    .stroke(color.opacity(0.6), lineWidth: 1)
-            )
-    }
-}
-
-// MARK: - Item Action Button
-
-private struct ItemActionButton: View {
-    let iconName: String
-    let tint: Color
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            AppIcon(name: iconName, size: 12)
-                .foregroundStyle(tint)
-                .frame(width: 24, height: 24)
-                .background(tint.opacity(0.16))
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(tint.opacity(0.35), lineWidth: 1)
-                )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
 // MARK: - Item Edit Sheet
 
 private struct ItemEditSheet: View {
@@ -586,12 +343,12 @@ private struct ItemEditSheet: View {
                             .resizable()
                             .scaledToFit()
                             .frame(maxHeight: 180)
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
+                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
                     }
                 }
             }
             .navigationTitle("Edit Item")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -640,7 +397,7 @@ private struct AddItemSheet: View {
     private var style: ThemeStyle { themeManager.currentStyle }
 
     private var linkableCollections: [Collection] {
-        collections.filter { $0.id != collectionID }
+        collections.filter { $0.id != collectionID && !$0.isStructured }
     }
 
     var body: some View {
@@ -652,19 +409,15 @@ private struct AddItemSheet: View {
             }
             .background(Theme.Colors.background(colorScheme, style: style))
             .navigationTitle("Add Item")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
             }
             .sheet(isPresented: $showingTags) {
-                TagSelectionSheet(
-                    selectedTags: $selectedTags,
-                    colorScheme: colorScheme,
-                    style: style
-                )
-                .presentationDetents([.medium])
+                TagSelectionSheet(selectedTags: $selectedTags)
+                    .presentationDetents([.medium])
             }
             .confirmationDialog("Add Attachment", isPresented: $showingAttachmentSource) {
                 Button("Camera") {
@@ -704,8 +457,10 @@ private struct AddItemSheet: View {
             }
             .onAppear {
                 isFocused = true
-                if type == .link && linkedCollectionId == nil {
-                    linkedCollectionId = linkableCollections.first?.id
+                if type == .link {
+                    if linkedCollectionId == nil || linkedCollectionId == collectionID {
+                        linkedCollectionId = linkableCollections.first?.id
+                    }
                 }
             }
             .onChange(of: type) { _, newValue in
@@ -722,97 +477,106 @@ private struct AddItemSheet: View {
     }
 
     private var inputSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            Picker("Type", selection: $type) {
-                ForEach(ItemType.allCases, id: \.self) { itemType in
-                    Text(itemType.displayName).tag(itemType)
+        InputCard(fill: Theme.Colors.cardColor(index: 0, colorScheme, style: style)) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                Picker("Type", selection: $type) {
+                    ForEach(ItemType.allCases, id: \.self) { itemType in
+                        Text(itemType.displayName).tag(itemType)
+                    }
                 }
-            }
-            .pickerStyle(.segmented)
+                .pickerStyle(.segmented)
 
-            if type == .link {
-                linkPicker
-            } else {
-                TextEditor(text: $content)
-                    .font(.body)
-                    .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
-                    .frame(minHeight: 100)
-                    .focused($isFocused)
-                    .scrollContentBackground(.hidden)
-                    .overlay(alignment: .topLeading) {
-                        if content.isEmpty && !isFocused {
-                            Text("Add details...")
-                                .font(.body)
+                if type == .link {
+                    linkPicker
+                } else {
+                    TextEditor(text: $content)
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+                        .frame(minHeight: 100)
+                        .focused($isFocused)
+                        .scrollContentBackground(.hidden)
+                        .overlay(alignment: .topLeading) {
+                            if content.isEmpty && !isFocused {
+                                Text("Add details...")
+                                    .font(Theme.Typography.body)
+                                    .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
+                                    .padding(.top, 8)
+                                    .padding(.leading, 5)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+                        .padding(Theme.Spacing.sm)
+                        .background(Theme.Colors.surface(colorScheme, style: style))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                                .stroke(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.35), lineWidth: 0.6)
+                        )
+
+                    if voiceService.isRecording {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(Theme.Colors.destructive(colorScheme, style: style))
+                                .frame(width: 8, height: 8)
+                            Text(formatDuration(voiceService.recordingDuration))
+                                .font(Theme.Typography.caption)
                                 .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
-                                .padding(.top, 8)
-                                .padding(.leading, 5)
-                                .allowsHitTesting(false)
                         }
                     }
 
-                if voiceService.isRecording {
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(Theme.Colors.destructive(colorScheme, style: style))
-                            .frame(width: 8, height: 8)
-                        Text(formatDuration(voiceService.recordingDuration))
-                            .font(.caption)
-                            .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
-                    }
-                }
+                    if let attachmentData, let uiImage = UIImage(data: attachmentData) {
+                        ZStack(alignment: .topTrailing) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxHeight: 150)
+                                .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
 
-                if let attachmentData, let uiImage = UIImage(data: attachmentData) {
-                    ZStack(alignment: .topTrailing) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 150)
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
-
-                        Button {
-                            self.attachmentData = nil
-                        } label: {
-                            AppIcon(name: Icons.closeCircleFilled, size: 18)
-                                .foregroundStyle(.white)
-                                .shadow(radius: 2)
+                            Button {
+                                self.attachmentData = nil
+                            } label: {
+                                IconTile(
+                                    iconName: Icons.closeCircleFilled,
+                                    iconSize: 16,
+                                    tileSize: 32,
+                                    style: .primaryFilled(Theme.Colors.destructive(colorScheme, style: style))
+                                )
+                                .shadow(color: Theme.Shadows.ultraLight(colorScheme), radius: Theme.Shadows.elevationUltraLight, y: Theme.Shadows.offsetYUltraLight)
+                            }
+                            .padding(4)
+                            .buttonStyle(.plain)
                         }
-                        .padding(4)
                     }
                 }
 
-            }
-
-            if !selectedTags.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(selectedTags) { tag in
-                            Text(tag.name)
-                                .font(.caption)
-                                .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Theme.Colors.primary(colorScheme, style: style).opacity(0.15))
-                                .clipShape(Capsule())
+                if !selectedTags.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(selectedTags) { tag in
+                                TagPill(
+                                    name: tag.name,
+                                    color: Theme.Colors.tagColor(for: tag.name, colorScheme, style: style)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
         .padding(Theme.Spacing.md)
-        .background(Theme.Colors.card(colorScheme, style: style))
     }
 
     private var linkPicker: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-            Text("Linked Collection")
-                .font(.caption)
+            Text("Linked List")
+                .font(Theme.Typography.caption)
                 .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
 
             if linkableCollections.isEmpty {
-                Text("No other collections available.")
+                Text("No lists available.")
                     .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
             } else {
-                Picker("Collection", selection: $linkedCollectionId) {
+                Picker("List", selection: $linkedCollectionId) {
                     ForEach(linkableCollections) { collection in
                         Text(collection.name).tag(Optional(collection.id))
                     }
@@ -824,78 +588,81 @@ private struct AddItemSheet: View {
     }
 
     private var bottomBar: some View {
-        HStack(spacing: Theme.Spacing.md) {
-            if type != .link {
-                Button(action: handleVoice) {
-                    AppIcon(
-                        name: voiceService.isRecording ? Icons.stopFilled : Icons.microphone,
-                        size: 20
-                    )
-                        .foregroundStyle(
-                            voiceService.isRecording
-                                ? Theme.Colors.destructive(colorScheme, style: style)
-                                : Theme.Colors.textSecondary(colorScheme, style: style)
+        ActionBarContainer(fill: Theme.Colors.cardColor(index: 1, colorScheme, style: style)) {
+            HStack(spacing: Theme.Spacing.md) {
+                if type != .link {
+                    Button(action: handleVoice) {
+                        IconTile(
+                            iconName: voiceService.isRecording ? Icons.stopFilled : Icons.microphone,
+                            iconSize: 20,
+                            tileSize: 44,
+                            style: voiceService.isRecording
+                                ? .primaryFilled(Theme.Colors.destructive(colorScheme, style: style))
+                                : .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
                         )
-                        .frame(width: 44, height: 44)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button { showingAttachmentSource = true } label: {
+                        IconTile(
+                            iconName: attachmentData != nil ? Icons.cameraFilled : Icons.camera,
+                            iconSize: 20,
+                            tileSize: 44,
+                            style: attachmentData != nil
+                                ? .primaryFilled(Theme.Colors.primary(colorScheme, style: style))
+                                : .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
 
-                Button { showingAttachmentSource = true } label: {
-                    AppIcon(
-                        name: attachmentData != nil ? Icons.cameraFilled : Icons.camera,
-                        size: 20
+                Button { showingTags = true } label: {
+                    IconTile(
+                        iconName: selectedTags.isEmpty ? Icons.tag : Icons.tagFilled,
+                        iconSize: 20,
+                        tileSize: 44,
+                        style: selectedTags.isEmpty
+                            ? .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                            : .primaryFilled(Theme.Colors.primary(colorScheme, style: style))
                     )
-                        .foregroundStyle(
-                            attachmentData != nil
-                                ? Theme.Colors.primary(colorScheme, style: style)
-                                : Theme.Colors.textSecondary(colorScheme, style: style)
-                        )
-                        .frame(width: 44, height: 44)
                 }
-            }
+                .buttonStyle(.plain)
 
-            Button { showingTags = true } label: {
-                AppIcon(
-                    name: selectedTags.isEmpty ? Icons.tag : Icons.tagFilled,
-                    size: 20
-                )
-                    .foregroundStyle(
-                        selectedTags.isEmpty
-                            ? Theme.Colors.textSecondary(colorScheme, style: style)
-                            : Theme.Colors.primary(colorScheme, style: style)
+                Button { isStarred.toggle() } label: {
+                    IconTile(
+                        iconName: isStarred ? Icons.starFilled : Icons.star,
+                        iconSize: 20,
+                        tileSize: 44,
+                        style: isStarred
+                            ? .primaryFilled(Theme.Colors.caution(colorScheme, style: style))
+                            : .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
                     )
-                    .frame(width: 44, height: 44)
-            }
+                }
+                .buttonStyle(.plain)
 
-            Button { isStarred.toggle() } label: {
-                AppIcon(
-                    name: isStarred ? Icons.starFilled : Icons.star,
-                    size: 20
-                )
-                    .foregroundStyle(
-                        isStarred
-                            ? Theme.Colors.caution(colorScheme, style: style)
-                            : Theme.Colors.textSecondary(colorScheme, style: style)
-                    )
-                    .frame(width: 44, height: 44)
-            }
+                Spacer()
 
-            Spacer()
-
-            Button(action: save) {
-                Text("Save")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, Theme.Spacing.lg)
-                    .padding(.vertical, Theme.Spacing.sm)
-                    .background(Theme.Colors.primary(colorScheme, style: style))
-                    .clipShape(Capsule())
+                Button(action: save) {
+                    Text("Save")
+                        .font(Theme.Typography.buttonLabel)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, Theme.Spacing.lg)
+                        .padding(.vertical, Theme.Spacing.sm)
+                        .background(Theme.Colors.buttonDark(colorScheme))
+                        .clipShape(Capsule())
+                        .shadow(
+                            color: Theme.Shadows.ultraLight(colorScheme),
+                            radius: Theme.Shadows.elevationUltraLight,
+                            y: Theme.Shadows.offsetYUltraLight
+                        )
+                }
+                .disabled(isAddDisabled)
+                .opacity(isAddDisabled ? 0.5 : 1)
             }
-            .disabled(isAddDisabled)
-            .opacity(isAddDisabled ? 0.5 : 1)
+            .padding(.vertical, Theme.Spacing.sm)
         }
         .padding(.horizontal, Theme.Spacing.md)
-        .padding(.vertical, Theme.Spacing.sm)
-        .background(Theme.Colors.surface(colorScheme, style: style))
+        .padding(.bottom, Theme.Spacing.sm)
     }
 
     private func handleVoice() {
@@ -916,7 +683,7 @@ private struct AddItemSheet: View {
 
     private var isAddDisabled: Bool {
         if type == .link {
-            return linkedCollectionId == nil
+            return linkedCollectionId == nil || linkedCollectionId == collectionID
         }
         return content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -994,7 +761,7 @@ private struct EditCollectionSheet: View {
                 }
             }
             .navigationTitle("Edit Collection")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

@@ -143,7 +143,7 @@ Feature-based modular architecture with clear separation of concerns:
 ```mermaid
 graph LR
     subgraph "Presentation Layer"
-        CAPTURES[CapturesListView]
+        CAPTURES[CaptureView]
         CAPTURE[CaptureComposeView]
         ORGANIZE[OrganizeView]
         COLLECTION[CollectionDetailView]
@@ -214,7 +214,7 @@ flowchart LR
     TAG -.-> ITEM
 ```
 
-### Data Flow: Capture to Captures View
+### Data Flow: Capture to Capture View
 
 ```mermaid
 sequenceDiagram
@@ -238,7 +238,7 @@ sequenceDiagram
     User->>CaptureComposeView: Tap save
     CaptureComposeView->>SwiftData: Insert Item (type=nil)
     SwiftData-->>CaptureComposeView: Persisted
-    CaptureComposeView-->>User: Item appears in Captures
+    CaptureComposeView-->>User: Item appears in Capture
 ```
 
 ## Project Structure
@@ -251,7 +251,7 @@ offload/
 │   ├── Offload/
 │   │   ├── App/                  # Application entry point
 │   │   ├── Features/             # Feature modules
-│   │   │   ├── Captures/         # Capture compose + list
+│   │   │   ├── Capture/         # Capture compose + list
 │   │   │   └── Organize/         # Plan/list organization
 │   │   ├── Domain/               # Business logic
 │   │   │   └── Models/           # SwiftData models
@@ -312,7 +312,7 @@ they are isolated and fast; ensure test files are included in the
 
 - **Capture**: Text and voice capture with live transcription using the Speech
   framework (offline-first)
-- **Captures View**: Inbox list of uncategorized items (type=nil) with completion
+- **Capture View**: Inbox list of uncategorized items (type=nil) with completion
   and deletion
 - **Data Layer**: SwiftData models for items, collections, collection items, and tags
 - **Repositories**: CRUD helpers for core models; preview container seeded for
@@ -340,7 +340,7 @@ they are isolated and fast; ensure test files are included in the
   source of truth for all planning
 - 🏗️ [Architecture Decision Records](docs/decisions/)
 - 🧭 [ADHD UX/UI Guardrails (ADR-0003)](docs/decisions/ADR-0003-adhd-ux-guardrails.md)
-- 🧠 [Capture Model Plan (Legacy)](docs/plans/brain-dump-model.md)
+- 🧠 [Capture Model Plan](docs/plans/brain-dump-model.md)
 - 🎨 [iOS UI Trends Research (2025-2026)](docs/research/ios-ui-trends-2025.md)
 - 🎨 [ADHD-First UX/UI Research](docs/research/adhd-ux-ui.md)
 - 📦 [Project Scaffolding Details](ios/SCAFFOLDING.md)
@@ -356,7 +356,7 @@ they are isolated and fast; ensure test files are included in the
 - ✅ **Phase 1-3 Remediation:** All critical bugs fixed, architecture
   improvements complete
 - ✅ **Data Layer:** Item/Collection/CollectionItem/Tag models and repositories
-- ✅ **Capture UI:** Capture view and Captures view with voice/text
+- ✅ **Capture UI:** Capture compose and Capture view with voice/text
 - 🚧 **UI/UX Modernization:** Research complete, Weeks 2-8 implementation planned
 - 🚧 **Organization UI:** Organize tab flows and collection detail surfaces
 - 📅 **Post-v1:** AI workflows, backend sync, widgets
@@ -384,7 +384,7 @@ See [Master Plan](docs/plans/master-plan.md) for detailed roadmap.
 
 - **Language**: Swift 5.9
 - **Min iOS**: 17.0
-- **Testing**: Swift Testing + XCTest (legacy), SwiftData in-memory containers
+- **Testing**: XCTest with SwiftData in-memory containers
 - **CI/CD**: GitHub Actions
 
 See [ADR-0001](docs/decisions/ADR-0001-stack.md) for detailed technical

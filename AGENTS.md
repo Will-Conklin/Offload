@@ -6,19 +6,19 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 
 **Offload** helps people capture thoughts and organize them with minimal friction.
 
-### Primary Goals
+### Primary App Goals
 
 - Minimize friction in capture and organization
 - Reduce cognitive load throughout the experience
 - Convert raw thoughts into structured lists and plans
 
-### Non-Goals
+### App Non-Goals
 
 - Complex project management features
 - Time-driven task pressure or urgency
 - Over-verbose UI or AI output
 
-### AI Behavior Guidelines
+### App AI Behavior Guidelines
 
 - Assist, do not judge user's choices or input
 - Suggest structure, do not enforce it
@@ -31,6 +31,14 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 - Default to simpler designs over complex ones
 - Prioritize speed of capture over completeness
 - Let users organize later rather than forcing structure upfront
+
+## UI Design Principles
+
+- Common as possible, unique as necesary
+- ALWAYS drive all visual component styling from `ios/Offload/DesignSystem/Theme.swift` as the single source of truth.
+- ALWAYS keep reusable UI components (cards, buttons, fields, etc.) defined in `ios/Offload/DesignSystem/Components.swift` as the single source of truth.
+- ALWAYS centralize icon usage and definitions in `ios/Offload/DesignSystem/Icons.swift` and `ios/Offload/DesignSystem/AppIcon.swift`.
+- ALWAYS keep 
 
 ## Critical
 
@@ -47,9 +55,9 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 
 ## Implementation Plans
 
-Active implementation plans are tracked in [docs/plans/](docs/plans/):
-
-- [Thought Capture Model](docs/plans/brain-dump-model.md) - Event-sourced architecture for capture and AI-assisted organization
+- ALWAYS keep plans up to date
+- Active implementation plans are tracked in [docs/plans/](docs/sdlc/plans/)
+- Move completed plans to [docs/plans/_archived](docs/sdlc/plans/_archived/)
 
 ## Project
 
@@ -77,9 +85,8 @@ offload/
         AppRootView.swift       # Root navigation
         MainTabView.swift       # Tab shell (inbox/organize/settings)
       Features/                 # Feature modules
-        Captures/               # Capture compose + list
+        Capture/                # Capture compose + list
         Organize/OrganizeView.swift
-        ContentView.swift       # Legacy scaffold view
       Domain/                   # Business logic, models
         Models/                 # SwiftData models (13 models - event-sourced capture workflow)
       Data/                     # Data layer
@@ -145,7 +152,7 @@ TBD - Backend implementation coming soon.
 Code is organized by feature and layer:
 
 - **App/**: App lifecycle, configuration, dependency injection
-- **Features/**: UI screens and flows grouped by feature (Captures, Organize)
+- **Features/**: UI screens and flows grouped by feature (Capture, Organize, Settings)
 - **Domain/**: Business logic, models (simplified Item/Collection schema)
 - **Data/**: Persistence, repositories, services, networking
 - **DesignSystem/**: Reusable UI components, themes, design tokens
@@ -158,8 +165,6 @@ Unified capture + organization model with 4 SwiftData models:
 - **Collection**: Container for items (isStructured=true for plans, false for lists).
 - **CollectionItem**: Join model for many-to-many relationships, with ordering + hierarchy.
 - **Tag**: Tag metadata; item tag values live on `Item.tags`.
-
-Legacy capture workflow models are tracked in [Thought Capture Model Plan](docs/plans/brain-dump-model.md) as future reference.
 
 ### iOS - SwiftData Setup
 

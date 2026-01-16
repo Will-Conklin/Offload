@@ -2,7 +2,7 @@
 //  AppIcon.swift
 //  Offload
 //
-//  Tabler icon wrapper for consistent sizing and template rendering.
+//  SF Symbols wrapper for consistent sizing and template rendering.
 //
 
 import SwiftUI
@@ -22,7 +22,7 @@ struct AppIcon: View {
     }
 
     var body: some View {
-        Image(name)
+        Image(systemName: name)
             .renderingMode(renderingMode)
             .resizable()
             .scaledToFit()

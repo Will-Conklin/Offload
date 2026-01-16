@@ -122,8 +122,8 @@ final class ItemRepository {
         return try modelContext.fetch(descriptor)
     }
 
-    func fetchCaptures() throws -> [Item] {
-        // Captures are uncategorized items (type=nil) that are not completed
+    func fetchCaptureItems() throws -> [Item] {
+        // Capture items are uncategorized items (type=nil) that are not completed
         let descriptor = FetchDescriptor<Item>(
             predicate: #Predicate { $0.type == nil && $0.completedAt == nil },
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]

@@ -1,8 +1,8 @@
 //
-//  CapturesListView.swift
+//  CaptureView.swift
 //  Offload
 //
-//  Flat design captures list with inline tagging and swipe actions
+//  Flat design capture list with inline tagging and swipe actions
 //
 
 import SwiftUI
@@ -16,7 +16,7 @@ import UIKit
 // - Item Card
 // - Tag Picker
 
-struct CapturesListView: View {
+struct CaptureView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
@@ -30,6 +30,8 @@ struct CapturesListView: View {
     @Query(sort: \Tag.name) private var allTags: [Tag]
 
     @State private var showingSettings = false
+    @State private var showingAccount = false
+    @State private var showingAddItem = false
     @State private var selectedItem: Item?
     @State private var tagPickerItem: Item?
     @State private var moveItem: Item?
@@ -51,9 +53,10 @@ struct CapturesListView: View {
                     .ignoresSafeArea()
 
                 ScrollView {
-                    LazyVStack(spacing: Theme.Spacing.sm) {
-                        ForEach(items) { item in
+                    LazyVStack(spacing: Theme.Spacing.md) {
+                        ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                             ItemCard(
+                                index: index,
                                 item: item,
                                 colorScheme: colorScheme,
                                 style: style,
@@ -69,6 +72,12 @@ struct CapturesListView: View {
                                 }
                             )
                         }
+
+                        FloatingActionButton(title: "Add Item", iconName: Icons.addCircleFilled) {
+                            showingAddItem = true
+                        }
+                        .accessibilityLabel("Add Item")
+                        .padding(.top, Theme.Spacing.sm)
                     }
                     .padding(.horizontal, Theme.Spacing.md)
                     .padding(.top, Theme.Spacing.sm)
@@ -79,21 +88,31 @@ struct CapturesListView: View {
                         .frame(height: floatingTabBarClearance)
                 }
             }
-            .navigationTitle("Captures")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Capture")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {} label: {
-                        AppIcon(name: Icons.account, size: 22)
-                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                    Button {
+                        showingAccount = true
+                    } label: {
+                        IconTile(
+                            iconName: Icons.account,
+                            iconSize: 18,
+                            tileSize: 32,
+                            style: .secondaryOutlined(Theme.Colors.accentPrimary(colorScheme, style: style))
+                        )
                     }
                     .accessibilityLabel("Account")
 
                     Button {
                         showingSettings = true
                     } label: {
-                        AppIcon(name: Icons.settings, size: 22)
-                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                        IconTile(
+                            iconName: Icons.settings,
+                            iconSize: 18,
+                            tileSize: 32,
+                            style: .secondaryOutlined(Theme.Colors.accentPrimary(colorScheme, style: style))
+                        )
                     }
                     .accessibilityLabel("Settings")
                 }
@@ -101,25 +120,30 @@ struct CapturesListView: View {
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
             }
+            .sheet(isPresented: $showingAccount) {
+                AccountView()
+            }
+            .sheet(isPresented: $showingAddItem) {
+                CaptureComposeView()
+            }
             .sheet(item: $selectedItem) { item in
                 CaptureDetailView(item: item)
             }
             .sheet(item: $tagPickerItem) { item in
-                TagPickerSheet(
-                    item: item,
-                    allTags: allTags,
-                    colorScheme: colorScheme,
-                    style: style,
-                    onCreateTag: { name in
-                        createTag(name: name, for: item)
-                    },
-                    onToggleTag: { tag in
-                        toggleTag(tag, for: item)
+                ItemTagPickerSheet(item: item)
+                    .presentationDetents([.medium, .large])
+            }
+            .sheet(isPresented:
+                Binding(
+                    get: { moveItem != nil && moveDestination == .plan },
+                    set: { presented in
+                        if !presented {
+                            moveItem = nil
+                            moveDestination = nil
+                        }
                     }
                 )
-                .presentationDetents([.medium, .large])
-            }
-            .sheet(isPresented: .constant(moveItem != nil && moveDestination == .plan)) {
+            ) {
                 if let item = moveItem {
                     MoveToPlanSheet(item: item, modelContext: modelContext) {
                         moveItem = nil
@@ -127,7 +151,17 @@ struct CapturesListView: View {
                     }
                 }
             }
-            .sheet(isPresented: .constant(moveItem != nil && moveDestination == .list)) {
+            .sheet(isPresented:
+                Binding(
+                    get: { moveItem != nil && moveDestination == .list },
+                    set: { presented in
+                        if !presented {
+                            moveItem = nil
+                            moveDestination = nil
+                        }
+                    }
+                )
+            ) {
                 if let item = moveItem {
                     MoveToListSheet(item: item, modelContext: modelContext) {
                         moveItem = nil
@@ -148,22 +182,6 @@ struct CapturesListView: View {
         item.completedAt = Date()
     }
 
-    private func createTag(name: String, for item: Item) {
-        let tag = Tag(name: name)
-        modelContext.insert(tag)
-        if !item.tags.contains(name) {
-            item.tags.append(name)
-        }
-    }
-
-    private func toggleTag(_ tag: Tag, for item: Item) {
-        if let index = item.tags.firstIndex(of: tag.name) {
-            item.tags.remove(at: index)
-        } else {
-            item.tags.append(tag.name)
-        }
-    }
-
     private func toggleStar(_ item: Item) {
         item.isStarred.toggle()
     }
@@ -179,6 +197,7 @@ enum MoveDestination {
 // MARK: - Item Card
 
 private struct ItemCard: View {
+    let index: Int
     let item: Item
     let colorScheme: ColorScheme
     let style: ThemeStyle
@@ -193,67 +212,38 @@ private struct ItemCard: View {
     @State private var offset: CGFloat = 0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            // Content
-            Text(item.content)
-                .font(.body)
-                .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+        Button(action: onTap) {
+            CardSurface {
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                    Text(item.content)
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
 
-            if let attachmentData = item.attachmentData,
-               let uiImage = UIImage(data: attachmentData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 140)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
-            }
-
-            // Creation date
-            Text(item.createdAt, format: .relative(presentation: .named))
-                .font(.caption2)
-                .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
-
-            // Bottom actions + tags
-            HStack(spacing: Theme.Spacing.sm) {
-                ItemActionButton(
-                    iconName: Icons.add,
-                    tint: Theme.Colors.primary(colorScheme, style: style),
-                    action: onAddTag
-                )
-
-                if item.tags.isEmpty {
-                    Spacer()
-                } else {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: Theme.Spacing.xs) {
-                            ForEach(item.tags, id: \.self) { tagName in
-                                TagPill(
-                                    name: tagName,
-                                    color: tagLookup[tagName]
-                                        .flatMap { $0.color }
-                                        .map { Color(hex: $0) }
-                                        ?? Theme.Colors.primary(colorScheme, style: style),
-                                    colorScheme: colorScheme,
-                                    style: style
-                                )
-                            }
-                        }
+                    if let attachmentData = item.attachmentData,
+                       let uiImage = UIImage(data: attachmentData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 140)
+                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
                     }
-                }
 
-                ItemActionButton(
-                    iconName: item.isStarred ? Icons.starFilled : Icons.star,
-                    tint: item.isStarred
-                        ? Theme.Colors.caution(colorScheme, style: style)
-                        : Theme.Colors.cardTextSecondary(colorScheme, style: style),
-                    action: onToggleStar
-                )
+                    Text(item.createdAt, format: .relative(presentation: .named))
+                        .font(Theme.Typography.caption2)
+                        .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
+
+                    ItemActionRow(
+                        tags: item.tags,
+                        tagLookup: tagLookup,
+                        isStarred: item.isStarred,
+                        onAddTag: onAddTag,
+                        onToggleStar: onToggleStar
+                    )
+                }
             }
         }
-        .padding(Theme.Spacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.Colors.card(colorScheme, style: style))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.md))
+        .buttonStyle(.plain)
+        .cardButtonStyle()
         .overlay(
             // Swipe indicators
             HStack {
@@ -261,6 +251,7 @@ private struct ItemCard: View {
                     AppIcon(name: Icons.checkCircleFilled, size: 18)
                         .foregroundStyle(Theme.Colors.success(colorScheme, style: style))
                         .padding(.leading, Theme.Spacing.md)
+                        .opacity(min(1, Double(offset / 120)))
                 }
 
                 Spacer()
@@ -269,6 +260,7 @@ private struct ItemCard: View {
                     AppIcon(name: Icons.deleteFilled, size: 18)
                         .foregroundStyle(Theme.Colors.destructive(colorScheme, style: style))
                         .padding(.trailing, Theme.Spacing.md)
+                        .opacity(min(1, Double(-offset / 120)))
                 }
             }
         )
@@ -276,14 +268,24 @@ private struct ItemCard: View {
         .gesture(
             DragGesture()
                 .onChanged { value in
-                    offset = value.translation.width
+                    let dx = value.translation.width
+                    let dy = value.translation.height
+                    guard abs(dx) > abs(dy) else { return }
+                    offset = dx
                 }
                 .onEnded { value in
+                    let dx = value.translation.width
+                    let dy = value.translation.height
+                    guard abs(dx) > abs(dy) else {
+                        offset = 0
+                        return
+                    }
+
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        if value.translation.width > 100 {
+                        if dx > 100 {
                             offset = 0
                             onComplete()
-                        } else if value.translation.width < -100 {
+                        } else if dx < -100 {
                             offset = 0
                             onDelete()
                         } else {
@@ -292,7 +294,6 @@ private struct ItemCard: View {
                     }
                 }
         )
-        .onTapGesture(perform: onTap)
         .contextMenu {
             Button {
                 onMoveTo(.plan)
@@ -311,112 +312,6 @@ private struct ItemCard: View {
                     Text("Move to List")
                 } icon: {
                     AppIcon(name: Icons.lists, size: 14)
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Tag Chip
-
-private struct TagPill: View {
-    let name: String
-    let color: Color
-    let colorScheme: ColorScheme
-    let style: ThemeStyle
-
-    var body: some View {
-        Text(name)
-            .font(.caption)
-            .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(
-                Capsule()
-                    .fill(Theme.Colors.cardTextPrimary(colorScheme, style: style).opacity(0.14))
-            )
-            .overlay(
-                Capsule()
-                    .stroke(color.opacity(0.6), lineWidth: 1)
-            )
-    }
-}
-
-// MARK: - Item Action Button
-
-private struct ItemActionButton: View {
-    let iconName: String
-    let tint: Color
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            AppIcon(name: iconName, size: 12)
-                .foregroundStyle(tint)
-                .frame(width: 24, height: 24)
-                .background(tint.opacity(0.16))
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(tint.opacity(0.35), lineWidth: 1)
-                )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Tag Picker Sheet
-
-private struct TagPickerSheet: View {
-    let item: Item
-    let allTags: [Tag]
-    let colorScheme: ColorScheme
-    let style: ThemeStyle
-    let onCreateTag: (String) -> Void
-    let onToggleTag: (Tag) -> Void
-
-    @Environment(\.dismiss) private var dismiss
-    @State private var newTagName = ""
-    @FocusState private var focused: Bool
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section("Create New Tag") {
-                    HStack {
-                        TextField("Tag name", text: $newTagName)
-                            .focused($focused)
-                        Button("Add") {
-                            onCreateTag(newTagName)
-                            newTagName = ""
-                        }
-                        .disabled(newTagName.isEmpty)
-                    }
-                }
-
-                Section("Select Tags") {
-                    ForEach(allTags) { tag in
-                        Button {
-                            onToggleTag(tag)
-                        } label: {
-                            HStack {
-                                Text(tag.name)
-                                    .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
-                                Spacer()
-                                if item.tags.contains(tag.name) {
-                                    AppIcon(name: Icons.check, size: 12)
-                                        .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Tags")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
                 }
             }
         }
@@ -507,12 +402,12 @@ private struct MoveToPlanSheet: View {
                         } icon: {
                             AppIcon(name: Icons.addCircleFilled, size: 16)
                         }
-                            .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                                        .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: style))
                     }
                 }
             }
             .navigationTitle("Move to Plan")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -705,7 +600,7 @@ private struct MoveToListSheet: View {
 }
 
 #Preview {
-    CapturesListView()
+    CaptureView()
         .modelContainer(PersistenceController.preview)
         .environmentObject(ThemeManager.shared)
 }

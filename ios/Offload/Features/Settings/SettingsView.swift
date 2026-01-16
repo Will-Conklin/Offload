@@ -10,69 +10,40 @@ import SwiftData
 
 // AGENT NAV
 // - Layout
-// - Tags
+// - Tag Management
 // - About
 // - Add Tag Sheet
 
 struct SettingsView: View {
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var themeManager: ThemeManager
-
-    @Query(sort: \Tag.name) private var tags: [Tag]
-
-    @State private var showingAddTag = false
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
     var body: some View {
         NavigationStack {
             List {
-                // Theme section
-                Section {
-                    Picker("Theme", selection: $themeManager.currentStyle) {
-                        ForEach(ThemeStyle.allCases, id: \.self) { theme in
-                            HStack {
-                                Circle()
-                                    .fill(Theme.Colors.primary(colorScheme, style: theme))
-                                    .frame(width: 20, height: 20)
-                                Text(theme.displayName)
-                            }
-                            .tag(theme)
-                        }
-                    }
-                } header: {
-                    Text("Appearance")
-                } footer: {
-                    Text("Theme applies to both light and dark modes")
-                }
-
                 // Tags section
                 Section {
-                    ForEach(tags) { tag in
-                        HStack {
-                            Text(tag.name)
+                    NavigationLink {
+                        TagManagementView()
+                    } label: {
+                        HStack(spacing: Theme.Spacing.sm) {
+                            IconTile(
+                                iconName: Icons.tag,
+                                iconSize: 16,
+                                tileSize: 32,
+                                style: .secondaryOutlined(Theme.Colors.accentPrimary(colorScheme, style: style))
+                            )
+                            Text("Tags")
                                 .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
                             Spacer()
                         }
                     }
-                    .onDelete(perform: deleteTags)
-
-                    Button {
-                        showingAddTag = true
-                    } label: {
-                        Label {
-                            Text("Add Tag")
-                        } icon: {
-                            AppIcon(name: Icons.addCircle, size: 16)
-                        }
-                            .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
-                    }
+                    .rowStyle(.card)
                 } header: {
                     Text("Tags")
-                } footer: {
-                    Text("Tags help organize captures and tasks")
                 }
 
                 // About section
@@ -83,6 +54,7 @@ struct SettingsView: View {
                         Text(appVersion)
                             .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
                     }
+                    .rowStyle(.card)
 
                     Link(destination: URL(string: "https://github.com/Will-Conklin/offload")!) {
                         HStack {
@@ -92,25 +64,96 @@ struct SettingsView: View {
                                 .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
                         }
                     }
+                    .rowStyle(.card)
                 } header: {
                     Text("About")
                 }
             }
+            .listSectionSpacing(Theme.Spacing.lgSoft)
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(Theme.Colors.background(colorScheme, style: style))
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
                 }
-            }
-            .sheet(isPresented: $showingAddTag) {
-                AddTagSheet(modelContext: modelContext)
             }
         }
     }
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    }
+}
+
+// MARK: - Tag Management
+
+private struct TagManagementView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
+
+    @Query(sort: \Tag.name) private var tags: [Tag]
+    @State private var showingAddTag = false
+
+    private var style: ThemeStyle { themeManager.currentStyle }
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(tags) { tag in
+                    HStack(spacing: Theme.Spacing.sm) {
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(Theme.Colors.tagColor(for: tag.name, colorScheme, style: style))
+                            .frame(width: 12, height: 22)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .stroke(
+                                        Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.45),
+                                        lineWidth: 0.6
+                                    )
+                            )
+
+                        Text(tag.name)
+                            .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+
+                        Spacer()
+                    }
+                    .rowStyle(.card)
+                }
+                .onDelete(perform: deleteTags)
+
+                Button {
+                    showingAddTag = true
+                } label: {
+                    HStack(spacing: Theme.Spacing.sm) {
+                        IconTile(
+                            iconName: Icons.add,
+                            iconSize: 16,
+                            tileSize: 32,
+                            style: .secondaryOutlined(Theme.Colors.accentPrimary(colorScheme, style: style))
+                        )
+                        Text("Add Tag")
+                            .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+                        Spacer()
+                    }
+                }
+                .rowStyle(.card)
+            } header: {
+                Text("Tags")
+            }
+        }
+        .listSectionSpacing(Theme.Spacing.lgSoft)
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(Theme.Colors.background(colorScheme, style: style))
+        .navigationTitle("Tags")
+        .navigationBarTitleDisplayMode(.large)
+        .sheet(isPresented: $showingAddTag) {
+            AddTagSheet(modelContext: modelContext)
+        }
     }
 
     private func deleteTags(offsets: IndexSet) {
@@ -125,6 +168,11 @@ struct SettingsView: View {
 private struct AddTagSheet: View {
     let modelContext: ModelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
+
+    private var style: ThemeStyle { themeManager.currentStyle }
+
     @State private var name = ""
 
     var body: some View {
@@ -134,6 +182,10 @@ private struct AddTagSheet: View {
             }
             .navigationTitle("New Tag")
             .navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden)
+            .background(Theme.Colors.background(colorScheme, style: style))
+            .toolbarBackground(Theme.Colors.background(colorScheme, style: style), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -150,19 +202,6 @@ private struct AddTagSheet: View {
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
-        }
-    }
-}
-
-// MARK: - Theme Display Name Extension
-
-extension ThemeStyle {
-    var displayName: String {
-        switch self {
-        case .oceanTeal: return "Ocean Teal"
-        case .violetPop: return "Violet Pop"
-        case .sunsetCoral: return "Sunset Coral"
-        case .slate: return "Slate"
         }
     }
 }

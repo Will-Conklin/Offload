@@ -2,7 +2,7 @@
 //  Theme.swift
 //  Offload
 //
-//  Flat design system with bold, clean colors
+//  Cooper lavender/cream design system
 //
 
 import SwiftUI
@@ -10,9 +10,13 @@ import SwiftUI
 // AGENT NAV
 // - Theme Style
 // - Colors
+// - Surfaces
+// - Content
 // - Typography
 // - Spacing
 // - Corner Radius
+// - Shapes
+// - Opacity
 // - Cards
 // - Shadows
 // - Animations
@@ -21,21 +25,13 @@ import SwiftUI
 
 /// Available color themes for the app
 enum ThemeStyle: String, CaseIterable, Identifiable {
-    case oceanTeal = "Ocean Teal"
-    case violetPop = "Violet Pop"
-    case sunsetCoral = "Sunset Coral"
-    case slate = "Slate"
+    case cooper
 
     var id: String { rawValue }
 
-    var description: String {
-        switch self {
-        case .oceanTeal: return "Fresh, calm energy"
-        case .violetPop: return "Creative, playful"
-        case .sunsetCoral: return "Energetic, warm"
-        case .slate: return "Neutral, professional"
-        }
-    }
+    var displayName: String { "Cooper" }
+
+    var description: String { "Lavender + cream calm" }
 }
 
 // MARK: - Theme
@@ -49,197 +45,223 @@ struct Theme {
 
         // MARK: Primary Accent
 
-        static func primary(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
-            switch style {
-            case .oceanTeal:
-                return colorScheme == .dark
-                    ? Color(hex: "22D3EE") // Bright cyan
-                    : Color(hex: "0891B2") // Teal
-            case .violetPop:
-                return colorScheme == .dark
-                    ? Color(hex: "A78BFA") // Light violet
-                    : Color(hex: "8B5CF6") // Vivid purple
-            case .sunsetCoral:
-                return colorScheme == .dark
-                    ? Color(hex: "FB923C") // Light orange
-                    : Color(hex: "F97316") // Bright orange
-            case .slate:
-                return colorScheme == .dark
-                    ? Color(hex: "94A3B8") // Light slate
-                    : Color(hex: "64748B") // Slate gray
-            }
+        static func primary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            colorScheme == .dark
+                ? Color(hex: "C4B5FD") // Lavender (dark mode)
+                : Color(hex: "DDD6FE") // Lavender (light mode)
         }
 
         // MARK: Secondary Accent
 
-        static func secondary(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
-            switch style {
-            case .oceanTeal:
-                return colorScheme == .dark
-                    ? Color(hex: "67E8F9") // Lighter cyan
-                    : Color(hex: "06B6D4") // Cyan
-            case .violetPop:
-                return colorScheme == .dark
-                    ? Color(hex: "C4B5FD") // Lighter violet
-                    : Color(hex: "A78BFA") // Light purple
-            case .sunsetCoral:
-                return colorScheme == .dark
-                    ? Color(hex: "FDBA74") // Lighter orange
-                    : Color(hex: "FB923C") // Orange
-            case .slate:
-                return colorScheme == .dark
-                    ? Color(hex: "CBD5E1") // Lighter slate
-                    : Color(hex: "94A3B8") // Light slate
-            }
+        static func secondary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            colorScheme == .dark
+                ? Color(hex: "FDE68A") // Cream (dark mode)
+                : Color(hex: "FEF3C7") // Cream (light mode)
         }
 
         // MARK: Backgrounds
 
-        static func background(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func background(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             colorScheme == .dark
-                ? Color(hex: "0A0A0A") // Near black
-                : Color(hex: "FAFAFA") // Near white
+                ? Color(hex: "0E1116") // Soft dark
+                : Color(hex: "FAF5FF") // Lavender-tinted light
         }
 
-        static func surface(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func surface(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             colorScheme == .dark
-                ? Color(hex: "171717") // Dark gray
-                : Color.white
+                ? Color(hex: "161A22") // Deep slate
+                : Color(hex: "FFFFFF") // Clean white
+        }
+
+        static func buttonDark(_ colorScheme: ColorScheme) -> Color {
+            colorScheme == .dark
+                ? Color(hex: "2D2D2D")
+                : Color(hex: "1F1F1F")
         }
 
         // MARK: Card (tinted backgrounds)
 
-        static func card(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
-            switch style {
-            case .oceanTeal:
-                return colorScheme == .dark
-                    ? Color(hex: "0C4A5E") // Deep teal
-                    : Color(hex: "0E7490") // Deep teal
-            case .violetPop:
-                return colorScheme == .dark
-                    ? Color(hex: "3B2D63") // Deep purple
-                    : Color(hex: "6D28D9") // Deep violet
-            case .sunsetCoral:
-                return colorScheme == .dark
-                    ? Color(hex: "5C2E0E") // Deep amber
-                    : Color(hex: "C2410C") // Deep orange
-            case .slate:
-                return colorScheme == .dark
-                    ? Color(hex: "1E293B") // Deep slate
-                    : Color(hex: "334155") // Deep slate
+        static func card(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            cardPalette(colorScheme, style: style).first ?? surface(colorScheme, style: style)
+        }
+
+        // MARK: Multi-accent palette (for varied card surfaces)
+
+        static func cardPalette(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> [Color] {
+            if colorScheme == .dark {
+                return [
+                    Color(hex: "2B2248"), // Deep lavender
+                    Color(hex: "3B2F1A"), // Deep cream
+                    Color(hex: "3B1F2F"), // Deep pink
+                    Color(hex: "1E2A44"), // Deep blue
+                    Color(hex: "0F3D2E")  // Deep mint
+                ]
             }
+
+            return [
+                Color(hex: "EDE9FE"), // Lavender tint
+                Color(hex: "FEF3C7"), // Cream/yellow tint
+                Color(hex: "FCE7F3"), // Soft pink
+                Color(hex: "DBEAFE"), // Soft blue
+                Color(hex: "D1FAE5")  // Soft mint
+            ]
+        }
+
+        static func cardColor(index: Int, _ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            let palette = cardPalette(colorScheme, style: style)
+            guard !palette.isEmpty else { return card(colorScheme, style: style) }
+            let i = ((index % palette.count) + palette.count) % palette.count
+            return palette[i]
+        }
+
+        static func tagColor(for name: String, _ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            primary(colorScheme, style: style)
         }
 
         // MARK: Text
 
-        static func textPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func textPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             colorScheme == .dark
                 ? Color(hex: "F5F5F5") // Off white
-                : Color(hex: "171717") // Near black
+                : Color(hex: "1B1B1B") // Charcoal
         }
 
-        static func cardTextPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
-            colorScheme == .dark
-                ? textPrimary(colorScheme, style: style)
-                : Color.white
+        static func cardTextPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            textPrimary(colorScheme, style: style)
         }
 
-        static func textSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func textSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             colorScheme == .dark
-                ? Color(hex: "A3A3A3") // Gray
-                : Color(hex: "525252") // Dark gray
+                ? Color(hex: "9CA3AF") // Muted gray
+                : Color(hex: "6B7280") // Cool gray
         }
 
-        static func cardTextSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
-            colorScheme == .dark
-                ? textSecondary(colorScheme, style: style)
-                : Color.white.opacity(0.75)
+        static func cardTextSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            textSecondary(colorScheme, style: style)
+        }
+
+        static func icon(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            textSecondary(colorScheme, style: style)
         }
 
         // MARK: Borders
 
-        static func border(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func border(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             colorScheme == .dark
-                ? Color(hex: "262626") // Dark border
-                : Color(hex: "E5E5E5") // Light border
+                ? Color(hex: "232830") // Soft dark border
+                : Color(hex: "E5E7EB") // Neutral light border
         }
 
-        static func borderMuted(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func borderMuted(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             colorScheme == .dark
-                ? Color(hex: "1F1F1F") // Subtle dark border
-                : Color(hex: "F5F5F5") // Subtle light border
+                ? Color(hex: "1A1F27") // Subtle dark border
+                : Color(hex: "EEF2F7") // Neutral muted border
         }
 
         // MARK: Semantic Colors
 
-        static func success(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func success(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             colorScheme == .dark
                 ? Color(hex: "22C55E") // Green
                 : Color(hex: "16A34A") // Dark green
         }
 
-        static func caution(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func caution(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             colorScheme == .dark
                 ? Color(hex: "FACC15") // Yellow
                 : Color(hex: "CA8A04") // Dark yellow
         }
 
-        static func destructive(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func destructive(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             colorScheme == .dark
                 ? Color(hex: "EF4444") // Red
                 : Color(hex: "DC2626") // Dark red
         }
 
-        // MARK: Legacy compatibility
+        // MARK: Compatibility
 
-        static func accentPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func accentPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             primary(colorScheme, style: style)
         }
 
-        static func accentSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func accentSecondary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             secondary(colorScheme, style: style)
         }
 
-        static func cardBackground(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func cardBackground(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             card(colorScheme, style: style)
         }
 
-        static func focusRing(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> Color {
+        static func focusRing(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
             primary(colorScheme, style: style).opacity(0.5)
+        }
+    }
+
+    // MARK: - Surfaces
+
+    struct Surface {
+        static func background(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            Colors.background(colorScheme, style: style)
+        }
+
+        static func card(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            Colors.card(colorScheme, style: style)
+        }
+
+        static func highlight(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            Colors.card(colorScheme, style: style)
+        }
+    }
+
+    // MARK: - Content
+
+    struct Content {
+        static func secondary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> Color {
+            Colors.textSecondary(colorScheme, style: style)
         }
     }
 
     // MARK: - Typography
 
     struct Typography {
-        // Standard text styles
-        static let largeTitle = Font.largeTitle
-        static let title = Font.title
-        static let title2 = Font.title2
-        static let title3 = Font.title3
-        static let headline = Font.headline
-        static let body = Font.body
-        static let callout = Font.callout
-        static let subheadline = Font.subheadline
-        static let footnote = Font.footnote
-        static let caption = Font.caption
-        static let caption2 = Font.caption2
-        static let monospacedBody = Font.body.monospacedDigit()
+        // Base builder (keeps Dynamic Type)
+        private static func system(_ style: Font.TextStyle, weight: Font.Weight = .regular) -> Font {
+            Font.system(style, design: .rounded).weight(weight)
+        }
 
-        // Semantic styles
-        static let cardTitle = Font.title3.weight(.semibold)
-        static let cardTitleEmphasis = Font.title3.weight(.bold)
-        static let cardBody = Font.callout
-        static let cardBodyEmphasis = Font.callout.weight(.semibold)
-        static let buttonLabel = Font.headline
-        static let buttonLabelEmphasis = Font.headline.weight(.semibold)
-        static let inputLabel = Font.subheadline
-        static let inputLabelEmphasis = Font.subheadline.weight(.semibold)
-        static let errorText = Font.caption
-        static let metadata = Font.caption
-        static let metadataMonospaced = Font.caption.monospacedDigit()
-        static let badge = Font.caption2
-        static let badgeEmphasis = Font.caption2.weight(.semibold)
+        // Standard text styles (rounded)
+        static let largeTitle = system(.largeTitle, weight: .bold)
+        static let title = system(.title, weight: .bold)
+        static let title2 = system(.title2, weight: .semibold)
+        static let title3 = system(.title3, weight: .semibold)
+        static let headline = system(.headline, weight: .semibold)
+        static let body = system(.body, weight: .regular)
+        static let callout = system(.callout, weight: .regular)
+        static let subheadline = system(.subheadline, weight: .regular)
+        static let subheadlineSemibold = system(.subheadline, weight: .semibold)
+        static let footnote = system(.footnote, weight: .regular)
+        static let caption = system(.caption, weight: .medium)
+        static let caption2 = system(.caption2, weight: .medium)
+        static let monospacedBody = Font.system(.body, design: .monospaced).monospacedDigit()
+
+        // Semantic styles (use these in components)
+        static let cardTitle = system(.title2, weight: .bold)
+        static let cardTitleEmphasis = system(.title2, weight: .heavy)
+        static let cardBody = system(.callout, weight: .regular)
+        static let cardBodyEmphasis = system(.callout, weight: .semibold)
+
+        static let buttonLabel = system(.headline, weight: .bold)
+        static let buttonLabelEmphasis = system(.headline, weight: .heavy)
+
+        static let inputLabel = system(.subheadline, weight: .semibold)
+        static let inputLabelEmphasis = system(.subheadline, weight: .bold)
+
+        static let errorText = system(.caption, weight: .semibold)
+        static let metadata = system(.caption, weight: .semibold)
+        static let metadataMonospaced = Font.system(.caption, design: .monospaced).monospacedDigit()
+
+        static let badge = system(.caption2, weight: .semibold)
+        static let badgeEmphasis = system(.caption2, weight: .bold)
 
         // Line spacing
         static let lineSpacingTight: CGFloat = 2
@@ -252,19 +274,105 @@ struct Theme {
     struct Spacing {
         static let xs: CGFloat = 4
         static let sm: CGFloat = 8
-        static let md: CGFloat = 16
+        static let md: CGFloat = 18
+        static let lgSoft: CGFloat = 20
         static let lg: CGFloat = 24
         static let xl: CGFloat = 32
         static let xxl: CGFloat = 48
+
+        // Pill/chip padding (for TagPill)
+        static let pillHorizontal: CGFloat = 10
+        static let pillVertical: CGFloat = 6
+
+        // Type chip padding (smaller than pill)
+        static let chipHorizontal: CGFloat = 8
+        static let chipVertical: CGFloat = 4
+
+        // Action button size
+        static let actionButtonSize: CGFloat = 30
     }
 
     // MARK: - Corner Radius
 
     struct CornerRadius {
-        static let sm: CGFloat = 6
-        static let md: CGFloat = 10
-        static let lg: CGFloat = 14
-        static let xl: CGFloat = 20
+        static let sm: CGFloat = 12
+        static let md: CGFloat = 16
+        static let lg: CGFloat = 20
+        static let xl: CGFloat = 28
+        static let cardSoft: CGFloat = 24
+        static let iconTile: CGFloat = 16
+        static let button: CGFloat = 20
+        static let pill: CGFloat = 100
+    }
+
+    // MARK: - Shapes
+
+    struct Shapes {
+        static func card(_ radius: CGFloat = CornerRadius.cardSoft) -> UnevenRoundedRectangle {
+            UnevenRoundedRectangle(
+                cornerRadii: RectangleCornerRadii(
+                    topLeading: 0,
+                    bottomLeading: 0,
+                    bottomTrailing: radius,
+                    topTrailing: radius
+                ),
+                style: .continuous
+            )
+        }
+    }
+
+    // MARK: - Opacity
+
+    struct Opacity {
+        /// Card edge strip (left accent bar on cards)
+        static func cardEdge(_ colorScheme: ColorScheme) -> Double {
+            colorScheme == .dark ? 0.22 : 0.08
+        }
+
+        /// Border muted overlay
+        static func borderMuted(_ colorScheme: ColorScheme) -> Double {
+            colorScheme == .dark ? 0.55 : 0.35
+        }
+
+        /// Tag pill fill
+        static func tagFill(_ colorScheme: ColorScheme) -> Double {
+            colorScheme == .dark ? 0.2 : 0.12
+        }
+
+        /// Tag pill stroke
+        static func tagStroke(_ colorScheme: ColorScheme) -> Double {
+            colorScheme == .dark ? 0.45 : 0.3
+        }
+
+        /// Item type chip background
+        static func chipBackground(_ colorScheme: ColorScheme) -> Double {
+            colorScheme == .dark ? 0.22 : 0.14
+        }
+
+        /// Tab bar selection highlight
+        static func tabSelection(_ colorScheme: ColorScheme) -> Double {
+            colorScheme == .dark ? 0.18 : 0.12
+        }
+
+        /// Tab button selection highlight (MainTabView)
+        static func tabButtonSelection(_ colorScheme: ColorScheme) -> Double {
+            colorScheme == .dark ? 0.16 : 0.10
+        }
+
+        /// Action button secondary background
+        static func actionSecondary(_ colorScheme: ColorScheme) -> Double {
+            colorScheme == .dark ? 0.22 : 0.14
+        }
+
+        /// Action button plain background
+        static func actionPlain(_ colorScheme: ColorScheme) -> Double {
+            colorScheme == .dark ? 0.14 : 0.10
+        }
+
+        /// Modal/sheet backdrop
+        static func backdrop(_ colorScheme: ColorScheme) -> Double {
+            colorScheme == .dark ? 0.45 : 0.25
+        }
     }
 
     // MARK: - Cards
@@ -274,20 +382,33 @@ struct Theme {
         static let pressScale: CGFloat = 0.98
         static let horizontalInset: CGFloat = Spacing.md
         static let verticalInset: CGFloat = Spacing.sm
+        static let contentPadding: CGFloat = Spacing.md
+        static let edgeWidth: CGFloat = 7
+        static let borderWidth: CGFloat = 0.6
     }
 
     // MARK: - Shadows (minimal for flat design)
 
     struct Shadows {
         // Use sparingly - prefer borders for flat design
-        static let elevationXs: CGFloat = 1
-        static let elevationSm: CGFloat = 2
-        static let elevationMd: CGFloat = 4
+        static let elevationUltraLight: CGFloat = 8
+        static let elevationXs: CGFloat = 2
+        static let elevationSm: CGFloat = 6
+        static let elevationMd: CGFloat = 12
+        static let offsetYUltraLight: CGFloat = 2
+        static let offsetYXs: CGFloat = 1
+        static let offsetYSm: CGFloat = 2
+        static let offsetYMd: CGFloat = 6
+
+        static func ultraLight(_ colorScheme: ColorScheme) -> Color {
+            Color.black.opacity(colorScheme == .dark ? 0.12 : 0.04)
+        }
 
         static func ambient(_ colorScheme: ColorScheme) -> Color {
+            // Softer default ambient shadow; ultraLight should be preferred for new floating surfaces.
             colorScheme == .dark
-                ? Color.black.opacity(0.3)
-                : Color.black.opacity(0.05)
+                ? Color.black.opacity(0.28)
+                : Color.black.opacity(0.06)
         }
     }
 
@@ -321,11 +442,12 @@ struct Theme {
 
     struct Gradients {
         // Only use when needed for visual interest
-        static func accentPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> LinearGradient {
-            LinearGradient(
+        static func accentPrimary(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> LinearGradient {
+            let color = Colors.buttonDark(colorScheme)
+            return LinearGradient(
                 colors: [
-                    Colors.primary(colorScheme, style: style),
-                    Colors.secondary(colorScheme, style: style)
+                    color,
+                    color
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -333,7 +455,7 @@ struct Theme {
         }
 
         // Subtle background - nearly flat
-        static func appBackground(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> LinearGradient {
+        static func appBackground(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> LinearGradient {
             LinearGradient(
                 colors: [
                     Colors.background(colorScheme, style: style),
@@ -344,10 +466,10 @@ struct Theme {
             )
         }
 
-        static func surfaceGlow(_ colorScheme: ColorScheme, style: ThemeStyle = .oceanTeal) -> RadialGradient {
+        static func surfaceGlow(_ colorScheme: ColorScheme, style: ThemeStyle = .cooper) -> RadialGradient {
             RadialGradient(
                 colors: [
-                    Colors.primary(colorScheme, style: style).opacity(0.1),
+                    Colors.primary(colorScheme, style: style).opacity(0.08),
                     Color.clear
                 ],
                 center: .topTrailing,

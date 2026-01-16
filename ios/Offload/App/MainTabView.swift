@@ -2,7 +2,7 @@
 //  MainTabView.swift
 //  Offload
 //
-//  Flat design with floating pill tab bar and center capture button
+//  Flat design with floating pill tab bar
 //
 
 import SwiftUI
@@ -13,58 +13,49 @@ import SwiftData
 // - Content
 // - Floating Tab Bar
 // - Tab Buttons
-// - Capture Button
 
 struct MainTabView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
-    @State private var selectedTab: Tab = .captures
-    @State private var showingCapture = false
+    @State private var selectedTab: Tab = .capture
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // Content
-            TabContent(selectedTab: selectedTab)
-                .ignoresSafeArea(edges: .bottom)
-
-            // Floating tab bar
-            FloatingTabBar(
-                selectedTab: $selectedTab,
-                onCaptureTap: { showingCapture = true },
-                colorScheme: colorScheme,
-                style: style
-            )
-            .padding(.horizontal, Theme.Spacing.xl)
-            .padding(.bottom, Theme.Spacing.sm)
-        }
-        .sheet(isPresented: $showingCapture) {
-            CaptureComposeView()
-        }
+        TabContent(selectedTab: selectedTab)
+            .safeAreaInset(edge: .bottom) {
+                FloatingTabBar(
+                    selectedTab: $selectedTab,
+                    colorScheme: colorScheme,
+                    style: style
+                )
+                .padding(.horizontal, Theme.Spacing.xl)
+                .padding(.top, Theme.Spacing.sm)
+                .padding(.bottom, Theme.Spacing.sm)
+            }
     }
 
     enum Tab: CaseIterable {
-        case captures
+        case capture
         case organize
 
         var icon: String {
             switch self {
-            case .captures: return Icons.captures
+            case .capture: return Icons.captureList
             case .organize: return Icons.organize
             }
         }
 
         var selectedIcon: String {
             switch self {
-            case .captures: return Icons.capturesSelected
+            case .capture: return Icons.captureListSelected
             case .organize: return Icons.organizeSelected
             }
         }
 
         var label: String {
             switch self {
-            case .captures: return "Captures"
+            case .capture: return "Capture"
             case .organize: return "Organize"
             }
         }
@@ -78,8 +69,8 @@ private struct TabContent: View {
 
     var body: some View {
         switch selectedTab {
-        case .captures:
-            CapturesListView()
+        case .capture:
+            CaptureView()
         case .organize:
             OrganizeView()
         }
@@ -90,7 +81,6 @@ private struct TabContent: View {
 
 private struct FloatingTabBar: View {
     @Binding var selectedTab: MainTabView.Tab
-    let onCaptureTap: () -> Void
     let colorScheme: ColorScheme
     let style: ThemeStyle
 
@@ -98,19 +88,13 @@ private struct FloatingTabBar: View {
         HStack(spacing: 0) {
             // Left tab
             TabButton(
-                tab: .captures,
-                isSelected: selectedTab == .captures,
+                tab: .capture,
+                isSelected: selectedTab == .capture,
                 colorScheme: colorScheme,
                 style: style
-            ) { selectedTab = .captures }
+            ) { selectedTab = .capture }
 
-            // Center capture button
-            CaptureButton(
-                colorScheme: colorScheme,
-                style: style,
-                action: onCaptureTap
-            )
-            .padding(.horizontal, Theme.Spacing.sm)
+            Spacer()
 
             // Right tab
             TabButton(
@@ -120,6 +104,7 @@ private struct FloatingTabBar: View {
                 style: style
             ) { selectedTab = .organize }
         }
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, Theme.Spacing.md)
         .padding(.vertical, Theme.Spacing.md)
         .background(
@@ -127,8 +112,9 @@ private struct FloatingTabBar: View {
                 .fill(Theme.Colors.surface(colorScheme, style: style))
                 .overlay(
                     Capsule()
-                        .stroke(Theme.Colors.border(colorScheme, style: style), lineWidth: 2)
+                        .stroke(Theme.Colors.primary(colorScheme, style: style).opacity(0.35), lineWidth: 1)
                 )
+                .shadow(color: Theme.Shadows.ultraLight(colorScheme), radius: Theme.Shadows.elevationUltraLight, y: Theme.Shadows.offsetYUltraLight)
         )
     }
 }
@@ -145,9 +131,9 @@ private struct TabButton: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 2) {
-                AppIcon(name: isSelected ? tab.selectedIcon : tab.icon, size: 36)
+                AppIcon(name: isSelected ? tab.selectedIcon : tab.icon, size: 24)
                 Text(tab.label)
-                    .font(.system(size: 12, weight: isSelected ? .medium : .regular))
+                    .font(Theme.Typography.caption)
             }
             .foregroundStyle(
                 isSelected
@@ -155,33 +141,21 @@ private struct TabButton: View {
                     : Theme.Colors.textSecondary(colorScheme, style: style)
             )
             .frame(minWidth: 80, minHeight: 64)
+            .background(
+                Group {
+                    if isSelected {
+                        Theme.Colors.secondary(colorScheme, style: style)
+                            .opacity(Theme.Opacity.tabButtonSelection(colorScheme))
+                            .clipShape(Capsule())
+                    } else {
+                        Color.clear
+                    }
+                }
+            )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(tab.label)
-    }
-}
-
-// MARK: - Center Capture Button
-
-private struct CaptureButton: View {
-    let colorScheme: ColorScheme
-    let style: ThemeStyle
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            AppIcon(name: Icons.capture, size: 22)
-                .foregroundStyle(Color.white)
-                .frame(width: 52, height: 52)
-                .background(
-                    Circle()
-                        .fill(Theme.Colors.primary(colorScheme, style: style))
-                )
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Capture")
-        .accessibilityHint("Opens quick capture sheet")
     }
 }
 
