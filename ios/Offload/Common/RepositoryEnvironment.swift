@@ -36,7 +36,9 @@ extension EnvironmentValues {
                 return repository
             }
             AppLogger.general.error("ItemRepository not injected; falling back to modelContext.")
-            return ItemRepository(modelContext: modelContext)
+            return MainActor.assumeIsolated {
+                ItemRepository(modelContext: modelContext)
+            }
         }
         set { self[ItemRepositoryKey.self] = newValue }
     }
@@ -47,7 +49,9 @@ extension EnvironmentValues {
                 return repository
             }
             AppLogger.general.error("CollectionRepository not injected; falling back to modelContext.")
-            return CollectionRepository(modelContext: modelContext)
+            return MainActor.assumeIsolated {
+                CollectionRepository(modelContext: modelContext)
+            }
         }
         set { self[CollectionRepositoryKey.self] = newValue }
     }
@@ -58,7 +62,9 @@ extension EnvironmentValues {
                 return repository
             }
             AppLogger.general.error("CollectionItemRepository not injected; falling back to modelContext.")
-            return CollectionItemRepository(modelContext: modelContext)
+            return MainActor.assumeIsolated {
+                CollectionItemRepository(modelContext: modelContext)
+            }
         }
         set { self[CollectionItemRepositoryKey.self] = newValue }
     }
@@ -69,7 +75,9 @@ extension EnvironmentValues {
                 return repository
             }
             AppLogger.general.error("TagRepository not injected; falling back to modelContext.")
-            return TagRepository(modelContext: modelContext)
+            return MainActor.assumeIsolated {
+                TagRepository(modelContext: modelContext)
+            }
         }
         set { self[TagRepositoryKey.self] = newValue }
     }
@@ -106,6 +114,7 @@ struct RepositoryBundle {
 #if DEBUG
 extension EnvironmentValues {
     /// Create repositories from a preview ModelContainer
+    @MainActor
     static func previewRepositories(from container: ModelContainer) -> (
         itemRepository: ItemRepository,
         collectionRepository: CollectionRepository,
