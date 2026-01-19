@@ -3,7 +3,7 @@ id: reference-test-runtime-baselines
 type: reference
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
   - testing
 last_updated: 2026-01-03
@@ -25,12 +25,12 @@ Record wall-clock durations for key test commands to watch for regressions.
 
 - Xcode: 16.2
 - Simulator: iPhone 16 Pro (iOS 18.3.1)
-- Scheme: `offload`
+- Scheme: `Offload`
 
 Command:
 
 ```bash
-xcodebuild test -project ios/Offload.xcodeproj -scheme offload \
+xcodebuild test -project ios/Offload.xcodeproj -scheme Offload \
   -destination 'id=95004350-5F76-4F47-A4B5-21266E4FB055' \
   -derivedDataPath .derivedData \
   -resultBundlePath .xcresult-<timestamp>

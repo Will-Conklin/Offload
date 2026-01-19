@@ -3,7 +3,7 @@ id: research-color-palettes
 type: research
 status: informational
 owners:
-  - offload
+  - Offload
 applies_to:
   - color
   - palettes

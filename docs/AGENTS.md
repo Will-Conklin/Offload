@@ -3,7 +3,7 @@ id: docs-agents
 type: reference
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
   - agents
 last_updated: 2026-01-17

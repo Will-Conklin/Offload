@@ -3,7 +3,7 @@ id: adr-readme
 type: architecture-decision
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
   - architecture
 last_updated: 2026-01-17

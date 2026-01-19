@@ -3,7 +3,7 @@ id: reconciliation-2026-01-19
 type: plan
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
   - all-plans
 last_updated: 2026-01-19

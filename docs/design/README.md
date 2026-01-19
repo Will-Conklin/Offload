@@ -3,9 +3,9 @@ id: design-readme
 type: design
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
-  - offload
+  - Offload
 last_updated: 2026-01-17
 related:
   - design-voice-capture-testing-guide

@@ -3,9 +3,9 @@ id: research-readme
 type: research
 status: informational
 owners:
-  - offload
+  - Offload
 applies_to:
-  - offload
+  - Offload
 last_updated: 2026-01-04
 related:
   - research-adhd-ux-ui

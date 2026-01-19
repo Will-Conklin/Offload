@@ -3,7 +3,7 @@ id: plan-archived-remediation-plan
 type: plan
 status: archived
 owners:
-  - offload
+  - Offload
 applies_to:
   - remediation
 last_updated: 2026-01-17
@@ -1196,7 +1196,7 @@ final class CaptureWorkflowServiceTests: XCTestCase {
 import OSLog
 
 enum AppLogger {
-    static let subsystem = "com.offload.app"
+    static let subsystem = "com.Offload.app"
 
     static let general = Logger(subsystem: subsystem, category: "general")
     static let persistence = Logger(subsystem: subsystem, category: "persistence")

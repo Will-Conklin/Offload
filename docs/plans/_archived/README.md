@@ -3,9 +3,9 @@ id: plans-archived-readme
 type: plan
 status: archived
 owners:
-  - offload
+  - Offload
 applies_to:
-  - offload
+  - Offload
 last_updated: 2026-01-17
 related:
   - plan-archived-consolidated-implementation-plan

@@ -3,7 +3,7 @@ id: research-2026-01-04-main-branch-review
 type: research
 status: informational
 owners:
-  - offload
+  - Offload
 applies_to:
   - main
   - branch
@@ -344,7 +344,7 @@ Sample data manually created; no data factory pattern.
 9. CategoryRepositoryTests.swift
 10. ListRepositoryTests.swift
 11. CommunicationRepositoryTests.swift
-12. offloadTests.swift
+12. OffloadTests.swift
 
 **Coverage Gaps**:
 

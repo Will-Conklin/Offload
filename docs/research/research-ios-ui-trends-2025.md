@@ -3,7 +3,7 @@ id: research-ios-ui-trends-2025
 type: research
 status: informational
 owners:
-  - offload
+  - Offload
 applies_to:
   - ios
   - ui

@@ -3,7 +3,7 @@ id: prd-readme
 type: product-requirements
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
   - product
 last_updated: 2026-01-17

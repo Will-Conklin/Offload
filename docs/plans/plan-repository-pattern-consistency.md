@@ -3,7 +3,7 @@ id: plan-repository-pattern-consistency
 type: plan
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
   - repository
   - pattern

@@ -5,7 +5,7 @@ status: active
 owners:
   - tbd
 applies_to:
-  - offload
+  - Offload
 last_updated: 2026-01-17
 related:
   - research-ios-ui-trends-2025

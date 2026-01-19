@@ -3,7 +3,7 @@ id: plan-pagination-implementation
 type: plan
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
   - pagination
 last_updated: 2026-01-17

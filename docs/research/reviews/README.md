@@ -3,7 +3,7 @@ id: research-reviews-readme
 type: research
 status: informational
 owners:
-  - offload
+  - Offload
 applies_to:
   - reviews
 last_updated: 2026-01-04

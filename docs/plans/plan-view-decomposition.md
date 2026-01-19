@@ -3,7 +3,7 @@ id: plan-view-decomposition
 type: plan
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
   - view
   - decomposition

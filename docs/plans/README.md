@@ -3,9 +3,9 @@ id: plans-readme
 type: plan
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
-  - offload
+  - Offload
 last_updated: 2026-01-17
 related:
   - plan-master-plan

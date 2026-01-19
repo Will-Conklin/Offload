@@ -3,7 +3,7 @@ id: plan-archived-brain-dump-model
 type: plan
 status: archived
 owners:
-  - offload
+  - Offload
 applies_to:
   - brain
   - dump

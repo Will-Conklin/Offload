@@ -6,7 +6,7 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 
 - **Stack**: Swift, SwiftUI, SwiftData
 - **Platform**: iOS (iPhone and iPad)
-- **Bundle ID**: wc.offload
+- **Bundle ID**: wc.Offload
 - **Pattern**: Feature-based modules with repository pattern for data access
 - **Navigation**: `MainTabView` (tabs) → `NavigationStack` (detail) → sheets (edit/pickers)
 - **Data**: 4 SwiftData models (Item, Collection, CollectionItem, Tag)
@@ -61,6 +61,7 @@ Add agent-readable headers to non-Markdown config files that agents read/modify:
 # Role: Documentation navigation index
 # Authority: Navigation only (not source of truth)
 # Governed by: docs/AGENTS.md
+# Additional instructions: Additional instructions
 ```
 
 **JSON:**
@@ -70,7 +71,8 @@ Add agent-readable headers to non-Markdown config files that agents read/modify:
   "_meta": {
     "role": "reference",
     "authority": "highest",
-    "governed_by": "docs/AGENTS.md"
+    "governed_by": "docs/AGENTS.md",
+    "additional_instructions": "Additional instructions"
   }
 }
 ```

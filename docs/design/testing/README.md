@@ -3,7 +3,7 @@ id: design-testing-readme
 type: design
 status: active
 owners:
-  - offload
+  - Offload
 applies_to:
   - testing
 last_updated: 2026-01-17
