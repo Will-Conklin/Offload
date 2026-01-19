@@ -1,8 +1,10 @@
+// Purpose: UI tests for Offload.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Keep UI tests stable and focused on critical flows.
+
 import XCTest
 
-// AGENT NAV
-// - Suite
-// - Launch Tests
 
 
 final class offloadUITestsLaunchTests: XCTestCase {

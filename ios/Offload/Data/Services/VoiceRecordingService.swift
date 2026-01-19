@@ -1,14 +1,14 @@
+// Purpose: Service-layer utilities.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Keep service APIs focused and testable.
+
 import Foundation
 import OSLog
 import AVFoundation
 import Speech
 import Observation
 
-// AGENT NAV
-// - State
-// - Permissions
-// - Recording
-// - Errors
 
 
 @Observable

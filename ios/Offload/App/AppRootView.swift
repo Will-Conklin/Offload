@@ -1,9 +1,11 @@
+// Purpose: App entry points and root navigation.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Keep navigation flow consistent with MainTabView -> NavigationStack -> sheets.
+
 import SwiftUI
 import SwiftData
 
-// AGENT NAV
-// - View
-// - Preview
 
 
 struct AppRootView: View {

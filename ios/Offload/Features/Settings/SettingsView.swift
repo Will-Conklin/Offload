@@ -1,13 +1,13 @@
+// Purpose: Settings and account feature views.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Avoid introducing feature logic that belongs in repositories.
+
 //  Simple flat settings: theme picker, tags/categories, basic info
 
 import SwiftUI
 import SwiftData
 
-// AGENT NAV
-// - Layout
-// - Tag Management
-// - About
-// - Add Tag Sheet
 
 struct SettingsView: View {
     @Environment(\.colorScheme) private var colorScheme

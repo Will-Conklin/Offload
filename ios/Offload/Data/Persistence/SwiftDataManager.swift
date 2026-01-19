@@ -1,9 +1,11 @@
+// Purpose: SwiftData container and persistence setup.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Avoid side effects outside model context initialization.
+
 import Foundation
 import SwiftData
 
-// AGENT NAV
-// - Container
-// - Configuration
 
 
 /// Manages SwiftData model container configuration and setup

@@ -1,16 +1,12 @@
-// Intent: Provide reusable SwiftUI components (buttons, cards, tags) wired to theme tokens.
+// Purpose: Design system components and theme definitions.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Preserve established theme defaults and component APIs.
+
 
 import SwiftUI
 import SwiftData
 
-// AGENT NAV
-// - Buttons
-// - Icon Tiles
-// - Cards
-// - Row Styles
-// - Tags
-// - Item Actions
-// - Tag Sheets
 
 // MARK: - Buttons
 

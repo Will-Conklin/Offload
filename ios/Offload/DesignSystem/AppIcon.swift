@@ -1,9 +1,12 @@
+// Purpose: Design system components and theme definitions.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Preserve established theme defaults and component APIs.
+
 //  SF Symbols wrapper for consistent sizing and template rendering.
 
 import SwiftUI
 
-// AGENT NAV
-// - App Icon
 
 struct AppIcon: View {
     let name: String

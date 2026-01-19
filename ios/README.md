@@ -1,4 +1,3 @@
-<!-- Intent: Summarize the current state of the iOS app, architecture, and outstanding implementation work. -->
 
 # Offload iOS App
 
@@ -83,7 +82,7 @@ All models use the `@Model` macro for SwiftData persistence:
 - **CollectionItem**: Junction table enabling many-to-many relationships with position and hierarchy
 - **Tag**: Simple categorization (name, color)
 
-See [../docs/decisions/ADR-0001-stack.md](../docs/decisions/ADR-0001-stack.md) for detailed architecture decisions.
+See [../docs/adr/adr-0001-technology-stack-and-architecture.md](../docs/adr/adr-0001-technology-stack-and-architecture.md) for detailed architecture decisions.
 
 ## Development Status
 

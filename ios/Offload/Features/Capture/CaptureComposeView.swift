@@ -1,16 +1,14 @@
+// Purpose: Capture feature views and flows.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Preserve low-friction capture UX and Item.type == nil semantics.
+
 //  Minimal capture: text + mic + attachment, optional tags/starred
 
 import SwiftUI
 import SwiftData
 import UIKit
 
-// AGENT NAV
-// - State
-// - Layout
-// - Input
-// - Bottom Bar
-// - Media
-// - Save
 
 struct CaptureComposeView: View {
     @Environment(\.dismiss) private var dismiss

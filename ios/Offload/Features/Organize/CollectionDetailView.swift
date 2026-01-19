@@ -1,17 +1,14 @@
+// Purpose: Organize feature views and flows.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Keep collection ordering aligned with Collection.sortedItems and CollectionItem.position.
+
 //  Unified detail view for both structured (plans) and unstructured (lists) collections
 
 import SwiftUI
 import SwiftData
 import UIKit
 
-// AGENT NAV
-// - State
-// - Layout
-// - Header
-// - Quick Add
-// - Data Loading
-// - Item Row
-// - Sheets
 
 struct CollectionDetailView: View {
     let collectionID: UUID

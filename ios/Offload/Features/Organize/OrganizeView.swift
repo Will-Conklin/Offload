@@ -1,14 +1,13 @@
+// Purpose: Organize feature views and flows.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Keep collection ordering aligned with Collection.sortedItems and CollectionItem.position.
+
 //  Simplified design for Plans and Lists tabs using Collections
 
 import SwiftUI
 import SwiftData
 
-// AGENT NAV
-// - Scope
-// - Layout
-// - Collections
-// - Picker
-// - Sheets
 
 struct OrganizeView: View {
     enum Scope: String, CaseIterable, Identifiable {

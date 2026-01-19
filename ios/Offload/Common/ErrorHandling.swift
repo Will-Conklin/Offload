@@ -1,14 +1,11 @@
-//  Intent: Centralized error presentation types for consistent user-facing alerts
-//  and retry messaging across the app.
+// Purpose: Shared utilities and helpers.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Prefer small, reusable helpers and avoid feature-specific coupling.
 
 import Foundation
 import Observation
 
-// AGENT NAV
-// - Presenter
-// - Presentable Error
-// - Actions
-// - Validation Errors
 
 @Observable
 @MainActor

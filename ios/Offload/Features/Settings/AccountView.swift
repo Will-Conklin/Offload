@@ -1,10 +1,12 @@
+// Purpose: Settings and account feature views.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Avoid introducing feature logic that belongs in repositories.
+
 //  Placeholder account view for profile settings
 
 import SwiftUI
 
-// AGENT NAV
-// - Layout
-// - Content
 
 struct AccountView: View {
     @Environment(\.dismiss) private var dismiss

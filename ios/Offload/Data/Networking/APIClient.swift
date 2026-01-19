@@ -1,9 +1,10 @@
+// Purpose: Networking utilities.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Keep networking isolated from view code.
+
 import Foundation
 
-// AGENT NAV
-// - Client
-// - Configuration
-// - TODOs
 
 
 /// Network client for API communication

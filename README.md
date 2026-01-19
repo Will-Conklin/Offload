@@ -67,6 +67,43 @@ with AI).
 - **User Control**: AI suggests, never auto-modifies
 - **Privacy**: All data stays on device, no cloud required
 
+### Product Philosophy
+
+**Offload** helps people capture thoughts and organize them with minimal friction.
+
+App intent: Capture-first workflow; captures are uncategorized items and
+organization happens later in plans (structured) and lists (unstructured).
+
+#### Primary App Goals
+
+- Minimize friction in capture and organization
+- Reduce cognitive load throughout the experience
+- Convert raw thoughts into structured lists and plans
+
+#### App Non-Goals
+
+- Complex project management features
+- Time-driven task pressure or urgency
+- Over-verbose UI or AI output
+
+#### App AI Behavior Guidelines
+
+- Assist, do not judge user's choices or input
+- Suggest structure, do not enforce it
+- Prefer fewer options over many (reduce decision fatigue)
+- Keep suggestions concise and actionable
+
+#### Design Principles
+
+- When unsure about a design decision, ask for clarification
+- Default to simpler designs over complex ones
+- Prioritize speed of capture over completeness
+- Let users organize later rather than forcing structure upfront
+
+#### UI Design Component Principles
+
+- Common as possible, unique as necessary
+
 ## Current Status
 
 ✅ **Phase 1-3 Remediation Complete** — All critical bugs fixed, architecture
@@ -94,7 +131,7 @@ progress.
 - **Organization UI:** Organize tab and Settings view exist with TODOs.
   MainTabView with tab-based navigation in place.
 
-### 📋 Upcoming (See [Master Plan](docs/plans/master-plan.md))
+### 📋 Upcoming (See [Master Plan](docs/plans/plan-master-plan.md))
 
 - **Weeks 1-2:** Testing & validation of Phase 1-3 fixes
 - **Weeks 2-4:** UI foundation (glassmorphism, components, micro-interactions)
@@ -264,10 +301,12 @@ offload/
 │   └── OffloadTests/             # Unit tests
 ├── backend/                      # Backend services (Phase 3+)
 ├── docs/                         # Documentation
-│   ├── prd/                      # Product requirements
-│   ├── decisions/                # Architecture Decision Records
+│   ├── adr/                      # Architecture Decision Records
+│   ├── design/                   # Technical design and testing guides
 │   ├── plans/                    # Implementation plans
-│   └── testing/                  # Test guides and results
+│   ├── prd/                      # Product requirements
+│   ├── reference/                # Contracts and baselines
+│   └── research/                 # Exploratory notes and reviews
 └── scripts/                      # Build scripts
 ```
 
@@ -335,20 +374,20 @@ they are isolated and fast; ensure test files are included in the
 ### Core Documentation
 
 - 📱 [iOS Development Guide](ios/README.md)
-- 📋 [Product Requirements Document](docs/prd/v1.md)
-- 📍 **[Master Implementation Plan](docs/plans/master-plan.md)** ⭐ Single
+- 📋 [Product Requirements Document](docs/prd/prd-v1-product-requirements.md)
+- 📍 **[Master Implementation Plan](docs/plans/plan-master-plan.md)** ⭐ Single
   source of truth for all planning
-- 🏗️ [Architecture Decision Records](docs/decisions/)
-- 🧭 [ADHD UX/UI Guardrails (ADR-0003)](docs/decisions/ADR-0003-adhd-ux-guardrails.md)
-- 🧠 [Capture Model Plan](docs/plans/brain-dump-model.md)
-- 🎨 [iOS UI Trends Research (2025-2026)](docs/research/ios-ui-trends-2025.md)
-- 🎨 [ADHD-First UX/UI Research](docs/research/adhd-ux-ui.md)
+- 🏗️ [Architecture Decision Records](docs/adr/)
+- 🧭 [ADHD UX/UI Guardrails (ADR-0003)](docs/adr/adr-0003-adhd-focused-ux-ui-guardrails.md)
+- 🧠 [Capture Model Plan](docs/plans/plan-archived-brain-dump-model.md)
+- 🎨 [iOS UI Trends Research (2025-2026)](docs/research/research-ios-ui-trends-2025.md)
+- 🎨 [ADHD-First UX/UI Research](docs/research/research-adhd-ux-ui.md)
 - 📦 [Project Scaffolding Details](ios/SCAFFOLDING.md)
 
 ### Testing & Development
 
-- 🎤 [Voice Capture Testing Guide](docs/testing/voice-capture.md)
-- 📊 [Voice Capture Test Results](docs/testing/voice-capture-results.md)
+- 🎤 [Voice Capture Testing Guide](docs/design/testing/design-voice-capture-testing-guide.md)
+- 📊 [Voice Capture Test Results](docs/design/testing/design-voice-capture-test-results.md)
 - 🧪 SwiftData repositories and model tests in `ios/OffloadTests`
 
 ### Implementation Status
@@ -361,7 +400,7 @@ they are isolated and fast; ensure test files are included in the
 - 🚧 **Organization UI:** Organize tab flows and collection detail surfaces
 - 📅 **Post-v1:** AI workflows, backend sync, widgets
 
-See [Master Plan](docs/plans/master-plan.md) for detailed roadmap.
+See [Master Plan](docs/plans/plan-master-plan.md) for detailed roadmap.
 
 ## Tech Stack
 
@@ -387,7 +426,7 @@ See [Master Plan](docs/plans/master-plan.md) for detailed roadmap.
 - **Testing**: XCTest with SwiftData in-memory containers
 - **CI/CD**: GitHub Actions
 
-See [ADR-0001](docs/decisions/ADR-0001-stack.md) for detailed technical
+See [ADR-0001](docs/adr/adr-0001-technology-stack-and-architecture.md) for detailed technical
 decisions.
 
 ## Development Principles

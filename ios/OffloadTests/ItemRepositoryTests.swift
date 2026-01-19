@@ -1,15 +1,14 @@
+// Purpose: Unit tests for Offload.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Keep tests deterministic and avoid relying on network or time.
+
 //  OffloadTests
 
 import XCTest
 import SwiftData
 @testable import offload
 
-// AGENT NAV
-// - Setup
-// - Create Tests
-// - Fetch Tests
-// - Update Tests
-// - Delete Tests
 
 @MainActor
 final class ItemRepositoryTests: XCTestCase {

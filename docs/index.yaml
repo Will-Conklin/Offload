@@ -1,0 +1,137 @@
+# File: docs/index.yaml
+# Role: Documentation navigation index
+# Authority: Navigation only (not source of truth)
+# Governed by: docs/AGENTS.md
+
+version: 1
+sections:
+  - id: reference
+    title: Reference
+    description: Contracts, schemas, terminology, invariants.
+    documents:
+      - id: docs-agents
+        title: Documentation Agent Guide — Offload
+        path: AGENTS.md
+      - id: reference-readme
+        title: Reference
+        path: reference/README.md
+      - id: reference-testing-readme
+        title: Testing
+        path: reference/testing/README.md
+      - id: reference-test-runtime-baselines
+        title: Test Runtime Baselines
+        path: reference/testing/reference-test-runtime-baselines.md
+  - id: adrs
+    title: Architecture Decisions
+    documents:
+      - id: adrs-readme
+        title: ADRs
+        path: adrs/README.md
+      - id: adr-0001-technology-stack-and-architecture
+        title: adr-0001: Technology Stack and Architecture
+        path: adrs/adr-0001-technology-stack-and-architecture.md
+      - id: adr-0002-terminology-alignment-for-capture-and-organization
+        title: adr-0002: Terminology Alignment for Capture and Organization
+        path: adrs/adr-0002-terminology-alignment-for-capture-and-organization.md
+      - id: adr-0003-adhd-focused-ux-ui-guardrails
+        title: adr-0003: ADHD-Focused UX/UI Guardrails
+        path: adrs/adr-0003-adhd-focused-ux-ui-guardrails.md
+  - id: prds
+    title: Product Requirements
+    documents:
+      - id: prds-readme
+        title: PRDs
+        path: prds/README.md
+      - id: prd-0001-product-requirements
+        title: Offload — V1 Product Requirements Document (PRD)
+        path: prds/prd-0001-product-requirements.md
+  - id: design
+    title: Design
+    description: Technical design and implementation guidance.
+    documents:
+      - id: design-readme
+        title: Design
+        path: design/README.md
+      - id: design-testing-readme
+        title: Testing
+        path: design/testing/README.md
+      - id: design-voice-capture-test-results
+        title: Voice Capture Test Results
+        path: design/testing/design-voice-capture-test-results.md
+      - id: design-voice-capture-testing-guide
+        title: Voice Capture Testing Guide
+        path: design/testing/design-voice-capture-testing-guide.md
+  - id: plans
+    title: Implementation Plans
+    description: Sequencing, milestones, execution strategy.
+    documents:
+      - id: plans-readme
+        title: Plans
+        path: plans/README.md
+      - id: plans-archived-readme
+        title: Archived Plans
+        path: plans/_archived/README.md
+        archived: true
+      - id: plan-archived-brain-dump-model
+        title: Plan: Capture Event-Sourced Model
+        path: plans/_archived/plan-archived-brain-dump-model.md
+        archived: true
+      - id: plan-archived-consolidated-implementation-plan
+        title: Consolidated Implementation Plan: Offload iOS App
+        path: plans/_archived/plan-archived-consolidated-implementation-plan.md
+        archived: true
+      - id: plan-archived-polish-phase
+        title: Offload Polish Phase Implementation Plan
+        path: plans/_archived/plan-archived-polish-phase.md
+        archived: true
+      - id: plan-archived-remediation-plan
+        title: Critical Issues Remediation Plan
+        path: plans/_archived/plan-archived-remediation-plan.md
+        archived: true
+      - id: plan-archived-remediation-tracking
+        title: Remediation Progress Tracking
+        path: plans/_archived/plan-archived-remediation-tracking.md
+        archived: true
+      - id: plan-error-handling-improvements
+        title: Error Handling Improvements Plan
+        path: plans/plan-error-handling-improvements.md
+      - id: plan-master-plan
+        title: Offload Master Implementation Plan
+        path: plans/plan-master-plan.md
+      - id: plan-pagination-implementation
+        title: Pagination Implementation Plan
+        path: plans/plan-pagination-implementation.md
+      - id: plan-repository-pattern-consistency
+        title: Repository Pattern Consistency Plan
+        path: plans/plan-repository-pattern-consistency.md
+      - id: plan-tag-relationship-refactor
+        title: Tag Relationship Refactor Plan
+        path: plans/plan-tag-relationship-refactor.md
+      - id: plan-view-decomposition
+        title: View Decomposition Plan
+        path: plans/plan-view-decomposition.md
+  - id: research
+    title: Research
+    description: Exploratory work, spikes, benchmarks, reviews.
+    documents:
+      - id: research-readme
+        title: Research
+        path: research/README.md
+      - id: research-reviews-readme
+        title: Reviews
+        path: research/reviews/README.md
+      - id: research-2026-01-04-main-branch-review
+        title: Code Review: Main Branch - Comprehensive Analysis
+        path: research/reviews/research-2026-01-04-main-branch-review.md
+      - id: research-adhd-ux-ui
+        title: ADHD-First UX and UI Guidance for Offload
+        path: research/research-adhd-ux-ui.md
+      - id: research-color-palettes
+        title: Color Scheme Options for Offload
+        path: research/research-color-palettes.md
+      - id: research-color-scheme-alternatives
+        title: Color Scheme Alternatives for Offload
+        path: research/research-color-scheme-alternatives.md
+      - id: research-ios-ui-trends-2025
+        title: iOS UI Trends Research & Recommendations for Offload
+        path: research/research-ios-ui-trends-2025.md

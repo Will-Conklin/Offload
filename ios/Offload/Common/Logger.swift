@@ -1,9 +1,11 @@
-//  Intent: Centralized OSLog categories for consistent structured logging across the app.
+// Purpose: Shared utilities and helpers.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Prefer small, reusable helpers and avoid feature-specific coupling.
+
 
 import OSLog
 
-// AGENT NAV
-// - Loggers
 
 
 enum AppLogger {

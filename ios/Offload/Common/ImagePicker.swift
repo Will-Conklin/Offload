@@ -1,9 +1,11 @@
+// Purpose: Shared utilities and helpers.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Prefer small, reusable helpers and avoid feature-specific coupling.
+
 import SwiftUI
 import UIKit
 
-// AGENT NAV
-// - Image Picker
-// - Coordinator
 
 struct ImagePicker: UIViewControllerRepresentable {
     let sourceType: UIImagePickerController.SourceType

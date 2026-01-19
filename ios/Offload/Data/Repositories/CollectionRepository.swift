@@ -1,12 +1,11 @@
+// Purpose: Repository layer for data access and queries.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Keep CRUD logic centralized and consistent with SwiftData models.
+
 import Foundation
 import SwiftData
 
-// AGENT NAV
-// - Create
-// - Fetch
-// - Update
-// - Delete
-// - Helpers
 
 
 @MainActor

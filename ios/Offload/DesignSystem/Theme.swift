@@ -1,20 +1,12 @@
+// Purpose: Design system components and theme definitions.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Preserve established theme defaults and component APIs.
+
 //  Elijah lavender/cream design system
 
 import SwiftUI
 
-// AGENT NAV
-// - Theme Style
-// - Colors
-// - Surfaces
-// - Content
-// - Typography
-// - Spacing
-// - Corner Radius
-// - Shapes
-// - Opacity
-// - Cards
-// - Shadows
-// - Animations
 
 // MARK: - Theme Style
 

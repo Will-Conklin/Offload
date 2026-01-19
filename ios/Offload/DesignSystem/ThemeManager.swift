@@ -1,12 +1,12 @@
-//  Intent: Manage user-selected theme style with persistence via UserDefaults.
+// Purpose: Design system components and theme definitions.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Preserve established theme defaults and component APIs.
+
 
 import SwiftUI
 import Combine
 
-// AGENT NAV
-// - State
-// - Persistence
-// - Updates
 
 /// Manages the app's color theme selection and persistence
 @MainActor

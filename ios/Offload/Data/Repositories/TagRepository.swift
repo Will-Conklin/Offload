@@ -1,15 +1,13 @@
-//  Intent: Manages tags for manual item organization.
+// Purpose: Repository layer for data access and queries.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Keep CRUD logic centralized and consistent with SwiftData models.
+
 //  Supports tags stored on Item records.
 
 import Foundation
 import SwiftData
 
-// AGENT NAV
-// - Create
-// - Read
-// - Update
-// - Delete
-// - Helpers
 
 
 /// Repository for Tag CRUD operations and queries

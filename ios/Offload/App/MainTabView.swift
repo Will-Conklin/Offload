@@ -1,13 +1,13 @@
+// Purpose: App entry points and root navigation.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Keep navigation flow consistent with MainTabView -> NavigationStack -> sheets.
+
 //  Flat design with floating pill tab bar
 
 import SwiftUI
 import SwiftData
 
-// AGENT NAV
-// - Tabs
-// - Content
-// - Floating Tab Bar
-// - Tab Buttons
 
 struct MainTabView: View {
     @Environment(\.colorScheme) private var colorScheme

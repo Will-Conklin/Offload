@@ -1,14 +1,12 @@
-//  Intent: Toast notification system for displaying transient user feedback
+// Purpose: Design system components and theme definitions.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Preserve established theme defaults and component APIs.
+
 //  (success, error, info, warning messages) with auto-dismissal.
 
 import SwiftUI
 
-// AGENT NAV
-// - Toast Type
-// - Toast Model
-// - Toast View
-// - Toast Manager
-// - View Modifier
 
 // MARK: - Toast Type
 

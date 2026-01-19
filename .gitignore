@@ -148,6 +148,9 @@ ModuleCache.noindex/
 *.sublime-project
 *.sublime-workspace
 
+# Claude Code
+.claude/
+
 # Backup files
 *~
 *.bak

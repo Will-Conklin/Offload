@@ -1,10 +1,11 @@
+// Purpose: SwiftData model definitions.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Maintain explicit type references in predicates and preserve relationship rules.
+
 import Foundation
 import SwiftData
 
-// AGENT NAV
-// - Model
-// - Init
-// - Helpers
 
 
 @Model

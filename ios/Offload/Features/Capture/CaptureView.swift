@@ -1,15 +1,14 @@
+// Purpose: Capture feature views and flows.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Preserve low-friction capture UX and Item.type == nil semantics.
+
 //  Flat design capture list with inline tagging and swipe actions
 
 import SwiftUI
 import SwiftData
 import UIKit
 
-// AGENT NAV
-// - State
-// - Layout
-// - Actions
-// - Item Card
-// - Tag Picker
 
 struct CaptureView: View {
     @Environment(\.modelContext) private var modelContext

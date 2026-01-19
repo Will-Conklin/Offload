@@ -1,12 +1,13 @@
-//  Intent: Central SwiftData configuration for all models.
+// Purpose: SwiftData container and persistence setup.
+// Authority: Code-level
+// Governed by: AGENTS.md
+// Additional instructions: Avoid side effects outside model context initialization.
+
 //  Registers schema and provides shared/preview containers.
 
 import Foundation
 import SwiftData
 
-// AGENT NAV
-// - Shared Container
-// - Preview Container
 
 
 /// Simplified persistence controller for all SwiftData models
