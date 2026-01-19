@@ -13,7 +13,9 @@ import UIKit
 struct CollectionDetailView: View {
     let collectionID: UUID
 
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.itemRepository) private var itemRepository
+    @Environment(\.collectionRepository) private var collectionRepository
+    @Environment(\.collectionItemRepository) private var collectionItemRepository
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
@@ -27,6 +29,7 @@ struct CollectionDetailView: View {
     @State private var linkedCollection: Collection?
     @State private var editingItem: Item?
     @State private var tagPickerItem: Item?
+    @State private var errorPresenter = ErrorPresenter()
 
     private var style: ThemeStyle { themeManager.currentStyle }
     private var floatingTabBarClearance: CGFloat {

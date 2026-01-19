@@ -12,7 +12,7 @@ import UIKit
 
 struct CaptureComposeView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.itemRepository) private var itemRepository
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
 
@@ -28,6 +28,7 @@ struct CaptureComposeView: View {
     @State private var voiceService = VoiceRecordingService()
     @State private var preRecordingText = ""
     @State private var showingPermissionAlert = false
+    @State private var errorPresenter = ErrorPresenter()
 
     @FocusState private var isFocused: Bool
 
@@ -281,16 +282,18 @@ struct CaptureComposeView: View {
     private func save() {
         if voiceService.isRecording { voiceService.stopRecording() }
 
-        let item = Item(
-            type: nil, // Uncategorized capture
-            content: text.trimmingCharacters(in: .whitespacesAndNewlines),
-            attachmentData: attachmentData,
-            tags: selectedTags.map { $0.name },
-            isStarred: isStarred
-        )
-        modelContext.insert(item)
-        try? modelContext.save()
-        dismiss()
+        do {
+            _ = try itemRepository.create(
+                type: nil, // Uncategorized capture
+                content: text.trimmingCharacters(in: .whitespacesAndNewlines),
+                attachmentData: attachmentData,
+                tags: selectedTags.map { $0.name },
+                isStarred: isStarred
+            )
+            dismiss()
+        } catch {
+            errorPresenter.present(error)
+        }
     }
 }
 

@@ -11,9 +11,12 @@ import UIKit
 
 
 struct CaptureView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.itemRepository) private var itemRepository
+    @Environment(\.collectionRepository) private var collectionRepository
+    @Environment(\.collectionItemRepository) private var collectionItemRepository
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
+    @State private var errorPresenter = ErrorPresenter()
 
     @Query(
         filter: #Predicate<Item> { $0.type == nil && $0.completedAt == nil },
@@ -139,7 +142,7 @@ struct CaptureView: View {
                 )
             ) {
                 if let item = moveItem {
-                    MoveToPlanSheet(item: item, modelContext: modelContext) {
+                    MoveToPlanSheet(item: item) {
                         moveItem = nil
                         moveDestination = nil
                     }
@@ -157,7 +160,7 @@ struct CaptureView: View {
                 )
             ) {
                 if let item = moveItem {
-                    MoveToListSheet(item: item, modelContext: modelContext) {
+                    MoveToListSheet(item: item) {
                         moveItem = nil
                         moveDestination = nil
                     }
@@ -169,15 +172,27 @@ struct CaptureView: View {
     // MARK: - Actions
 
     private func deleteItem(_ item: Item) {
-        modelContext.delete(item)
+        do {
+            try itemRepository.delete(item)
+        } catch {
+            errorPresenter.present(error)
+        }
     }
 
     private func completeItem(_ item: Item) {
-        item.completedAt = Date()
+        do {
+            try itemRepository.complete(item)
+        } catch {
+            errorPresenter.present(error)
+        }
     }
 
     private func toggleStar(_ item: Item) {
-        item.isStarred.toggle()
+        do {
+            try itemRepository.toggleStar(item)
+        } catch {
+            errorPresenter.present(error)
+        }
     }
 }
 
@@ -356,10 +371,12 @@ private struct CaptureDetailView: View {
 
 private struct MoveToPlanSheet: View {
     let item: Item
-    let modelContext: ModelContext
     let onComplete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.itemRepository) private var itemRepository
+    @Environment(\.collectionRepository) private var collectionRepository
+    @Environment(\.collectionItemRepository) private var collectionItemRepository
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
 
@@ -367,6 +384,7 @@ private struct MoveToPlanSheet: View {
     @State private var selectedCollection: Collection?
     @State private var createNew = false
     @State private var newPlanName = ""
+    @State private var errorPresenter = ErrorPresenter()
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
@@ -423,59 +441,59 @@ private struct MoveToPlanSheet: View {
     }
 
     private func loadCollections() {
-        let descriptor = FetchDescriptor<Collection>(
-            predicate: #Predicate { $0.isStructured == true },
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        collections = (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            collections = try collectionRepository.fetchStructured()
+        } catch {
+            errorPresenter.present(error)
+            collections = []
+        }
     }
 
     private func moveToSelectedPlan() {
         guard let collection = selectedCollection else { return }
 
-        // Update item type
-        item.type = "task"
+        do {
+            // Update item type
+            try itemRepository.updateType(item, type: "task")
 
-        // Link to collection
-        let position = collection.collectionItems?.count ?? 0
-        let collectionItem = CollectionItem(
-            collectionId: collection.id,
-            itemId: item.id,
-            position: position
-        )
-        collectionItem.collection = collection
-        collectionItem.item = item
-        modelContext.insert(collectionItem)
-        try? modelContext.save()
+            // Link to collection
+            let position = collection.collectionItems?.count ?? 0
+            try collectionItemRepository.addItemToCollection(
+                itemId: item.id,
+                collectionId: collection.id,
+                position: position
+            )
 
-        dismiss()
-        onComplete()
+            dismiss()
+            onComplete()
+        } catch {
+            errorPresenter.present(error)
+        }
     }
 
     private func createNewPlanAndMove() {
         let trimmed = newPlanName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        // Create collection
-        let collection = Collection(name: trimmed, isStructured: true)
-        modelContext.insert(collection)
+        do {
+            // Create collection
+            let collection = try collectionRepository.create(name: trimmed, isStructured: true)
 
-        // Update item type
-        item.type = "task"
+            // Update item type
+            try itemRepository.updateType(item, type: "task")
 
-        // Link to collection
-        let collectionItem = CollectionItem(
-            collectionId: collection.id,
-            itemId: item.id,
-            position: 0
-        )
-        collectionItem.collection = collection
-        collectionItem.item = item
-        modelContext.insert(collectionItem)
-        try? modelContext.save()
+            // Link to collection
+            try collectionItemRepository.addItemToCollection(
+                itemId: item.id,
+                collectionId: collection.id,
+                position: 0
+            )
 
-        dismiss()
-        onComplete()
+            dismiss()
+            onComplete()
+        } catch {
+            errorPresenter.present(error)
+        }
     }
 }
 
@@ -483,10 +501,12 @@ private struct MoveToPlanSheet: View {
 
 private struct MoveToListSheet: View {
     let item: Item
-    let modelContext: ModelContext
     let onComplete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.itemRepository) private var itemRepository
+    @Environment(\.collectionRepository) private var collectionRepository
+    @Environment(\.collectionItemRepository) private var collectionItemRepository
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
 
@@ -494,6 +514,7 @@ private struct MoveToListSheet: View {
     @State private var selectedCollection: Collection?
     @State private var createNew = false
     @State private var newListName = ""
+    @State private var errorPresenter = ErrorPresenter()
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
@@ -550,58 +571,58 @@ private struct MoveToListSheet: View {
     }
 
     private func loadCollections() {
-        let descriptor = FetchDescriptor<Collection>(
-            predicate: #Predicate { $0.isStructured == false },
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        collections = (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            collections = try collectionRepository.fetchUnstructured()
+        } catch {
+            errorPresenter.present(error)
+            collections = []
+        }
     }
 
     private func moveToSelectedList() {
         guard let collection = selectedCollection else { return }
 
-        // Update item type
-        item.type = "task"
+        do {
+            // Update item type
+            try itemRepository.updateType(item, type: "task")
 
-        // Link to collection (no position for unstructured lists)
-        let collectionItem = CollectionItem(
-            collectionId: collection.id,
-            itemId: item.id,
-            position: nil
-        )
-        collectionItem.collection = collection
-        collectionItem.item = item
-        modelContext.insert(collectionItem)
-        try? modelContext.save()
+            // Link to collection (no position for unstructured lists)
+            try collectionItemRepository.addItemToCollection(
+                itemId: item.id,
+                collectionId: collection.id,
+                position: nil
+            )
 
-        dismiss()
-        onComplete()
+            dismiss()
+            onComplete()
+        } catch {
+            errorPresenter.present(error)
+        }
     }
 
     private func createNewListAndMove() {
         let trimmed = newListName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        // Create collection
-        let collection = Collection(name: trimmed, isStructured: false)
-        modelContext.insert(collection)
+        do {
+            // Create collection
+            let collection = try collectionRepository.create(name: trimmed, isStructured: false)
 
-        // Update item type
-        item.type = "task"
+            // Update item type
+            try itemRepository.updateType(item, type: "task")
 
-        // Link to collection
-        let collectionItem = CollectionItem(
-            collectionId: collection.id,
-            itemId: item.id,
-            position: nil
-        )
-        collectionItem.collection = collection
-        collectionItem.item = item
-        modelContext.insert(collectionItem)
-        try? modelContext.save()
+            // Link to collection
+            try collectionItemRepository.addItemToCollection(
+                itemId: item.id,
+                collectionId: collection.id,
+                position: nil
+            )
 
-        dismiss()
-        onComplete()
+            dismiss()
+            onComplete()
+        } catch {
+            errorPresenter.present(error)
+        }
     }
 }
 
