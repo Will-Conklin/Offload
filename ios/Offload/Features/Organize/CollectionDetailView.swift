@@ -72,10 +72,10 @@ struct CollectionDetailView: View {
                                         onOpenLink: { openLinkedCollection($0) },
                                         onError: { errorPresenter.present($0) }
                                     )
-                                }
-                                .onAppear {
-                                    if index == viewModel.items.count - 1 {
-                                        loadNextPage()
+                                    .onAppear {
+                                        if index == viewModel.items.count - 1 {
+                                            loadNextPage()
+                                        }
                                     }
                                 }
                             }
