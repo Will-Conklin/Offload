@@ -165,6 +165,7 @@ struct CaptureView: View {
                     }
                 }
             }
+            .errorToasts(errorPresenter)
         }
     }
 
@@ -367,6 +368,7 @@ private struct CaptureDetailView: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 }
 
@@ -440,6 +442,7 @@ private struct MoveToPlanSheet: View {
                 loadCollections()
             }
         }
+        .errorToasts(errorPresenter)
     }
 
     private func loadCollections() {
@@ -561,6 +564,7 @@ private struct MoveToListSheet: View {
                 loadCollections()
             }
         }
+        .errorToasts(errorPresenter)
     }
 
     private func loadCollections() {
@@ -615,4 +619,5 @@ private struct MoveToListSheet: View {
     CaptureView()
         .modelContainer(PersistenceController.preview)
         .environmentObject(ThemeManager.shared)
+        .withToast()
 }

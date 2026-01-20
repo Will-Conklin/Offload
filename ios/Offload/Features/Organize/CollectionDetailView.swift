@@ -122,6 +122,7 @@ struct CollectionDetailView: View {
         .onAppear {
             loadCollection()
         }
+        .errorToasts(errorPresenter)
     }
 
     // MARK: - Collection Header
@@ -369,6 +370,7 @@ private struct ItemEditSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 }
 
@@ -483,6 +485,7 @@ private struct AddItemSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 
     private var inputSection: some View {
@@ -806,6 +809,7 @@ private struct EditCollectionSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 }
 
@@ -813,4 +817,5 @@ private struct EditCollectionSheet: View {
     CollectionDetailView(collectionID: UUID())
         .modelContainer(PersistenceController.preview)
         .environmentObject(ThemeManager.shared)
+        .withToast()
 }

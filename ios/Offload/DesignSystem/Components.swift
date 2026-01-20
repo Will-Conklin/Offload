@@ -483,6 +483,7 @@ struct ItemTagPickerSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 
     private func createTag() {
@@ -575,6 +576,7 @@ struct TagSelectionSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 
     private func addTag() {

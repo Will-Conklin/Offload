@@ -38,6 +38,7 @@ struct CaptureComposeView: View {
         NavigationStack {
             captureContent
         }
+        .errorToasts(errorPresenter)
     }
 
     private var canSave: Bool {
@@ -306,4 +307,5 @@ struct CaptureComposeView: View {
     CaptureComposeView()
         .modelContainer(PersistenceController.preview)
         .environmentObject(ThemeManager.shared)
+        .withToast()
 }
