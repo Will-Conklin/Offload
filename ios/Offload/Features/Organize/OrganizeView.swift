@@ -118,6 +118,7 @@ struct OrganizeView: View {
             .navigationDestination(item: $selectedCollection) { collection in
                 CollectionDetailView(collectionID: collection.id)
             }
+            .errorToasts(errorPresenter)
         }
     }
 
@@ -337,4 +338,5 @@ private struct CollectionFormSheet: View {
     OrganizeView()
         .modelContainer(PersistenceController.preview)
         .environmentObject(ThemeManager.shared)
+        .withToast()
 }

@@ -150,6 +150,7 @@ private struct TagManagementView: View {
         .sheet(isPresented: $showingAddTag) {
             AddTagSheet()
         }
+        .errorToasts(errorPresenter)
     }
 
     private func deleteTags(offsets: IndexSet) {
@@ -207,6 +208,7 @@ private struct AddTagSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 }
 
@@ -214,4 +216,5 @@ private struct AddTagSheet: View {
     SettingsView()
         .modelContainer(PersistenceController.preview)
         .environmentObject(ThemeManager.shared)
+        .withToast()
 }

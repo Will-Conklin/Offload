@@ -390,6 +390,8 @@ struct ItemActionRow: View {
                 variant: .primaryFilled,
                 action: onAddTag
             )
+            .accessibilityLabel("Add tag")
+            .accessibilityHint("Assign a tag to this item.")
 
             if tags.isEmpty {
                 Spacer()
@@ -417,6 +419,8 @@ struct ItemActionRow: View {
                 variant: isStarred ? .primaryFilled : .secondaryOutlined,
                 action: onToggleStar
             )
+            .accessibilityLabel(isStarred ? "Unstar item" : "Star item")
+            .accessibilityHint("Toggle the star for this item.")
         }
     }
 }
@@ -483,6 +487,7 @@ struct ItemTagPickerSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 
     private func createTag() {
@@ -575,6 +580,7 @@ struct TagSelectionSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 
     private func addTag() {

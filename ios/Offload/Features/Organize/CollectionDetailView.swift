@@ -122,6 +122,7 @@ struct CollectionDetailView: View {
         .onAppear {
             loadCollection()
         }
+        .errorToasts(errorPresenter)
     }
 
     // MARK: - Collection Header
@@ -255,6 +256,8 @@ private struct ItemRow: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Item actions")
+                        .accessibilityHint("Show options for this item.")
                         .confirmationDialog("Item Actions", isPresented: $showingMenu) {
                             Button("Remove from Collection", role: .destructive) {
                                 onDelete()
@@ -369,6 +372,7 @@ private struct ItemEditSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 }
 
@@ -483,6 +487,7 @@ private struct AddItemSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 
     private var inputSection: some View {
@@ -554,6 +559,7 @@ private struct AddItemSheet: View {
                             }
                             .padding(4)
                             .buttonStyle(.plain)
+                            .accessibilityLabel("Remove attachment")
                         }
                     }
                 }
@@ -611,6 +617,12 @@ private struct AddItemSheet: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(voiceService.isRecording ? "Stop recording" : "Start voice capture")
+                    .accessibilityHint(
+                        voiceService.isRecording
+                            ? "Stops recording and keeps the transcription."
+                            : "Records voice and transcribes into the item."
+                    )
 
                     Button { showingAttachmentSource = true } label: {
                         IconTile(
@@ -623,6 +635,8 @@ private struct AddItemSheet: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(attachmentData == nil ? "Add attachment" : "Change attachment")
+                    .accessibilityHint("Attach a photo to this item.")
                 }
 
                 Button { showingTags = true } label: {
@@ -636,6 +650,8 @@ private struct AddItemSheet: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(selectedTags.isEmpty ? "Add tags" : "Edit tags")
+                .accessibilityHint("Select tags for this item.")
 
                 Button { isStarred.toggle() } label: {
                     IconTile(
@@ -648,6 +664,8 @@ private struct AddItemSheet: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(isStarred ? "Unstar item" : "Star item")
+                .accessibilityHint("Toggle the star for this item.")
 
                 Spacer()
 
@@ -806,6 +824,7 @@ private struct EditCollectionSheet: View {
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 }
 
@@ -813,4 +832,5 @@ private struct EditCollectionSheet: View {
     CollectionDetailView(collectionID: UUID())
         .modelContainer(PersistenceController.preview)
         .environmentObject(ThemeManager.shared)
+        .withToast()
 }

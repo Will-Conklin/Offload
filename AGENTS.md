@@ -35,6 +35,7 @@ open ios/Offload.xcodeproj    # Open in Xcode
 ## Critical Directives
 
 - NEVER commit directly to main branch
+- ALWAYS suggest to user a new branch before implementing a new set of changes
 - ALWAYS create branches before implementing large features or fixes
 - ALWAYS use explicit type references (SwiftData predicates require this for enum cases)
 - ALWAYS clean up merged branches
@@ -93,8 +94,8 @@ Add agent-readable headers to non-Markdown config files that agents read/modify:
 - **Design system**: `ios/Offload/DesignSystem/Theme.swift` and `Components.swift`; default theme is `elijah`
 - **Data model**: `Item.type == nil` = captures; `Collection.isStructured` distinguishes plans vs lists; `CollectionItem` stores order (`position`) and hierarchy (`parentId`)
 - **Relationships**: `Collection.collectionItems` and `Item.collectionItems` use `@Relationship` with cascade delete; `Collection.sortedItems` is canonical ordering
-- **Persistence**: Views access context via `@Environment(\.modelContext)` and use `@Query` or `FetchDescriptor`
-- **Repositories**: CRUD in `ios/Offload/Data/Repositories/` for Item, Collection, CollectionItem, Tag
+- **Persistence**: Views use `@Query` for reactive data and `@Environment(\.itemRepository)` etc. for mutations
+- **Repositories**: Injected via `RepositoryEnvironment.swift`; CRUD in `ios/Offload/Data/Repositories/`
 - **Capture flow**: Creates `Item` records (type nil), can attach photo/voice, moves to plan/list via `CollectionItem` link
 
 ## Implementation Plans

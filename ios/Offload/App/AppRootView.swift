@@ -19,6 +19,7 @@ struct AppRootView: View {
             .environment(\.collectionRepository, repositories.collectionRepository)
             .environment(\.collectionItemRepository, repositories.collectionItemRepository)
             .environment(\.tagRepository, repositories.tagRepository)
+            .withToast()
     }
 }
 
