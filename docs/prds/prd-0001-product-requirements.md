@@ -6,7 +6,7 @@ owners:
   - will-conklin
 applies_to:
   - product
-last_updated: 2026-01-19
+last_updated: 2026-01-20
 related:
   - adr-0001-technology-stack-and-architecture
   - adr-0002-terminology-alignment-for-capture-and-organization
@@ -19,8 +19,8 @@ structure_notes:
 
 # Offload — V1 Product Requirements Document (PRD)
 
-**Version:** 1.3
-**Date:** 2026-01-19
+**Version:** 1.4
+**Date:** 2026-01-20
 **Status:** Active
 **Owner:** Will Conklin
 
@@ -131,7 +131,7 @@ Users experience stress when ideas, tasks, or plans accumulate faster than they 
 - type (enum: nil, task, link)
 - metadata (String, JSON)
 - linkedCollectionId (UUID?)
-- tags ([String])
+- tags ([Tag])
 - isStarred (Bool)
 - followUpDate (Date?)
 - completedAt (Date?)
@@ -271,7 +271,7 @@ Plans and Lists are implemented as Collections: `isStructured = true` for plans,
 - type (enum: nil, task, link)
 - metadata (String, JSON)
 - linkedCollectionId (UUID?)
-- tags ([String])
+- tags ([Tag])
 - isStarred (Bool)
 - followUpDate (Date?)
 - completedAt (Date?)
@@ -306,7 +306,7 @@ Plans and Lists are implemented as Collections: `isStructured = true` for plans,
 - color (String?)
 - createdAt (Date)
 - **Notes:**
-  - Item tag values are stored on `Item.tags`
+  - Item tag relationships are stored on `Item.tags`
 
 ---
 
@@ -417,3 +417,4 @@ See [plan-v1-roadmap.md](../plans/plan-v1-roadmap.md) for current status.
 | 1.1     | 2026-01-09 | Terminology alignment, ADHD UX guardrails, updated data model                        |
 | 1.2     | 2026-01-09 | Clarified v1 scope (manual-only), split success metrics, marked AI as post-v1        |
 | 1.3     | 2026-01-19 | Updated platform to iPhone+iPad, resolved open decisions, linked to v1-roadmap       |
+| 1.4     | 2026-01-20 | Updated tag storage to relationship-based Tag entities                               |
