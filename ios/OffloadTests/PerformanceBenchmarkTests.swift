@@ -44,7 +44,11 @@ final class PerformanceBenchmarkTests: XCTestCase {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         measure(metrics: [XCTClockMetric()], options: options) {
-            XCTAssertNoThrow(try repository.fetchAll())
+            do {
+                _ = try repository.fetchAll()
+            } catch {
+                XCTFail("fetchAll failed: \(error)")
+            }
         }
     }
 
@@ -65,7 +69,11 @@ final class PerformanceBenchmarkTests: XCTestCase {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         measure(metrics: [XCTClockMetric()], options: options) {
-            XCTAssertNoThrow(try repository.fetchCaptureItems())
+            do {
+                _ = try repository.fetchCaptureItems()
+            } catch {
+                XCTFail("fetchCaptureItems failed: \(error)")
+            }
         }
     }
 
@@ -84,7 +92,11 @@ final class PerformanceBenchmarkTests: XCTestCase {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         measure(metrics: [XCTClockMetric()], options: options) {
-            XCTAssertNoThrow(try repository.fetchByTag(tag))
+            do {
+                _ = try repository.fetchByTag(tag)
+            } catch {
+                XCTFail("fetchByTag failed: \(error)")
+            }
         }
     }
 
@@ -99,7 +111,11 @@ final class PerformanceBenchmarkTests: XCTestCase {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         measure(metrics: [XCTClockMetric()], options: options) {
-            XCTAssertNoThrow(try repository.fetchStarred())
+            do {
+                _ = try repository.fetchStarred()
+            } catch {
+                XCTFail("fetchStarred failed: \(error)")
+            }
         }
     }
 
@@ -117,7 +133,11 @@ final class PerformanceBenchmarkTests: XCTestCase {
         let options = XCTMeasureOptions()
         options.iterationCount = 3
         measure(metrics: [XCTClockMetric()], options: options) {
-            XCTAssertNoThrow(try repository.fetchWithFollowUp())
+            do {
+                _ = try repository.fetchWithFollowUp()
+            } catch {
+                XCTFail("fetchWithFollowUp failed: \(error)")
+            }
         }
     }
 
