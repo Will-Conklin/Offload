@@ -34,6 +34,7 @@ open ios/Offload.xcodeproj    # Open in Xcode
 
 ## Critical Directives
 
+- NEVER commit directly to main branch
 - ALWAYS create branches before implementing large features or fixes
 - ALWAYS use explicit type references (SwiftData predicates require this for enum cases)
 - ALWAYS clean up merged branches

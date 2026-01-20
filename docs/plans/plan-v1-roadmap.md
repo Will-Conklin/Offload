@@ -1,39 +1,42 @@
 ---
-id: reconciliation-2026-01-19
+id: plan-v1-roadmap
 type: plan
 status: active
 owners:
   - Offload
 applies_to:
-  - all-plans
+  - v1-release
 last_updated: 2026-01-19
 related:
-  - plan-master-plan
   - plan-repository-pattern-consistency
   - plan-error-handling-improvements
 priority: critical
 structure_notes:
-  - "This document reconciles the master plan with actual codebase state"
-  - "Read this before consulting other planning documents"
+  - "Single source of truth for v1 release planning"
+  - "Supersedes plan-archived-master-plan.md"
 ---
 
-# Master Plan Reconciliation - January 19, 2026
+# Offload v1 Roadmap
 
 ## Executive Summary
 
-The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately reflect the current state of the codebase as of January 19, 2026. A major UI overhaul (commit c008443, January 13, 2026) significantly diverged from the planned glassmorphism approach, implementing a flat design system instead.
+This document is the **single source of truth** for v1 release planning. It
+supersedes the original master plan (now archived) which became out of date
+after the January 13, 2026 UI overhaul.
 
 ## Critical Discrepancies
 
 ### 1. UI/UX Direction - MAJOR DIVERGENCE ⚠️
 
 **Master Plan Claims:**
+
 - Phase 4-7: Glassmorphism/Liquid Glass design
 - Materials system with glass effects
 - Gradient accent system
 - 4 theme variants
 
 **Actual Codebase State:**
+
 - **Flat design system** implemented (opposite of glassmorphism)
 - Single "Elijah" theme (lavender/cream palette)
 - No glass effects or gradients
@@ -45,12 +48,15 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ### 2. Data Model - MASSIVE UNREPORTED CHANGES ⚠️
 
 **Master Plan Claims:**
+
 - No mention of data model changes
 - References CaptureEntry throughout
 
 **Actual Codebase State:**
+
 - CaptureEntry model **completely removed**
-- Plan/Task/ListEntity/ListItem models **consolidated** into unified Item/Collection
+- Plan/Task/ListEntity/ListItem models **consolidated** into unified
+  Item/Collection
 - Category model **removed**
 - Communications feature **removed entirely**
 - 11 repositories **deleted**
@@ -64,11 +70,14 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ### 3. Repository Pattern - STATUS INCORRECT ⚠️
 
 **Master Plan Claims:**
+
 - Phase 2.4: "Repository protocols defined" - ✅ Complete
 - Phase 2: "Implementation done, testing pending"
 
 **Actual Codebase State:**
-- 4 repositories exist: ItemRepository, CollectionRepository, CollectionItemRepository, TagRepository
+
+- 4 repositories exist: ItemRepository, CollectionRepository,
+  CollectionItemRepository, TagRepository
 - **NO environment injection pattern** implemented
 - Views still use `@Environment(\.modelContext)` directly
 - **NO repository environment keys** exist
@@ -83,9 +92,11 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ### 4. Error Handling - STATUS INCORRECT ⚠️
 
 **Master Plan Claims:**
+
 - Phase 1.2: "All 21 error suppression instances fixed" - ✅ Complete
 
 **Actual Codebase State:**
+
 - ErrorPresenter exists in Common/ErrorHandling.swift
 - **21 instances of `try?` still exist** (confirmed via grep)
 - Files with `try?`:
@@ -101,10 +112,12 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ### 5. Testing Status - UNCLEAR ⏳
 
 **Master Plan Claims:**
+
 - Phase 1-2: Testing pending (Weeks 1-2)
 - Last updated: January 10, 2026
 
 **Actual Codebase State:**
+
 - Comprehensive ItemRepositoryTests added (45 tests)
 - No evidence of manual testing completion
 - No performance benchmark results
@@ -116,10 +129,12 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ### 6. ViewModels - NOT IMPLEMENTED ⏳
 
 **Master Plan Claims:**
+
 - Pagination plan references CaptureViewModel, CollectionDetailViewModel
 - Assumes viewModels will exist
 
 **Actual Codebase State:**
+
 - **Zero ViewModels exist** in ios/Offload/Features/
 - No ViewModel infrastructure
 - Views use `@Query` + direct modelContext manipulation
@@ -129,9 +144,11 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ### 7. Decision Points - UNRESOLVED ⏳
 
 **Master Plan Claims:**
+
 - "Decisions Needed (By Jan 15, 2026)"
 
 **Current Status (Jan 19):**
+
 - **All 5 decision points still unresolved:**
   1. Glassmorphism level (moot - flat design chosen instead)
   2. Timeline feature priority
@@ -146,7 +163,9 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ### January 13, 2026 - Commit c008443 (UI overhaul PR #84)
 
 **Massive Changes:**
-1. Implemented flat design with 4 bold themes (Ocean Teal, Violet Pop, Sunset Coral, Slate)
+
+1. Implemented flat design with 4 bold themes (Ocean Teal, Violet Pop, Sunset
+   Coral, Slate)
 2. Later simplified to single "Elijah" theme (lavender/cream)
 3. Redesigned ALL views: Captures, Organize, Plans, Lists, Settings
 4. Removed CaptureEntry, consolidated data model
@@ -168,6 +187,7 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ## Current Codebase Facts (Jan 19, 2026)
 
 ### File Sizes
+
 - CollectionDetailView.swift: **778 lines** (still needs decomposition)
 - CaptureView.swift: ~450 lines
 - CaptureComposeView.swift: 393 lines
@@ -175,6 +195,7 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 - SettingsView.swift: 208 lines
 
 ### Theme System
+
 - Single "Elijah" theme (lavender + cream)
 - Flat design with borders, no shadows
 - No glassmorphism materials
@@ -182,12 +203,14 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 - Simplified spacing: 4, 8, 16, 24, 32, 48
 
 ### Data Model
+
 - 4 core models: Item, Collection, CollectionItem, Tag
 - Items: type = nil (capture) | "task" | "link"
 - Collections: isStructured (true = plan, false = list)
 - No priorities, only isStarred boolean
 
 ### Architecture Patterns
+
 - ❌ Repository environment injection: NOT implemented
 - ❌ ErrorPresenter adoption: Minimal (21 try? remain)
 - ❌ ViewModels: Don't exist
@@ -197,29 +220,35 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ## Individual Plans Status
 
 ### plan-error-handling-improvements.md
+
 - **Status:** Not started
 - **Conflict:** Master plan claims error handling complete
 - **Recommendation:** This work is still needed
 
 ### plan-pagination-implementation.md
+
 - **Status:** Not started
 - **Conflict:** Requires ViewModels which don't exist
 - **Recommendation:** Defer to v1.1+
 
 ### plan-repository-pattern-consistency.md
+
 - **Status:** Not started
 - **Conflict:** Master plan claims repository work complete
 - **Recommendation:** This work is still needed
 
 ### plan-tag-relationship-refactor.md
+
 - **Status:** Not started
 - **Risk:** HIGH - requires data migration
 - **Recommendation:** Defer to v1.1+ due to risk
 
 ### plan-view-decomposition.md
+
 - **Status:** Not started
 - **Priority:** Low
-- **Recommendation:** CollectionDetailView (778 lines) should be decomposed, but can defer to v1.1+
+- **Recommendation:** CollectionDetailView (778 lines) should be decomposed,
+  but can defer to v1.1+
 
 ## Recommendations
 
@@ -247,21 +276,25 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ### New Timeline Estimate
 
 **Weeks 1-2:** Repository Pattern Consistency
+
 - Implement environment injection
 - Update all views to use repositories
 - Remove direct modelContext usage
 
 **Week 3:** Error Handling Improvements
+
 - Replace try? with proper error handling
 - Adopt ErrorPresenter throughout
 - Add structured error types
 
 **Week 4:** Testing & Polish
+
 - Manual testing of all features
 - Performance benchmarks
 - Bug fixes
 
 **Week 5:** Release Prep
+
 - Documentation
 - Release notes
 - TestFlight
@@ -269,6 +302,7 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 **Total:** 5 weeks to v1 (not 8-10 weeks)
 
 ### Deferred to v1.1+
+
 - Pagination (needs ViewModels)
 - Tag relationship refactor (migration risk)
 - View decomposition (nice-to-have)
@@ -279,9 +313,11 @@ The master plan (plan-master-plan.md) dated January 10, 2026 does not accurately
 ## Conclusion
 
 The master plan is significantly out of date and does not reflect:
+
 1. The actual UI direction taken (flat design vs glassmorphism)
 2. The massive data model simplification that occurred
 3. The true status of repository and error handling work (not complete)
 4. The current state of the codebase as of Jan 19, 2026
 
-**Recommendation:** Rewrite the master plan from scratch based on current reality, or archive it and create a new v1 scope document.
+**Recommendation:** Rewrite the master plan from scratch based on current
+reality, or archive it and create a new v1 scope document.
