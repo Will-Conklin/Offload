@@ -42,7 +42,12 @@ final class CaptureListViewModel {
     }
 
     func remove(_ item: Item) {
+        let originalCount = items.count
         items.removeAll { $0.id == item.id }
+        let removedCount = originalCount - items.count
+        if removedCount > 0 {
+            offset = max(0, offset - removedCount)
+        }
     }
 
     private func reset() {

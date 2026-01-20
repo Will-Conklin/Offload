@@ -62,7 +62,12 @@ final class CollectionDetailViewModel {
     }
 
     func remove(_ collectionItem: CollectionItem) {
+        let originalCount = items.count
         items.removeAll { $0.id == collectionItem.id }
+        let removedCount = originalCount - items.count
+        if removedCount > 0 {
+            offset = max(0, offset - removedCount)
+        }
     }
 
     private func reset() {
