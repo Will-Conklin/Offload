@@ -6,7 +6,7 @@ owners:
   - will-conklin
 applies_to:
   - product
-last_updated: 2026-01-20
+last_updated: 2026-01-19
 related:
   - adr-0001-technology-stack-and-architecture
   - adr-0002-terminology-alignment-for-capture-and-organization
@@ -19,8 +19,8 @@ structure_notes:
 
 # Offload — V1 Product Requirements Document (PRD)
 
-**Version:** 1.4
-**Date:** 2026-01-20
+**Version:** 1.3
+**Date:** 2026-01-19
 **Status:** Active
 **Owner:** Will Conklin
 
@@ -124,14 +124,14 @@ Users experience stress when ideas, tasks, or plans accumulate faster than they 
 - Works offline
 - Immediate persistence
 
-### Stored data (Item)
+**Stored data (Item)**
 
 - id (UUID)
 - content (String)
 - type (enum: nil, task, link)
 - metadata (String, JSON)
 - linkedCollectionId (UUID?)
-- tags ([Tag])
+- tags ([String])
 - isStarred (Bool)
 - followUpDate (Date?)
 - completedAt (Date?)
@@ -162,7 +162,7 @@ AI analyzes Items and returns suggested organization such as:
 - **List** (unstructured Collection) with Item entries
 - **Task** (standalone Item)
 
-#### AI output requirements
+**AI output requirements**
 
 - Strict structured JSON
 - Confidence score per suggestion
@@ -199,7 +199,7 @@ User must be able to:
 - `isStructured = false`
 - Items listed by creation time
 
-#### Items
+**Items**
 
 - Tasks are Items with `type = "task"`
 - Links are Items with `type = "link"` pointing to a Collection
@@ -271,7 +271,7 @@ Plans and Lists are implemented as Collections: `isStructured = true` for plans,
 - type (enum: nil, task, link)
 - metadata (String, JSON)
 - linkedCollectionId (UUID?)
-- tags ([Tag])
+- tags ([String])
 - isStarred (Bool)
 - followUpDate (Date?)
 - completedAt (Date?)
@@ -306,7 +306,7 @@ Plans and Lists are implemented as Collections: `isStructured = true` for plans,
 - color (String?)
 - createdAt (Date)
 - **Notes:**
-  - Item tag relationships are stored on `Item.tags`
+  - Item tag values are stored on `Item.tags`
 
 ---
 
@@ -326,29 +326,29 @@ Plans and Lists are implemented as Collections: `isStructured = true` for plans,
 
 ### ADHD-Focused Design Principles
 
-#### Capture-first default
+**Capture-first default**
 
 - Persistent capture control with immediate-save behavior
 - Organizing is optional and secondary
 
-#### Undo over confirmation
+**Undo over confirmation**
 
 - Destructive actions use undo banners/snackbars (not blocking modals)
 - Exception: batch destructive actions may use confirmation
 
-#### Calm visual system
+**Calm visual system**
 
 - Restrained palette: base + primary accent + secondary accent
 - Accessible contrast ratios
 - Consistent spacing tokens to reduce visual noise
 
-#### Predictable navigation
+**Predictable navigation**
 
 - Core areas one tap away via main tab shell
 - Capture uses sheets; editing uses full screens
 - Swipe actions mirrored with visible buttons
 
-#### Gentle organization prompts
+**Gentle organization prompts**
 
 - Non-blocking chips/cards (e.g., "Ready to organize")
 - Snooze/dismiss options on all prompts
@@ -365,12 +365,12 @@ Plans and Lists are implemented as Collections: `isStructured = true` for plans,
 
 ## 13. Risks & mitigations
 
-| Risk              | Mitigation                   |
-| ----------------- | ---------------------------- |
-| AI cost spikes    | Hard per-user caps           |
-| Misclassification | Review screen + confidence   |
-| User distrust     | Raw text preserved           |
-| Overbuilding      | Strict V1 scope lock         |
+| Risk | Mitigation |
+|---|---|
+| AI cost spikes | Hard per-user caps |
+| Misclassification | Review screen + confidence |
+| User distrust | Raw text preserved |
+| Overbuilding | Strict V1 scope lock |
 
 ---
 
@@ -417,4 +417,3 @@ See [plan-v1-roadmap.md](../plans/plan-v1-roadmap.md) for current status.
 | 1.1     | 2026-01-09 | Terminology alignment, ADHD UX guardrails, updated data model                        |
 | 1.2     | 2026-01-09 | Clarified v1 scope (manual-only), split success metrics, marked AI as post-v1        |
 | 1.3     | 2026-01-19 | Updated platform to iPhone+iPad, resolved open decisions, linked to v1-roadmap       |
-| 1.4     | 2026-01-20 | Updated tag storage to relationship-based Tag entities                               |
