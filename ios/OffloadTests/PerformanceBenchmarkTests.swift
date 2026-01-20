@@ -88,6 +88,39 @@ final class PerformanceBenchmarkTests: XCTestCase {
         }
     }
 
+    private func benchmarkFetchStarred(count: Int) throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+        let repository = ItemRepository(modelContext: context)
+        try seedItems(count: count, modelContext: context) { item, index in
+            item.isStarred = index.isMultiple(of: 4)
+        }
+
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        measure(metrics: [XCTClockMetric()], options: options) {
+            XCTAssertNoThrow(try repository.fetchStarred())
+        }
+    }
+
+    private func benchmarkFetchWithFollowUp(count: Int) throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+        let repository = ItemRepository(modelContext: context)
+        let followUpDate = Date(timeIntervalSince1970: 0)
+        try seedItems(count: count, modelContext: context) { item, index in
+            if index.isMultiple(of: 7) {
+                item.followUpDate = followUpDate
+            }
+        }
+
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        measure(metrics: [XCTClockMetric()], options: options) {
+            XCTAssertNoThrow(try repository.fetchWithFollowUp())
+        }
+    }
+
     func testFetchAllPerformance100Items() throws {
         try benchmarkFetchAll(count: 100)
     }
@@ -122,5 +155,29 @@ final class PerformanceBenchmarkTests: XCTestCase {
 
     func testFetchByTagPerformance10000Items() throws {
         try benchmarkFetchByTag(count: 10_000, tag: "work")
+    }
+
+    func testFetchStarredPerformance100Items() throws {
+        try benchmarkFetchStarred(count: 100)
+    }
+
+    func testFetchStarredPerformance1000Items() throws {
+        try benchmarkFetchStarred(count: 1_000)
+    }
+
+    func testFetchStarredPerformance10000Items() throws {
+        try benchmarkFetchStarred(count: 10_000)
+    }
+
+    func testFetchWithFollowUpPerformance100Items() throws {
+        try benchmarkFetchWithFollowUp(count: 100)
+    }
+
+    func testFetchWithFollowUpPerformance1000Items() throws {
+        try benchmarkFetchWithFollowUp(count: 1_000)
+    }
+
+    func testFetchWithFollowUpPerformance10000Items() throws {
+        try benchmarkFetchWithFollowUp(count: 10_000)
     }
 }
