@@ -1,5 +1,5 @@
 ---
-id: adr-readme
+id: adrs-readme
 type: architecture-decision
 status: active
 owners:

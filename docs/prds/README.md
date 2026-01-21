@@ -1,5 +1,5 @@
 ---
-id: prd-readme
+id: prds-readme
 type: product-requirements
 status: active
 owners:
