@@ -13,6 +13,7 @@ struct MainTabView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var selectedTab: Tab = .capture
+    @State private var quickCaptureMode: CaptureComposeMode?
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
@@ -22,11 +23,18 @@ struct MainTabView: View {
                 FloatingTabBar(
                     selectedTab: $selectedTab,
                     colorScheme: colorScheme,
-                    style: style
+                    style: style,
+                    onQuickWrite: { quickCaptureMode = .write },
+                    onQuickVoice: { quickCaptureMode = .voice }
                 )
                 .padding(.horizontal, Theme.Spacing.xl)
                 .padding(.top, Theme.Spacing.sm)
                 .padding(.bottom, Theme.Spacing.sm)
+            }
+            .sheet(item: $quickCaptureMode) { mode in
+                CaptureComposeView(mode: mode)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
             }
     }
 
@@ -78,9 +86,11 @@ private struct FloatingTabBar: View {
     @Binding var selectedTab: MainTabView.Tab
     let colorScheme: ColorScheme
     let style: ThemeStyle
+    let onQuickWrite: () -> Void
+    let onQuickVoice: () -> Void
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: Theme.Spacing.sm) {
             // Left tab
             TabButton(
                 tab: .capture,
@@ -89,7 +99,25 @@ private struct FloatingTabBar: View {
                 style: style
             ) { selectedTab = .capture }
 
-            Spacer()
+            Spacer(minLength: Theme.Spacing.sm)
+
+            QuickCaptureButton(
+                title: "Write",
+                iconName: Icons.add,
+                colorScheme: colorScheme,
+                style: style,
+                action: onQuickWrite
+            )
+
+            QuickCaptureButton(
+                title: "Voice",
+                iconName: Icons.microphone,
+                colorScheme: colorScheme,
+                style: style,
+                action: onQuickVoice
+            )
+
+            Spacer(minLength: Theme.Spacing.sm)
 
             // Right tab
             TabButton(
@@ -111,6 +139,38 @@ private struct FloatingTabBar: View {
                 )
                 .shadow(color: Theme.Shadows.ultraLight(colorScheme), radius: Theme.Shadows.elevationUltraLight, y: Theme.Shadows.offsetYUltraLight)
         )
+    }
+}
+
+// MARK: - Quick Capture Button
+
+private struct QuickCaptureButton: View {
+    let title: String
+    let iconName: String
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 2) {
+                AppIcon(name: iconName, size: 18)
+                Text(title)
+                    .font(Theme.Typography.caption)
+            }
+            .foregroundStyle(.white)
+            .frame(width: 62, height: 62)
+            .background(
+                RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                    .fill(Theme.Colors.buttonDark(colorScheme))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                            .stroke(Theme.Colors.primary(colorScheme, style: style).opacity(0.35), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
     }
 }
 

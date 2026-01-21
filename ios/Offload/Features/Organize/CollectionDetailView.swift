@@ -106,14 +106,20 @@ struct CollectionDetailView: View {
         }
         .sheet(isPresented: $showingAddItem) {
             AddItemSheet(collectionID: collectionID, collection: collection)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showingEdit) {
             if let collection = collection {
                 EditCollectionSheet(collection: collection)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
             }
         }
         .sheet(item: $editingItem) { item in
             ItemEditSheet(item: item)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(item: $tagPickerItem) { item in
             ItemTagPickerSheet(item: item)
@@ -236,68 +242,59 @@ private struct ItemRow: View {
     }
 
     var body: some View {
-        Button {
-            if isLink, let linkedId = item.linkedCollectionId {
-                onOpenLink(linkedId)
-            } else {
-                onEdit()
-            }
-        } label: {
-            CardSurface {
-                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                    HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                        VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                            Text(displayTitle)
-                                .font(Theme.Typography.body)
-                                .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+        CardSurface {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                HStack(alignment: .top, spacing: Theme.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                        Text(displayTitle)
+                            .font(Theme.Typography.body)
+                            .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
 
-                            if let attachmentData = item.attachmentData,
-                               let uiImage = UIImage(data: attachmentData) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxHeight: 140)
-                                    .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
-                            }
-
-                            if let type = item.type {
-                                TypeChip(type: type)
-                            }
+                        if let attachmentData = item.attachmentData,
+                           let uiImage = UIImage(data: attachmentData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxHeight: 140)
+                                .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
                         }
 
-                        Spacer()
-
-                        Button {
-                            showingMenu = true
-                        } label: {
-                            IconTile(
-                                iconName: Icons.more,
-                                iconSize: 16,
-                                tileSize: 32,
-                                style: .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Item actions")
-                        .accessibilityHint("Show options for this item.")
-                        .confirmationDialog("Item Actions", isPresented: $showingMenu) {
-                            Button("Remove from Collection", role: .destructive) {
-                                onDelete()
-                            }
+                        if let type = item.type {
+                            TypeChip(type: type)
                         }
                     }
+                    Spacer()
 
-                    ItemActionRow(
-                        tags: item.tags,
-                        isStarred: item.isStarred,
-                        onAddTag: onAddTag,
-                        onToggleStar: toggleStar
-                    )
+                    Button {
+                        showingMenu = true
+                    } label: {
+                        IconTile(
+                            iconName: Icons.more,
+                            iconSize: 16,
+                            tileSize: 32,
+                            style: .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Item actions")
+                    .accessibilityHint("Show options for this item.")
+                    .confirmationDialog("Item Actions", isPresented: $showingMenu) {
+                        Button("Remove from Collection", role: .destructive) {
+                            onDelete()
+                        }
+                    }
                 }
+
+                ItemActionRow(
+                    tags: item.tags,
+                    isStarred: item.isStarred,
+                    onAddTag: onAddTag,
+                    onToggleStar: toggleStar
+                )
             }
         }
-        .buttonStyle(.plain)
-        .cardButtonStyle()
+        .contentShape(Rectangle())
+        .onTapGesture(perform: handleTap)
         .onAppear {
             loadLinkedCollectionName()
         }
@@ -321,6 +318,14 @@ private struct ItemRow: View {
             try itemRepository.toggleStar(item)
         } catch {
             onError(error)
+        }
+    }
+
+    private func handleTap() {
+        if isLink, let linkedId = item.linkedCollectionId {
+            onOpenLink(linkedId)
+        } else {
+            onEdit()
         }
     }
 

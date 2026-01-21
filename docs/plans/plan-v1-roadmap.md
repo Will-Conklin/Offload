@@ -6,7 +6,7 @@ owners:
   - Offload
 applies_to:
   - v1-release
-last_updated: 2026-01-19
+last_updated: 2026-01-20
 related: []
 priority: critical
 structure_notes:
@@ -22,7 +22,7 @@ This document is the **single source of truth** for v1 release planning. It
 supersedes the original master plan (now archived) which became out of date
 after the January 13, 2026 UI overhaul.
 
-**Last verified:** January 19, 2026
+**Last verified:** January 20, 2026
 
 ## Current Implementation Status
 
@@ -54,6 +54,13 @@ after the January 13, 2026 UI overhaul.
 - ✅ Preview helpers for SwiftUI previews
 - ✅ Comprehensive ItemRepositoryTests (45 tests)
 
+#### Core Capture & Organize Behaviors
+
+- Pagination implemented for Capture/Organize/Collection Detail lists
+- Voice recording with on-device transcription and permission handling
+- Capture list actions (complete, star, delete)
+- Offline capture and persistence via local SwiftData store
+
 ### ⏳ IN PROGRESS
 
 #### Error Handling (4 instances remaining)
@@ -67,20 +74,12 @@ Only 4 `try?` instances remain (down from 21):
 **Assessment:** These are intentional fallbacks, not suppressions. The error
 handling work is effectively complete.
 
-### ⏸️ DEFERRED TO v1.1+
-
-- Pagination (would require ViewModels)
-- Tag relationship refactor (migration risk)
-- View decomposition (CollectionDetailView at 778 lines)
-- Visual timeline (ADHD feature)
-- Celebration animations
-- Advanced accessibility features
 
 ## Architecture Patterns (Current State)
 
 - ✅ Repository environment injection: IMPLEMENTED
 - ✅ ErrorPresenter: Available (minimal remaining try?)
-- ❌ ViewModels: Not implemented (using @Query directly)
+- ✅ ViewModels: Implemented for pagination in Capture/Organize flows
 - ✅ SwiftData @Query: Used throughout for reactive data
 - ✅ Repository mutations: All data changes go through repositories
 
@@ -92,6 +91,10 @@ handling work is effectively complete.
 - Performance benchmarks
 - Bug fixes from testing
 - Accessibility review
+- Verify voice recording (permissions, start/stop, on-device transcription)
+- Verify offline capture and persistence
+- Validate Capture List actions (complete, star, delete) against PRD
+- Confirm UX tone requirements in core capture/organize flows
 
 ### Week 2: Release Prep
 
@@ -100,7 +103,18 @@ handling work is effectively complete.
 - App Store metadata
 - TestFlight distribution
 
-**Total:** ~2 weeks to v1 (repository and error handling work complete)
+### Additional pre-v1 scope
+
+- Tag relationship refactor (migration risk)
+- View decomposition (CollectionDetailView at 778 lines)
+- Visual timeline (ADHD feature)
+- Celebration animations
+- Advanced accessibility features
+- AI organization flows and review screen
+- AI pricing & limits (free/paid tiers, server-side enforcement)
+- Backend API + privacy constraints for AI integration
+
+**Total:** TBD based on additional pre-v1 scope
 
 ## File Sizes Reference
 
