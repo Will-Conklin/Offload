@@ -10,10 +10,10 @@ last_updated: 2026-01-19
 related:
   - plan-v1-roadmap
 structure_notes:
-  - "Section order: Purpose; Authority; What belongs here; What does not belong
-    here; Canonical documents; Template; Naming."
-  - "Keep top-level sections: Purpose; Authority; What belongs here; What does
+  - "Section order: Purpose; Authority; Lifecycle; What belongs here; What does
     not belong here; Canonical documents; Template; Naming."
+  - "Keep top-level sections: Purpose; Authority; Lifecycle; What belongs here;
+    What does not belong here; Canonical documents; Template; Naming."
 ---
 
 # Plans
@@ -26,6 +26,19 @@ Define sequencing, milestones, and execution strategy for approved scope.
 
 Below design. Plans describe WHEN and HOW work is executed; they cannot
 introduce requirements, decisions, or architecture changes.
+
+## Lifecycle
+
+```text
+draft → active → completed | archived
+```
+
+| Status      | Meaning                                         |
+| ----------- | ----------------------------------------------- |
+| `draft`     | Plan being developed, not yet approved          |
+| `active`    | Approved and in execution                       |
+| `completed` | All work finished successfully                  |
+| `archived`  | Superseded, abandoned, or no longer relevant    |
 
 ## What belongs here
 

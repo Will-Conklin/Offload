@@ -12,8 +12,8 @@ related:
   - adr-0002-terminology-alignment-for-capture-and-organization
   - adr-0003-adhd-focused-ux-ui-guardrails
 structure_notes:
-  - "Section order: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Template; Naming."
-  - "Keep top-level sections: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Template; Naming."
+  - "Section order: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
+  - "Keep top-level sections: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
 ---
 
 
@@ -26,6 +26,19 @@ Record architecture and product decisions, including rationale and consequences.
 ## Authority
 
 Second only to reference. ADRs define decisions and constraints; they must align with reference and cannot define requirements, scope, or implementation plans.
+
+## Lifecycle
+
+```text
+proposed → accepted → superseded | deprecated
+```
+
+| Status       | Meaning                                      |
+| ------------ | -------------------------------------------- |
+| `proposed`   | Decision under consideration                 |
+| `accepted`   | Decision approved and in effect              |
+| `superseded` | Replaced by a newer ADR (link to successor)  |
+| `deprecated` | No longer applicable                         |
 
 ## What belongs here
 

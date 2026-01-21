@@ -14,8 +14,8 @@ related:
   - research-ios-ui-trends-2025
   - research-2026-01-04-main-branch-review
 structure_notes:
-  - "Section order: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Template; Naming."
-  - "Keep top-level sections: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Template; Naming."
+  - "Section order: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
+  - "Keep top-level sections: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
 ---
 
 
@@ -28,6 +28,18 @@ Capture exploratory research, spikes, benchmarks, and reviews.
 ## Authority
 
 Lowest authority. Research is non-authoritative and must not define requirements, decisions, or plans.
+
+## Lifecycle
+
+```text
+in-progress → informational → stale
+```
+
+| Status          | Meaning                                      |
+| --------------- | -------------------------------------------- |
+| `in-progress`   | Research actively being conducted            |
+| `informational` | Complete, available for reference            |
+| `stale`         | Outdated, may no longer reflect reality      |
 
 ## What belongs here
 

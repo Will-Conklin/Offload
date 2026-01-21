@@ -10,8 +10,8 @@ last_updated: 2026-01-17
 related:
   - prd-0001-product-requirements
 structure_notes:
-  - "Section order: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Template; Naming."
-  - "Keep top-level sections: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Template; Naming."
+  - "Section order: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
+  - "Keep top-level sections: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
 ---
 
 
@@ -24,6 +24,20 @@ Define product requirements, scope, goals, and success metrics for Offload.
 ## Authority
 
 Below reference and adrs. PRDs define WHAT the product must do; they cannot introduce architecture decisions or implementation details, and must align with reference and ADRs.
+
+## Lifecycle
+
+```text
+proposed → draft → review → active → deprecated
+```
+
+| Status       | Meaning                                           |
+| ------------ | ------------------------------------------------- |
+| `proposed`   | Initial idea, not yet fully scoped or reviewed    |
+| `draft`      | Being written, not yet ready for review           |
+| `review`     | Under stakeholder review                          |
+| `active`     | Approved and authoritative                        |
+| `deprecated` | Superseded or no longer applicable                |
 
 ## What belongs here
 
@@ -48,7 +62,7 @@ Below reference and adrs. PRDs define WHAT the product must do; they cannot intr
 ---
 id: prd-NNNN-{feature-name}
 type: product-requirements
-status: draft
+status: proposed
 owners:
   - {name}
 applies_to:
@@ -64,7 +78,7 @@ structure_notes:
 
 **Version:** {major}.{minor}
 **Date:** YYYY-MM-DD
-**Status:** Draft
+**Status:** Proposed
 **Owner:** {name}
 
 **Related ADRs:**
@@ -180,7 +194,7 @@ structure_notes:
 
 | Version         | Date       | Notes         |
 | --------------- | ---------- | ------------- |
-| {major}.{minor} | YYYY-MM-DD | Initial draft |
+| {major}.{minor} | YYYY-MM-DD | Initial proposal |
 ```
 
 ## Naming

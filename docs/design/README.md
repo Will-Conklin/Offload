@@ -11,8 +11,8 @@ related:
   - design-voice-capture-testing-guide
   - design-voice-capture-test-results
 structure_notes:
-  - "Section order: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Template; Naming."
-  - "Keep top-level sections: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Template; Naming."
+  - "Section order: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
+  - "Keep top-level sections: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
 ---
 
 
@@ -25,6 +25,18 @@ Document technical design and implementation guidance for approved requirements.
 ## Authority
 
 Below prd. Design defines HOW approved requirements are implemented; it cannot set requirements or decisions and must align with reference and ADRs.
+
+## Lifecycle
+
+```text
+draft → active → deprecated
+```
+
+| Status       | Meaning                                    |
+| ------------ | ------------------------------------------ |
+| `draft`      | Design being developed, not yet approved   |
+| `active`     | Approved and authoritative for feature     |
+| `deprecated` | Superseded or no longer applicable         |
 
 ## What belongs here
 
