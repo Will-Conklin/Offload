@@ -18,8 +18,6 @@ struct CaptureView: View {
     @State private var errorPresenter = ErrorPresenter()
     @State private var viewModel = CaptureListViewModel()
 
-    @Query(sort: \Tag.name) private var allTags: [Tag]
-
     @State private var showingSettings = false
     @State private var showingAccount = false
     @State private var showingAddItem = false
@@ -32,13 +30,9 @@ struct CaptureView: View {
     private var floatingTabBarClearance: CGFloat {
         Theme.Spacing.xxl + Theme.Spacing.xl + Theme.Spacing.lg + Theme.Spacing.md
     }
-    private var tagLookup: [String: Tag] {
-        Dictionary(uniqueKeysWithValues: allTags.map { ($0.name, $0) })
-    }
-
     var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .bottomTrailing) {
                 // Background
                 Theme.Colors.background(colorScheme, style: style)
                     .ignoresSafeArea()
@@ -56,7 +50,6 @@ struct CaptureView: View {
                                 item: item,
                                 colorScheme: colorScheme,
                                 style: style,
-                                tagLookup: tagLookup,
                                 onTap: { selectedItem = item },
                                 onAddTag: { tagPickerItem = item },
                                 onToggleStar: { toggleStar(item) },
@@ -78,12 +71,6 @@ struct CaptureView: View {
                             ProgressView()
                                 .padding(.vertical, Theme.Spacing.sm)
                         }
-
-                        FloatingActionButton(title: "Add Item", iconName: Icons.addCircleFilled) {
-                            showingAddItem = true
-                        }
-                        .accessibilityLabel("Add Item")
-                        .padding(.top, Theme.Spacing.sm)
                     }
                     .padding(.horizontal, Theme.Spacing.md)
                     .padding(.top, Theme.Spacing.sm)
@@ -93,6 +80,13 @@ struct CaptureView: View {
                     Color.clear
                         .frame(height: floatingTabBarClearance)
                 }
+
+                FloatingActionButton(title: "Add Item", iconName: Icons.addCircleFilled) {
+                    showingAddItem = true
+                }
+                .accessibilityLabel("Add Item")
+                .padding(.trailing, Theme.Spacing.md)
+                .padding(.bottom, Theme.Spacing.md)
             }
             .navigationTitle("Capture")
             .navigationBarTitleDisplayMode(.large)
@@ -131,9 +125,13 @@ struct CaptureView: View {
             }
             .sheet(isPresented: $showingAddItem, onDismiss: refreshItems) {
                 CaptureComposeView()
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
             }
             .sheet(item: $selectedItem) { item in
                 CaptureDetailView(item: item)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
             }
             .sheet(item: $tagPickerItem) { item in
                 ItemTagPickerSheet(item: item)
@@ -181,6 +179,9 @@ struct CaptureView: View {
         }
         .onAppear {
             loadInitialIfNeeded()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .captureItemsChanged)) { _ in
+            refreshItems()
         }
     }
 
@@ -252,7 +253,6 @@ private struct ItemCard: View {
     let item: Item
     let colorScheme: ColorScheme
     let style: ThemeStyle
-    let tagLookup: [String: Tag]
     let onTap: () -> Void
     let onAddTag: () -> Void
     let onToggleStar: () -> Void
@@ -263,8 +263,8 @@ private struct ItemCard: View {
     @State private var offset: CGFloat = 0
 
     var body: some View {
-        Button(action: onTap) {
-            CardSurface {
+        CardSurface {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     Text(item.content)
                         .font(Theme.Typography.body)
@@ -282,19 +282,18 @@ private struct ItemCard: View {
                     Text(item.createdAt, format: .relative(presentation: .named))
                         .font(Theme.Typography.caption2)
                         .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
-
-                    ItemActionRow(
-                        tags: item.tags,
-                        tagLookup: tagLookup,
-                        isStarred: item.isStarred,
-                        onAddTag: onAddTag,
-                        onToggleStar: onToggleStar
-                    )
                 }
+
+                ItemActionRow(
+                    tags: item.tags,
+                    isStarred: item.isStarred,
+                    onAddTag: onAddTag,
+                    onToggleStar: onToggleStar
+                )
             }
         }
-        .buttonStyle(.plain)
-        .cardButtonStyle()
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onTap)
         .overlay(
             // Swipe indicators
             HStack {
@@ -316,7 +315,7 @@ private struct ItemCard: View {
             }
         )
         .offset(x: offset)
-        .gesture(
+        .simultaneousGesture(
             DragGesture()
                 .onChanged { value in
                     let dx = value.translation.width

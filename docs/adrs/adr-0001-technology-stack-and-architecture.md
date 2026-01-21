@@ -8,7 +8,7 @@ applies_to:
   - architecture
   - ios
   - backend
-last_updated: 2025-12-31
+last_updated: 2026-01-20
 related: []
 structure_notes:
   - "Section order: Context; Decision; Consequences; Alternatives Considered; Implementation Notes; References; Revision History."
@@ -158,7 +158,7 @@ We will use the following technology stack:
 - **@Relationship** annotations with delete rules tuned per entity:
   - Cascade: Collection → CollectionItem; Item → CollectionItem
   - CollectionItem links Item ↔ Collection for many-to-many membership
-- Tag is a standalone model; item tag values are stored on `Item.tags`.
+- Tag is a standalone model; `Item.tags` is a relationship to `Tag` entities (not a string array).
 - Enum properties stored as strings with computed wrappers for type safety.
 
 ### Feature Organization
@@ -194,3 +194,4 @@ We will use the following technology stack:
 
 - 2025-12-30: Initial decision (v1)
 - 2025-12-31: Updated with Week 2 implementation findings (SwiftData relationships, repository queries, predicate limitations)
+- 2026-01-20: Updated tag storage notes for relationship-based tags

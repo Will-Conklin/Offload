@@ -8,7 +8,7 @@ applies_to:
   - terminology
   - product
   - documentation
-last_updated: 2026-01-19
+last_updated: 2026-01-20
 related: []
 structure_notes:
   - "Section order: Context; Decision; Consequences; Alternatives Considered; Implementation Notes; References; Revision History."
@@ -46,7 +46,7 @@ Adopt the following canonical terms and use them consistently.
 | `Item`           | Active   | Unified model for captures, tasks, and links   |
 | `Collection`     | Active   | Unified container for plans and lists          |
 | `CollectionItem` | Active   | Join table for Item ↔ Collection relationship  |
-| `Tag`            | Active   | User-defined labels stored on `Item.tags`      |
+| `Tag`            | Active   | User-defined labels referenced by `Item.tags`  |
 | `Plan`           | UI term  | Collection with `isStructured = true`          |
 | `List`           | UI term  | Collection with `isStructured = false`         |
 
@@ -94,3 +94,4 @@ Adopt the following canonical terms and use them consistently.
 | ------- | ---------- | -------------------------------------------------- |
 | 1.0     | 2026-01-03 | Initial decision                                   |
 | 1.1     | 2026-01-19 | Updated for Jan 13 data model consolidation        |
+| 1.2     | 2026-01-20 | Clarified tag references as relationships          |

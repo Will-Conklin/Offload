@@ -10,7 +10,19 @@ import SwiftData
 import UIKit
 
 
+enum CaptureComposeMode: String, Identifiable {
+    case write
+    case voice
+
+    var id: String { rawValue }
+    var shouldFocusOnAppear: Bool { self == .write }
+    var shouldStartVoiceOnAppear: Bool { self == .voice }
+}
+
+
 struct CaptureComposeView: View {
+    let mode: CaptureComposeMode
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.itemRepository) private var itemRepository
     @Environment(\.colorScheme) private var colorScheme
@@ -29,10 +41,15 @@ struct CaptureComposeView: View {
     @State private var preRecordingText = ""
     @State private var showingPermissionAlert = false
     @State private var errorPresenter = ErrorPresenter()
+    @State private var didTriggerQuickStart = false
 
     @FocusState private var isFocused: Bool
 
     private var style: ThemeStyle { themeManager.currentStyle }
+
+    init(mode: CaptureComposeMode = .write) {
+        self.mode = mode
+    }
 
     var body: some View {
         NavigationStack {
@@ -79,7 +96,14 @@ struct CaptureComposeView: View {
             let sep = preRecordingText.isEmpty || preRecordingText.hasSuffix(" ") ? "" : " "
             text = preRecordingText + sep + newValue
         }
-        .onAppear { isFocused = true }
+        .onAppear {
+            if mode.shouldFocusOnAppear {
+                isFocused = true
+            }
+            if mode.shouldStartVoiceOnAppear {
+                startVoiceIfNeeded()
+            }
+        }
         .confirmationDialog("Add Attachment", isPresented: $showingAttachmentSource) {
             Button("Camera") {
                 if UIImagePickerController.isSourceTypeAvailable(.camera) {
@@ -289,6 +313,12 @@ struct CaptureComposeView: View {
         }
     }
 
+    private func startVoiceIfNeeded() {
+        guard !didTriggerQuickStart, !voiceService.isRecording else { return }
+        didTriggerQuickStart = true
+        handleVoice()
+    }
+
     private func formatDuration(_ d: TimeInterval) -> String {
         String(format: "%d:%02d", Int(d) / 60, Int(d) % 60)
     }
@@ -306,9 +336,10 @@ struct CaptureComposeView: View {
                 type: nil, // Uncategorized capture
                 content: trimmedText,
                 attachmentData: attachmentData,
-                tags: selectedTags.map { $0.name },
+                tags: selectedTags,
                 isStarred: isStarred
             )
+            NotificationCenter.default.post(name: .captureItemsChanged, object: nil)
             dismiss()
         } catch {
             errorPresenter.present(error)
