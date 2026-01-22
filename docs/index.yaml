@@ -80,6 +80,18 @@ sections:
       - id: plan-logging-implementation
         title: "Plan: Comprehensive Logging Implementation (Proposed)"
         path: plans/plan-logging-implementation.md
+      - id: plan-bottom-tab-bar-offload-cta
+        title: "Plan: Persistent Bottom Tab Bar & Offload CTA (Proposed)"
+        path: plans/plan-bottom-tab-bar-offload-cta.md
+      - id: plan-convert-plan-list
+        title: "Plan: Convert Plans ↔ Lists (Proposed)"
+        path: plans/plan-convert-plan-list.md
+      - id: plan-drag-drop-collection-items
+        title: "Plan: Drag & Drop Ordering and Hierarchy (Proposed)"
+        path: plans/plan-drag-drop-collection-items.md
+      - id: plan-search-items-tags
+        title: "Plan: Search Items by Text or Tag (Proposed)"
+        path: plans/plan-search-items-tags.md
       - id: plans-archived-readme
         title: Archived Plans
         path: plans/_archived/README.md
