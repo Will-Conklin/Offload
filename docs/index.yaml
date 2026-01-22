@@ -38,6 +38,12 @@ sections:
       - id: adr-0003-adhd-focused-ux-ui-guardrails
         title: "adr-0003: ADHD-Focused UX/UI Guardrails"
         path: adrs/adr-0003-adhd-focused-ux-ui-guardrails.md
+      - id: adr-0004-tab-bar-navigation-shell-and-offload-cta
+        title: "adr-0004: Tab Bar Navigation Shell and Offload CTA"
+        path: adrs/adr-0004-tab-bar-navigation-shell-and-offload-cta.md
+      - id: adr-0005-collection-ordering-and-hierarchy-persistence
+        title: "adr-0005: Collection Ordering and Hierarchy Persistence"
+        path: adrs/adr-0005-collection-ordering-and-hierarchy-persistence.md
   - id: prds
     title: Product Requirements
     description: Product requirements, scope, goals, and success metrics.
