@@ -34,6 +34,8 @@ and low-friction.
   Apple SwiftUI guidance.
 - **Repository updates:** `CollectionItemRepository` persists `position` and
   `parentId` changes after a drop completes.
+- **Ordering for lists:** Unstructured lists use `CollectionItem.position` for
+  display ordering; backfill positions when missing.
 - **Collapse state:** Keep collapse/expand state in view model only (session
   scoped) per ADR-0005.
 

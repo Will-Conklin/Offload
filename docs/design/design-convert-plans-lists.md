@@ -33,7 +33,8 @@ flattened.
   `CollectionRepository` to update `Collection.isStructured` and persist changes
   to `CollectionItem.position` and `CollectionItem.parentId`.
 - **Hierarchy rules:** Apply ADR-0005 flattening logic for plan → list, and
-  generate positions for list → plan based on current ordering.
+  generate positions for list → plan based on current ordering. Unstructured
+  lists should use `CollectionItem.position` for ordering (backfill as needed).
 
 ## Data Flow
 

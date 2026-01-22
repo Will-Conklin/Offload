@@ -30,7 +30,8 @@ destinations and maintaining ADHD-friendly navigation guardrails.
   custom tab bar anchored to the bottom safe area.
 - **Tabs:** Home, Review, Offload (CTA), Organize, Account.
   - Home starts as a placeholder view.
-  - Review maps to the current `CaptureView` content but is labeled "Review."
+  - Review maps to the current `CaptureView` content and navigation title,
+    labeled "Review."
   - Organize continues to render `OrganizeView`.
   - Account tab presents `AccountView`; Settings is reachable from there.
 - **Offload CTA:** A center button that triggers quick capture actions by
@@ -53,6 +54,8 @@ destinations and maintaining ADHD-friendly navigation guardrails.
   for write and voice.
 - The Account tab lands on `AccountView`; Settings remains one tap away from
   Account.
+- The Settings icon remains in Capture/Organize toolbars; the Account icon moves
+  to the Account tab.
 - Tab selection states match the current `Theme` selection highlight rules.
 
 ## Testing

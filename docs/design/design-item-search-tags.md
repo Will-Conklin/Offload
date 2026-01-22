@@ -28,12 +28,12 @@ matching tags as selectable chips for tag-scoped searches.
 
 - **Search entry:** Add a search icon next to Settings in Capture and Organize
   toolbars.
-- **Search UI:** A floating search bar appears below the icon. Use SwiftUI
-  `searchable` for keyboard integration where appropriate, or a custom overlay
-  view to match the floating placement in the PRD.
+- **Search UI:** A custom floating search bar appears below the icon to match
+  the PRD placement and interaction.
 - **Search state:** A view model stores `searchText` and `selectedTagId`.
 - **Querying:** Repository methods search `Item.content` and `Item.tags` via
   SwiftData predicates, returning filtered lists for Capture and Organize views.
+  Tag matches use `tagLinks` only (no `legacyTags`).
 - **Tag chips:** Render a horizontal chip row below the search field using
   existing tag styling components.
 
