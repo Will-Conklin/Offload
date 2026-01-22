@@ -63,6 +63,9 @@ jobs:
                 echo "Missing base SHA for pull_request event" >&2
                 exit 1
               fi
+              if ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+                git fetch origin "${BASE_SHA}" --depth=1
+              fi
               changed_files=$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}")
             else
               git fetch origin "${DEFAULT_BRANCH}" --depth=1
