@@ -38,6 +38,18 @@ sections:
       - id: adr-0003-adhd-focused-ux-ui-guardrails
         title: "adr-0003: ADHD-Focused UX/UI Guardrails"
         path: adrs/adr-0003-adhd-focused-ux-ui-guardrails.md
+      - id: adr-0004-tab-bar-navigation-shell-and-offload-cta
+        title: "adr-0004: Tab Bar Navigation Shell and Offload CTA"
+        path: adrs/adr-0004-tab-bar-navigation-shell-and-offload-cta.md
+      - id: adr-0005-collection-ordering-and-hierarchy-persistence
+        title: "adr-0005: Collection Ordering and Hierarchy Persistence"
+        path: adrs/adr-0005-collection-ordering-and-hierarchy-persistence.md
+      - id: adr-0006-ci-provider-selection
+        title: "adr-0006: CI Provider Selection"
+        path: adrs/adr-0006-ci-provider-selection.md
+      - id: adr-0007-context-aware-ci-workflow-strategy
+        title: "adr-0007: Context-Aware CI Workflow Strategy"
+        path: adrs/adr-0007-context-aware-ci-workflow-strategy.md
   - id: prds
     title: Product Requirements
     description: Product requirements, scope, goals, and success metrics.
@@ -60,6 +72,9 @@ sections:
       - id: prd-0005-item-search-tags
         title: Offload — V1.1 Item Search by Text or Tag PRD
         path: prds/prd-0005-item-search-tags.md
+      - id: prd-0006-context-aware-ci-pipeline
+        title: Offload — V1 Context-Aware CI Pipeline PRD
+        path: prds/prd-0006-context-aware-ci-pipeline.md
   - id: design
     title: Design
     description: Technical design and implementation guidance.
@@ -67,6 +82,18 @@ sections:
       - id: design-readme
         title: Design
         path: design/README.md
+      - id: design-persistent-bottom-tab-bar
+        title: Persistent Bottom Tab Bar Design
+        path: design/design-persistent-bottom-tab-bar.md
+      - id: design-convert-plans-lists
+        title: Convert Plans ↔ Lists Design
+        path: design/design-convert-plans-lists.md
+      - id: design-drag-drop-ordering
+        title: Drag & Drop Ordering Design
+        path: design/design-drag-drop-ordering.md
+      - id: design-item-search-tags
+        title: Item Search by Text or Tag Design
+        path: design/design-item-search-tags.md
       - id: design-testing-readme
         title: Testing
         path: design/testing/README.md
@@ -82,6 +109,9 @@ sections:
       - id: design-voice-capture-testing-guide
         title: Voice Capture Testing Guide
         path: design/testing/design-voice-capture-testing-guide.md
+      - id: design-context-aware-ci-pipeline
+        title: Context-Aware CI Pipeline Design
+        path: design/design-context-aware-ci-pipeline.md
   - id: plans
     title: Implementation Plans
     description: Sequencing, milestones, execution strategy.
@@ -92,8 +122,20 @@ sections:
       - id: plan-logging-implementation
         title: "Plan: Comprehensive Logging Implementation (Proposed)"
         path: plans/plan-logging-implementation.md
+      - id: plan-persistent-bottom-tab-bar
+        title: "Plan: Persistent Bottom Tab Bar"
+        path: plans/plan-persistent-bottom-tab-bar.md
+      - id: plan-convert-plans-lists
+        title: "Plan: Convert Plans and Lists"
+        path: plans/plan-convert-plans-lists.md
+      - id: plan-drag-drop-ordering
+        title: "Plan: Drag and Drop Ordering"
+        path: plans/plan-drag-drop-ordering.md
+      - id: plan-item-search-tags
+        title: "Plan: Item Search by Text or Tag"
+        path: plans/plan-item-search-tags.md
       - id: plan-context-aware-ci-pipeline
-        title: "Plan: Context-Aware CI Pipeline (Proposed)"
+        title: "Plan: Context-Aware CI Pipeline"
         path: plans/plan-context-aware-ci-pipeline.md
       - id: plans-archived-readme
         title: Archived Plans

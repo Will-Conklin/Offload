@@ -1,16 +1,20 @@
 ---
 id: adrs-readme
 type: architecture-decision
-status: active
+status: accepted
 owners:
   - Offload
 applies_to:
   - architecture
-last_updated: 2026-01-17
+last_updated: 2026-01-22
 related:
   - adr-0001-technology-stack-and-architecture
   - adr-0002-terminology-alignment-for-capture-and-organization
   - adr-0003-adhd-focused-ux-ui-guardrails
+  - adr-0004-tab-bar-navigation-shell-and-offload-cta
+  - adr-0005-collection-ordering-and-hierarchy-persistence
+  - adr-0006-ci-provider-selection
+  - adr-0007-context-aware-ci-workflow-strategy
 structure_notes:
   - "Section order: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
   - "Keep top-level sections: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
@@ -58,6 +62,10 @@ proposed → accepted → superseded | deprecated
 - [adr-0001: Technology Stack and Architecture](./adr-0001-technology-stack-and-architecture.md)
 - [adr-0002: Terminology Alignment for Capture and Organization](./adr-0002-terminology-alignment-for-capture-and-organization.md)
 - [adr-0003: ADHD-Focused UX/UI Guardrails](./adr-0003-adhd-focused-ux-ui-guardrails.md)
+- [adr-0004: Tab Bar Navigation Shell and Offload CTA](./adr-0004-tab-bar-navigation-shell-and-offload-cta.md)
+- [adr-0005: Collection Ordering and Hierarchy Persistence](./adr-0005-collection-ordering-and-hierarchy-persistence.md)
+- [adr-0006: CI Provider Selection](./adr-0006-ci-provider-selection.md)
+- [adr-0007: Context-Aware CI Workflow Strategy](./adr-0007-context-aware-ci-workflow-strategy.md)
 
 ## Template
 
