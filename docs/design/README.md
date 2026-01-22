@@ -6,10 +6,11 @@ owners:
   - Offload
 applies_to:
   - Offload
-last_updated: 2026-01-17
+last_updated: 2026-01-21
 related:
   - design-voice-capture-testing-guide
   - design-voice-capture-test-results
+  - design-context-aware-ci-pipeline
 structure_notes:
   - "Section order: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
   - "Keep top-level sections: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Template; Naming."
@@ -55,6 +56,7 @@ draft → active → deprecated
 
 - [Voice Capture Testing Guide](./testing/design-voice-capture-testing-guide.md)
 - [Voice Capture Test Results](./testing/design-voice-capture-test-results.md)
+- [Context-Aware CI Pipeline Design](./design-context-aware-ci-pipeline.md)
 
 ## Template
 

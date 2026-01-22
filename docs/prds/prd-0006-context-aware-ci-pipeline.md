@@ -16,7 +16,7 @@ structure_notes:
 
 # Offload — V1 Context-Aware CI Pipeline PRD
 
-**Version:** 1.1
+**Version:** 1.2
 **Date:** 2026-01-21
 **Status:** Accepted
 **Owner:** Offload
@@ -91,15 +91,15 @@ type.
 
 ## 8. Functional requirements
 
-| Req ID | Requirement | Priority | User Story |
-| --- | --- | --- | --- |
-| FR-240 | Detect docs-only changes by path filters and run a docs lane. | Must | US-240 |
-| FR-241 | Docs lane runs markdownlint and any doc checks chosen by the team. | Must | US-241 |
-| FR-242 | Changes under `ios/**` run iOS build, lint, and tests. | Must | US-242 |
-| FR-243 | Changes under `backend/**` or `scripts/**` run the appropriate lint/tests. | Should | US-243 |
-| FR-244 | Provide a manual override to run the full CI suite. | Should | US-244 |
-| FR-245 | Document path filters, triggers, and ownership for maintenance. | Must | US-245 |
-| FR-246 | Run a scheduled full CI suite (nightly or equivalent). | Should | US-246 |
+| Req ID | Requirement                                                                                     | Priority | User Story |
+| ------ | ----------------------------------------------------------------------------------------------- | -------- | ---------- |
+| FR-240 | Detect docs-only changes to skip non-docs lanes; run a docs lane whenever docs change.          | Must     | US-240     |
+| FR-241 | Docs lane runs markdownlint and any doc checks chosen by the team.                              | Must     | US-241     |
+| FR-242 | Changes under `ios/**` run iOS build, lint, and tests.                                          | Must     | US-242     |
+| FR-243 | Changes under `backend/**` or `scripts/**` run linters and a Snyk scan (or equivalent).         | Should   | US-243     |
+| FR-244 | Provide a manual override to run the full CI suite.                                             | Should   | US-244     |
+| FR-245 | Document path filters, triggers, and ownership for maintenance.                                 | Must     | US-245     |
+| FR-246 | Run a scheduled full CI suite (nightly or equivalent).                                          | Should   | US-246     |
 
 ---
 
@@ -155,7 +155,8 @@ Implementation planning will be captured in an execution plan after approval.
 
 ## 16. Revision history
 
-| Version | Date       | Notes            |
-| ------- | ---------- | ---------------- |
-| 1.0     | 2026-01-21 | Initial proposal |
-| 1.1     | 2026-01-21 | Accepted         |
+| Version | Date       | Notes                                                  |
+| ------- | ---------- | ------------------------------------------------------ |
+| 1.0     | 2026-01-21 | Initial proposal                                       |
+| 1.1     | 2026-01-21 | Accepted                                               |
+| 1.2     | 2026-01-21 | Clarified docs lane and backend/scripts checks         |

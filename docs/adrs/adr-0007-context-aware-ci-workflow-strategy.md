@@ -39,7 +39,8 @@ for each change type.
 - Use path-based workflow gating to select CI lanes.
 - Define docs-only changes as updates limited to `docs/**` and root-level
   `*.md` files (for example `README.md`).
-- Provide a docs-only lane that runs markdownlint and doc-specific checks.
+- Provide a docs lane that runs markdownlint and doc-specific checks whenever
+  docs change; when the change set is docs-only, skip non-docs lanes.
 - Run iOS checks for changes under `ios/**`.
 - Run backend checks for changes under `backend/**`.
 - Run automation checks for changes under `scripts/**`.
@@ -73,7 +74,8 @@ for each change type.
 
 ## Revision History
 
-| Version | Date       | Notes            |
-| ------- | ---------- | ---------------- |
-| 1.0     | 2026-01-21 | Initial proposal |
-| 1.1     | 2026-01-21 | Accepted         |
+| Version | Date       | Notes                         |
+| ------- | ---------- | ----------------------------- |
+| 1.0     | 2026-01-21 | Initial proposal              |
+| 1.1     | 2026-01-21 | Accepted                      |
+| 1.2     | 2026-01-21 | Clarified docs lane behavior  |
