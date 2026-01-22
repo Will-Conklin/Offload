@@ -122,6 +122,18 @@ sections:
       - id: plan-logging-implementation
         title: "Plan: Comprehensive Logging Implementation (Proposed)"
         path: plans/plan-logging-implementation.md
+      - id: plan-persistent-bottom-tab-bar
+        title: "Plan: Persistent Bottom Tab Bar"
+        path: plans/plan-persistent-bottom-tab-bar.md
+      - id: plan-convert-plans-lists
+        title: "Plan: Convert Plans and Lists"
+        path: plans/plan-convert-plans-lists.md
+      - id: plan-drag-drop-ordering
+        title: "Plan: Drag and Drop Ordering"
+        path: plans/plan-drag-drop-ordering.md
+      - id: plan-item-search-tags
+        title: "Plan: Item Search by Text or Tag"
+        path: plans/plan-item-search-tags.md
       - id: plans-archived-readme
         title: Archived Plans
         path: plans/_archived/README.md

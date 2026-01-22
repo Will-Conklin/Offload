@@ -63,6 +63,10 @@ draft → active → completed | archived
 
 ### Draft (Pre-v1 Candidates)
 
+- [Plan: Persistent Bottom Tab Bar](./plan-persistent-bottom-tab-bar.md)
+- [Plan: Convert Plans and Lists](./plan-convert-plans-lists.md)
+- [Plan: Drag and Drop Ordering](./plan-drag-drop-ordering.md)
+- [Plan: Item Search by Text or Tag](./plan-item-search-tags.md)
 - [Plan: Tag Relationship Refactor](./plan-v1-tag-relationship-refactor.md)
 - [Plan: View Decomposition](./plan-v1-view-decomposition.md)
 - [Plan: Visual Timeline](./plan-v1-visual-timeline.md)
