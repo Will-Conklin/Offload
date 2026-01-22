@@ -134,6 +134,9 @@ sections:
       - id: plan-item-search-tags
         title: "Plan: Item Search by Text or Tag"
         path: plans/plan-item-search-tags.md
+      - id: plan-context-aware-ci-pipeline
+        title: "Plan: Context-Aware CI Pipeline"
+        path: plans/plan-context-aware-ci-pipeline.md
       - id: plans-archived-readme
         title: Archived Plans
         path: plans/_archived/README.md
