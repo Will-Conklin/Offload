@@ -12,7 +12,7 @@ import SwiftData
 struct MainTabView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
-    @State private var selectedTab: Tab = .capture
+    @State private var selectedTab: Tab = .review
     @State private var quickCaptureMode: CaptureComposeMode?
 
     private var style: ThemeStyle { themeManager.currentStyle }
@@ -39,27 +39,35 @@ struct MainTabView: View {
     }
 
     enum Tab: CaseIterable {
-        case capture
+        case home
+        case review
         case organize
+        case account
 
         var icon: String {
             switch self {
-            case .capture: return Icons.captureList
+            case .home: return Icons.home
+            case .review: return Icons.review
             case .organize: return Icons.organize
+            case .account: return Icons.account
             }
         }
 
         var selectedIcon: String {
             switch self {
-            case .capture: return Icons.captureListSelected
+            case .home: return Icons.homeSelected
+            case .review: return Icons.reviewSelected
             case .organize: return Icons.organizeSelected
+            case .account: return Icons.accountSelected
             }
         }
 
         var label: String {
             switch self {
-            case .capture: return "Capture"
+            case .home: return "Home"
+            case .review: return "Review"
             case .organize: return "Organize"
+            case .account: return "Account"
             }
         }
     }
@@ -72,10 +80,14 @@ private struct TabContent: View {
 
     var body: some View {
         switch selectedTab {
-        case .capture:
-            CaptureView()
+        case .home:
+            HomeView()
+        case .review:
+            CaptureView(navigationTitle: "Review")
         case .organize:
             OrganizeView()
+        case .account:
+            AccountView()
         }
     }
 }
@@ -93,28 +105,26 @@ private struct FloatingTabBar: View {
         HStack(spacing: Theme.Spacing.sm) {
             // Left tab
             TabButton(
-                tab: .capture,
-                isSelected: selectedTab == .capture,
+                tab: .home,
+                isSelected: selectedTab == .home,
                 colorScheme: colorScheme,
                 style: style
-            ) { selectedTab = .capture }
+            ) { selectedTab = .home }
+
+            TabButton(
+                tab: .review,
+                isSelected: selectedTab == .review,
+                colorScheme: colorScheme,
+                style: style
+            ) { selectedTab = .review }
 
             Spacer(minLength: Theme.Spacing.sm)
 
-            QuickCaptureButton(
-                title: "Write",
-                iconName: Icons.add,
+            OffloadCTA(
                 colorScheme: colorScheme,
                 style: style,
-                action: onQuickWrite
-            )
-
-            QuickCaptureButton(
-                title: "Voice",
-                iconName: Icons.microphone,
-                colorScheme: colorScheme,
-                style: style,
-                action: onQuickVoice
+                onQuickWrite: onQuickWrite,
+                onQuickVoice: onQuickVoice
             )
 
             Spacer(minLength: Theme.Spacing.sm)
@@ -126,6 +136,13 @@ private struct FloatingTabBar: View {
                 colorScheme: colorScheme,
                 style: style
             ) { selectedTab = .organize }
+
+            TabButton(
+                tab: .account,
+                isSelected: selectedTab == .account,
+                colorScheme: colorScheme,
+                style: style
+            ) { selectedTab = .account }
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, Theme.Spacing.md)
@@ -150,6 +167,7 @@ private struct QuickCaptureButton: View {
     let colorScheme: ColorScheme
     let style: ThemeStyle
     let action: () -> Void
+    var size: CGFloat = 62
 
     var body: some View {
         Button(action: action) {
@@ -159,7 +177,7 @@ private struct QuickCaptureButton: View {
                     .font(Theme.Typography.caption)
             }
             .foregroundStyle(.white)
-            .frame(width: 62, height: 62)
+            .frame(width: size, height: size)
             .background(
                 RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
                     .fill(Theme.Colors.buttonDark(colorScheme))
@@ -171,6 +189,46 @@ private struct QuickCaptureButton: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(title)
+    }
+}
+
+// MARK: - Offload CTA
+
+private struct OffloadCTA: View {
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let onQuickWrite: () -> Void
+    let onQuickVoice: () -> Void
+
+    var body: some View {
+        VStack(spacing: Theme.Spacing.xs) {
+            HStack(spacing: Theme.Spacing.xs) {
+                QuickCaptureButton(
+                    title: "Write",
+                    iconName: Icons.add,
+                    colorScheme: colorScheme,
+                    style: style,
+                    action: onQuickWrite,
+                    size: 56
+                )
+
+                QuickCaptureButton(
+                    title: "Voice",
+                    iconName: Icons.microphone,
+                    colorScheme: colorScheme,
+                    style: style,
+                    action: onQuickVoice,
+                    size: 56
+                )
+            }
+
+            Text("Offload")
+                .font(Theme.Typography.caption2)
+                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+        }
+        .padding(.horizontal, Theme.Spacing.xs)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Offload quick actions")
     }
 }
 
@@ -195,7 +253,7 @@ private struct TabButton: View {
                     ? Theme.Colors.primary(colorScheme, style: style)
                     : Theme.Colors.textSecondary(colorScheme, style: style)
             )
-            .frame(minWidth: 80, minHeight: 64)
+            .frame(minWidth: 64, minHeight: 64)
             .background(
                 Group {
                     if isSelected {
