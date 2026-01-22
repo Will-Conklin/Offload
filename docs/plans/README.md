@@ -58,6 +58,19 @@ draft → active → completed | archived
 ### Active
 
 - [Offload v1 Roadmap](./plan-v1-roadmap.md) - Single source of truth for v1
+- [Plan: V1 Testing & Polish](./plan-v1-testing-polish.md)
+- [Plan: V1 Release Prep](./plan-v1-release-prep.md)
+
+### Draft (Pre-v1 Candidates)
+
+- [Plan: Tag Relationship Refactor](./plan-v1-tag-relationship-refactor.md)
+- [Plan: View Decomposition](./plan-v1-view-decomposition.md)
+- [Plan: Visual Timeline](./plan-v1-visual-timeline.md)
+- [Plan: Celebration Animations](./plan-v1-celebration-animations.md)
+- [Plan: Advanced Accessibility Features](./plan-v1-advanced-accessibility.md)
+- [Plan: AI Organization Flows & Review Screen](./plan-v1-ai-organization-flows.md)
+- [Plan: AI Pricing & Limits](./plan-v1-ai-pricing-limits.md)
+- [Plan: Backend API + Privacy Constraints](./plan-v1-backend-api-privacy.md)
 
 ### Archived
 

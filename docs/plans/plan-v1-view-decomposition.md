@@ -1,0 +1,68 @@
+---
+id: plan-v1-view-decomposition
+type: plan
+status: draft
+owners:
+  - Offload
+applies_to:
+  - pre-v1-scope
+last_updated: 2026-01-20
+related:
+  - plan-v1-roadmap
+structure_notes:
+  - "Section order: Overview; Goals; Phases; Dependencies; Risks; Progress."
+---
+
+# Plan: View Decomposition (Pre-v1 Candidate)
+
+## Overview
+
+Execution plan for decomposing large SwiftUI views listed as optional pre-v1
+scope in the v1 roadmap. Work should begin only after scope is confirmed via
+PRD/ADR updates.
+
+## Goals
+
+- Reduce risk by breaking large views into focused components.
+- Improve readability and maintainability before release.
+
+## Phases
+
+### Phase 1: Scope Confirmation
+
+**Status:** Not Started
+
+- [ ] Confirm scope approval in PRD/ADR updates.
+- [ ] Prioritize views based on size and complexity.
+
+### Phase 2: Decomposition Plan
+
+**Status:** Not Started
+
+- [ ] Identify subviews and shared components.
+- [ ] Document sequencing and ownership boundaries.
+
+### Phase 3: Refactor & Verification
+
+**Status:** Not Started
+
+- [ ] Implement view splits.
+- [ ] Verify navigation, bindings, and state flows.
+
+## Dependencies
+
+- Scope confirmation for pre-v1 work.
+- Updated design system guidance for shared components.
+
+## Risks
+
+| Risk | Impact | Mitigation |
+| --- | --- | --- |
+| Refactor introduces regressions | M | Incremental refactors with focused QA. |
+| Schedule impact | M | Prioritize only the largest views if time is limited. |
+
+## Progress
+
+| Date | Update |
+| --- | --- |
+| 2026-01-20 | Plan created from v1 roadmap split. |
