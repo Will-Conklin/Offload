@@ -1,7 +1,7 @@
 ---
 id: prd-0004-drag-drop-ordering
 type: product-requirements
-status: proposed
+status: accepted
 owners:
   - Offload
 applies_to:

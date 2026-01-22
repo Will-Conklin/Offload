@@ -1,12 +1,12 @@
 ---
 id: design-readme
 type: design
-status: active
+status: accepted
 owners:
   - Offload
 applies_to:
   - Offload
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related:
   - design-voice-capture-testing-guide
   - design-voice-capture-test-results

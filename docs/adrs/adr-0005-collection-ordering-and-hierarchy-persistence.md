@@ -1,7 +1,7 @@
 ---
 id: adr-0005-collection-ordering-and-hierarchy-persistence
 type: architecture-decision
-status: proposed
+status: accepted
 owners:
   - product
   - ios
@@ -10,7 +10,7 @@ applies_to:
   - ordering
   - hierarchy
   - ux
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related:
   - prd-0003-convert-plans-lists
   - prd-0004-drag-drop-ordering

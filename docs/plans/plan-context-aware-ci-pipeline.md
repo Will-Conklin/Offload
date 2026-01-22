@@ -1,7 +1,7 @@
 ---
 id: plan-context-aware-ci-pipeline
 type: plan
-status: draft
+status: accepted
 owners:
   - Will-Conklin
 applies_to:

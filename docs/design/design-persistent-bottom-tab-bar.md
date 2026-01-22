@@ -1,12 +1,12 @@
 ---
 id: design-persistent-bottom-tab-bar
 type: design
-status: draft
+status: accepted
 owners:
   - Will-Conklin
 applies_to:
   - navigation
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related:
   - prd-0002-persistent-bottom-tab-bar
   - adr-0004-tab-bar-navigation-shell-and-offload-cta

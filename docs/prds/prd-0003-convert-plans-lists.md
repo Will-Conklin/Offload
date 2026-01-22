@@ -1,7 +1,7 @@
 ---
 id: prd-0003-convert-plans-lists
 type: product-requirements
-status: proposed
+status: accepted
 owners:
   - Offload
 applies_to:

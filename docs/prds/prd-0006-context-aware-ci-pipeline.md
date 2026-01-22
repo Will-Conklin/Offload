@@ -6,7 +6,7 @@ owners:
   - Offload
 applies_to:
   - product
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related:
   - adr-0006-ci-provider-selection
   - adr-0007-context-aware-ci-workflow-strategy

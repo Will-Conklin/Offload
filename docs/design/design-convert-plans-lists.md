@@ -1,12 +1,12 @@
 ---
 id: design-convert-plans-lists
 type: design
-status: draft
+status: accepted
 owners:
   - Will-Conklin
 applies_to:
   - organize
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related:
   - prd-0003-convert-plans-lists
   - adr-0005-collection-ordering-and-hierarchy-persistence

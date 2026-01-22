@@ -1,12 +1,12 @@
 ---
 id: plan-logging-implementation
 type: plan
-status: draft
+status: accepted
 owners:
   - Offload
 applies_to:
   - Offload
-last_updated: 2026-01-20
+last_updated: 2026-01-22
 related: []
 structure_notes:
   - "Section order: Overview; Goals; Phases; Dependencies; Risks; Progress."

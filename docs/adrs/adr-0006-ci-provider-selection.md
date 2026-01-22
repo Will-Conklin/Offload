@@ -9,7 +9,7 @@ applies_to:
   - ci
   - infrastructure
   - automation
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related:
   - prd-0006-context-aware-ci-pipeline
 structure_notes:

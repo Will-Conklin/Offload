@@ -1,12 +1,12 @@
 ---
 id: plan-v1-roadmap
 type: plan
-status: active
+status: accepted
 owners:
   - Offload
 applies_to:
   - v1-release
-last_updated: 2026-01-20
+last_updated: 2026-01-22
 related:
   - plan-v1-testing-polish
   - plan-v1-release-prep

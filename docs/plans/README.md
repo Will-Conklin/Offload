@@ -1,12 +1,12 @@
 ---
 id: plans-readme
 type: plan
-status: active
+status: accepted
 owners:
   - Offload
 applies_to:
   - Offload
-last_updated: 2026-01-19
+last_updated: 2026-01-22
 related:
   - plan-v1-roadmap
 structure_notes:

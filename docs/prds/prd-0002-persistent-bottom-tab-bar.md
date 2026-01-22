@@ -1,7 +1,7 @@
 ---
 id: prd-0002-persistent-bottom-tab-bar
 type: product-requirements
-status: proposed
+status: accepted
 owners:
   - Offload
 applies_to:

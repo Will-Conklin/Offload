@@ -1,12 +1,12 @@
 ---
 id: adrs-readme
 type: architecture-decision
-status: active
+status: accepted
 owners:
   - Offload
 applies_to:
   - architecture
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related:
   - adr-0001-technology-stack-and-architecture
   - adr-0002-terminology-alignment-for-capture-and-organization

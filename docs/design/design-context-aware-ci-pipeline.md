@@ -1,12 +1,12 @@
 ---
 id: design-context-aware-ci-pipeline
 type: design
-status: draft
+status: accepted
 owners:
   - Offload
 applies_to:
   - ci
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related:
   - prd-0006-context-aware-ci-pipeline
   - adr-0006-ci-provider-selection

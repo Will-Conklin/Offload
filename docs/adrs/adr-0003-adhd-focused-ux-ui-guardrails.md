@@ -12,7 +12,7 @@ applies_to:
   - ux
   - ui
   - guardrails
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related: []
 structure_notes:
   - "Section order: Context; Decision; Consequences; Alternatives Considered; Implementation Notes; References; Revision History."

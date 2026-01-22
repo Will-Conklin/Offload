@@ -1,13 +1,13 @@
 ---
 id: plan-item-search-tags
 type: plan
-status: draft
+status: accepted
 owners:
   - Will-Conklin
 applies_to:
   - capture
   - organize
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related:
   - prd-0005-item-search-tags
   - adr-0003-adhd-focused-ux-ui-guardrails

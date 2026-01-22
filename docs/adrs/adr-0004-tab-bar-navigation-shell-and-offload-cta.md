@@ -1,7 +1,7 @@
 ---
 id: adr-0004-tab-bar-navigation-shell-and-offload-cta
 type: architecture-decision
-status: proposed
+status: accepted
 owners:
   - product
   - ios
@@ -10,7 +10,7 @@ applies_to:
   - ux
   - ui
   - architecture
-last_updated: 2026-01-21
+last_updated: 2026-01-22
 related:
   - prd-0002-persistent-bottom-tab-bar
   - adr-0003-adhd-focused-ux-ui-guardrails
