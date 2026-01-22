@@ -48,6 +48,18 @@ sections:
       - id: prd-0001-product-requirements
         title: Offload — V1 Product Requirements Document (PRD)
         path: prds/prd-0001-product-requirements.md
+      - id: prd-0002-persistent-bottom-tab-bar
+        title: Offload — V1.1 Persistent Bottom Tab Bar PRD
+        path: prds/prd-0002-persistent-bottom-tab-bar.md
+      - id: prd-0003-convert-plans-lists
+        title: Offload — V1.1 Convert Plans ↔ Lists PRD
+        path: prds/prd-0003-convert-plans-lists.md
+      - id: prd-0004-drag-drop-ordering
+        title: Offload — V1.1 Drag & Drop Ordering PRD
+        path: prds/prd-0004-drag-drop-ordering.md
+      - id: prd-0005-item-search-tags
+        title: Offload — V1.1 Item Search by Text or Tag PRD
+        path: prds/prd-0005-item-search-tags.md
   - id: design
     title: Design
     description: Technical design and implementation guidance.
