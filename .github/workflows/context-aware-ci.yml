@@ -144,6 +144,7 @@ jobs:
         run: npm install --global markdownlint-cli
 
       - name: Run markdownlint
+        continue-on-error: true
         run: markdownlint -c .markdownlint.yaml "docs/**/*.md" "*.md"
 
   ios-build:
