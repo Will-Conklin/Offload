@@ -32,7 +32,7 @@ structure_notes:
 
 Introduce a persistent bottom tab bar with five destinations and a central
 Offload primary action that expands to quick capture options, improving
-navigation clarity and emphasizing the core Offload CTA.
+navigation clarity and emphasizing the core Offload CTA, making it thumb-friendly and optimized for one handed use.
 
 ---
 
@@ -40,7 +40,7 @@ navigation clarity and emphasizing the core Offload CTA.
 
 The current bottom navigation and capture affordances are fragmented, making it
 harder for users to understand key destinations and the primary action for
-quick capture.
+quick capture. The primary action is not prominent and there is no tie-in with the idea for the brand.
 
 ---
 
@@ -77,9 +77,8 @@ quick capture.
 
 ## 7. Core user flows
 
-1. User selects Home tab to reach Home placeholder.
-2. User taps Offload CTA and chooses write or voice capture.
-3. User navigates between Review, Organize, and Account tabs.
+1. User taps Offload CTA and chooses write or voice capture.
+2. User navigates between Home, Review, Organize, and Account tabs.
 
 ---
 
