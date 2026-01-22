@@ -7,7 +7,17 @@ owners:
 applies_to:
   - v1-release
 last_updated: 2026-01-20
-related: []
+related:
+  - plan-v1-testing-polish
+  - plan-v1-release-prep
+  - plan-v1-tag-relationship-refactor
+  - plan-v1-view-decomposition
+  - plan-v1-visual-timeline
+  - plan-v1-celebration-animations
+  - plan-v1-advanced-accessibility
+  - plan-v1-ai-organization-flows
+  - plan-v1-ai-pricing-limits
+  - plan-v1-backend-api-privacy
 priority: critical
 structure_notes:
   - "Single source of truth for v1 release planning"
@@ -85,36 +95,21 @@ handling work is effectively complete.
 
 ## Remaining Work for v1
 
-### Week 1: Testing & Polish
+### Active execution plans
 
-- Manual testing of all features
-- Performance benchmarks
-- Bug fixes from testing
-- Accessibility review
-- Verify voice recording (permissions, start/stop, on-device transcription)
-- Verify offline capture and persistence
-- Validate Capture List actions (complete, star, delete) against PRD
-- Confirm UX tone requirements in core capture/organize flows
+- [Plan: V1 Testing & Polish](./plan-v1-testing-polish.md)
+- [Plan: V1 Release Prep](./plan-v1-release-prep.md)
 
-### Week 2: Release Prep
+### Pre-v1 candidate scope (requires PRD/ADR confirmation)
 
-- Documentation updates
-- Release notes
-- App Store metadata
-- TestFlight distribution
-
-### Additional pre-v1 scope
-
-- Tag relationship refactor (migration risk)
-- View decomposition (CollectionDetailView at 778 lines)
-- Visual timeline (ADHD feature)
-- Celebration animations
-- Advanced accessibility features
-- AI organization flows and review screen
-- AI pricing & limits (free/paid tiers, server-side enforcement)
-- Backend API + privacy constraints for AI integration
-
-**Total:** TBD based on additional pre-v1 scope
+- [Plan: Tag Relationship Refactor](./plan-v1-tag-relationship-refactor.md)
+- [Plan: View Decomposition](./plan-v1-view-decomposition.md)
+- [Plan: Visual Timeline](./plan-v1-visual-timeline.md)
+- [Plan: Celebration Animations](./plan-v1-celebration-animations.md)
+- [Plan: Advanced Accessibility Features](./plan-v1-advanced-accessibility.md)
+- [Plan: AI Organization Flows & Review Screen](./plan-v1-ai-organization-flows.md)
+- [Plan: AI Pricing & Limits](./plan-v1-ai-pricing-limits.md)
+- [Plan: Backend API + Privacy Constraints](./plan-v1-backend-api-privacy.md)
 
 ## File Sizes Reference
 

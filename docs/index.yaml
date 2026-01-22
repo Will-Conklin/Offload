@@ -107,6 +107,36 @@ sections:
       - id: plan-v1-roadmap
         title: Offload v1 Roadmap
         path: plans/plan-v1-roadmap.md
+      - id: plan-v1-testing-polish
+        title: "Plan: V1 Testing & Polish"
+        path: plans/plan-v1-testing-polish.md
+      - id: plan-v1-release-prep
+        title: "Plan: V1 Release Prep"
+        path: plans/plan-v1-release-prep.md
+      - id: plan-v1-tag-relationship-refactor
+        title: "Plan: Tag Relationship Refactor"
+        path: plans/plan-v1-tag-relationship-refactor.md
+      - id: plan-v1-view-decomposition
+        title: "Plan: View Decomposition"
+        path: plans/plan-v1-view-decomposition.md
+      - id: plan-v1-visual-timeline
+        title: "Plan: Visual Timeline"
+        path: plans/plan-v1-visual-timeline.md
+      - id: plan-v1-celebration-animations
+        title: "Plan: Celebration Animations"
+        path: plans/plan-v1-celebration-animations.md
+      - id: plan-v1-advanced-accessibility
+        title: "Plan: Advanced Accessibility Features"
+        path: plans/plan-v1-advanced-accessibility.md
+      - id: plan-v1-ai-organization-flows
+        title: "Plan: AI Organization Flows & Review Screen"
+        path: plans/plan-v1-ai-organization-flows.md
+      - id: plan-v1-ai-pricing-limits
+        title: "Plan: AI Pricing & Limits"
+        path: plans/plan-v1-ai-pricing-limits.md
+      - id: plan-v1-backend-api-privacy
+        title: "Plan: Backend API + Privacy Constraints"
+        path: plans/plan-v1-backend-api-privacy.md
       - id: plan-archived-error-handling-improvements
         title: Error Handling Improvements Plan
         path: plans/_archived/plan-archived-error-handling-improvements.md

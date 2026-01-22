@@ -1,0 +1,68 @@
+---
+id: plan-v1-celebration-animations
+type: plan
+status: draft
+owners:
+  - Offload
+applies_to:
+  - pre-v1-scope
+last_updated: 2026-01-20
+related:
+  - plan-v1-roadmap
+structure_notes:
+  - "Section order: Overview; Goals; Phases; Dependencies; Risks; Progress."
+---
+
+# Plan: Celebration Animations (Pre-v1 Candidate)
+
+## Overview
+
+Execution plan for the optional celebration animations feature listed as
+additional pre-v1 scope in the v1 roadmap. Work should begin only after scope
+is confirmed via PRD/ADR updates.
+
+## Goals
+
+- Add positive feedback moments without overwhelming the core UX.
+- Keep animations consistent with the existing design system.
+
+## Phases
+
+### Phase 1: Scope Confirmation
+
+**Status:** Not Started
+
+- [ ] Confirm scope approval in PRD/ADR updates.
+- [ ] Identify key moments that trigger celebrations.
+
+### Phase 2: Design Alignment
+
+**Status:** Not Started
+
+- [ ] Review design system guidance for motion.
+- [ ] Define animation patterns and durations.
+
+### Phase 3: Implementation & Validation
+
+**Status:** Not Started
+
+- [ ] Implement animations in target views.
+- [ ] Validate performance and accessibility impact.
+
+## Dependencies
+
+- Approved PRD/ADR updates.
+- Motion guidance in the design system.
+
+## Risks
+
+| Risk | Impact | Mitigation |
+| --- | --- | --- |
+| Animations distract from core flow | M | Keep animations subtle and optional. |
+| Performance impacts on older devices | M | Profile animations during testing. |
+
+## Progress
+
+| Date | Update |
+| --- | --- |
+| 2026-01-20 | Plan created from v1 roadmap split. |
