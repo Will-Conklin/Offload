@@ -59,11 +59,11 @@ draft → active → deprecated
 
 - [Test Runtime Baselines](./testing/reference-test-runtime-baselines.md)
 - [CI Path Filters and Lane Triggers](./ci/reference-ci-path-filters.md)
+- [Context-Aware CI Pipeline](./ci/reference-context-aware-ci-pipeline.md)
 - [Persistent Bottom Tab Bar](./reference-persistent-bottom-tab-bar.md)
-- [Convert Plans and Lists](./reference-convert-plans-lists.md)
-- [Drag and Drop Ordering](./reference-drag-drop-ordering.md)
+- [Convert Plans ↔ Lists](./reference-convert-plans-lists.md)
+- [Drag & Drop Ordering](./reference-drag-drop-ordering.md)
 - [Item Search by Text or Tag](./reference-item-search-tags.md)
-- [Context-Aware CI Pipeline](./reference-context-aware-ci-pipeline.md)
 
 ## Template
 

@@ -12,42 +12,48 @@ related:
   - design-drag-drop-ordering
   - plan-drag-drop-ordering
   - adr-0005-collection-ordering-and-hierarchy-persistence
-  - adr-0003-adhd-focused-ux-ui-guardrails
 structure_notes:
   - "Section order: Definition; Schema; Invariants; Examples."
 ---
 
-# Drag and Drop Ordering
+# Drag & Drop Ordering
 
 ## Definition
 
-Items in lists and plans can be reordered via drag and drop. Structured plans
-support nesting by dragging an item onto another item to create a parent-child
-relationship.
+Drag-and-drop ordering for list and plan items, including hierarchical nesting
+for structured collections. This reference formalizes the contracts defined in
+the [Drag & Drop Ordering PRD](../prds/prd-0004-drag-drop-ordering.md),
+[design doc](../design/design-drag-drop-ordering.md), and
+[implementation plan](../plans/plan-drag-drop-ordering.md).
 
 ## Schema
 
-### CollectionItem Ordering
+### Ordering Fields
 
-| Field | Type | Meaning |
+| Field | Owner | Purpose |
 | --- | --- | --- |
-| `CollectionItem.position` | Int | Persistent ordering within a collection. |
-| `CollectionItem.parentId` | UUID? | Parent relationship for nested plan items. |
+| `CollectionItem.position` | Repository | Persistent ordering within a collection. |
+| `CollectionItem.parentId` | Repository | Optional parent relationship for plan hierarchy. |
 
-### Collapse State
+### Interaction Types
 
-| Field | Type | Meaning |
+| Interaction | Collection Type | Result |
 | --- | --- | --- |
-| `collapseState` | Session-only | Whether a parent shows or hides its children. |
+| Reorder within list | List | Update `position` values for items. |
+| Reorder within plan | Plan | Update `position` values for siblings. |
+| Drop onto item | Plan | Set `parentId` to target item and update positions. |
 
 ## Invariants
 
-- Reordering updates `CollectionItem.position` and persists the new order.
-- Nesting updates `parentId` and is allowed only in structured collections.
-- Drag operations stay within a single collection (no cross-collection moves).
-- Collapse state is session-scoped and is not persisted.
+- Ordering changes persist via `CollectionItem.position`.
+- Plan nesting changes persist via `CollectionItem.parentId`.
+- Unstructured lists display items ordered by `position`.
+- Collapse/expand state is session-only and does not persist.
+- Hierarchy and ordering rules align with
+  [ADR-0005](../adrs/adr-0005-collection-ordering-and-hierarchy-persistence.md).
 
 ## Examples
 
-- Reordering a list item updates its position and survives relaunch.
-- Dragging a plan item onto another makes it a child and indents it in the list.
+- Dragging a list item between two items updates its `position` and persists.
+- Dropping a plan item onto another assigns its `parentId` to the target item.
+- Collapsing a parent hides child items until the session state changes.

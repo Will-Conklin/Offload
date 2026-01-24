@@ -12,46 +12,55 @@ related:
   - design-convert-plans-lists
   - plan-convert-plans-lists
   - adr-0005-collection-ordering-and-hierarchy-persistence
-  - adr-0002-terminology-alignment-for-capture-and-organization
 structure_notes:
   - "Section order: Definition; Schema; Invariants; Examples."
 ---
 
-# Convert Plans and Lists
+# Convert Plans ↔ Lists
 
 ## Definition
 
-Collections can be converted between plans (structured) and lists
-(unstructured) while preserving the collection and its items. Plan-to-list
-conversions require a warning because hierarchy is flattened.
+A collection-level conversion action that toggles a collection between plan and
+list behavior while preserving items. This reference consolidates the contracts
+from the [Convert Plans ↔ Lists PRD](../prds/prd-0003-convert-plans-lists.md),
+[design doc](../design/design-convert-plans-lists.md), and
+[implementation plan](../plans/plan-convert-plans-lists.md).
 
 ## Schema
 
-### Collection Structure
+### Collection Types
 
-| Field | Type | Meaning |
+| Type | `Collection.isStructured` | Behavior |
 | --- | --- | --- |
-| `Collection.isStructured` | Bool | `true` for plans, `false` for lists. |
+| List | `false` | Flat ordering by `CollectionItem.position`. |
+| Plan | `true` | Hierarchy via `CollectionItem.parentId`. |
 
-### CollectionItem Ordering
+### Conversion Actions
 
-| Field | Type | Meaning |
+| Action | Entry Point | Warning Required |
 | --- | --- | --- |
-| `CollectionItem.position` | Int | Deterministic ordering within a collection. |
-| `CollectionItem.parentId` | UUID? | Parent relationship for structured plans. |
+| Plan → List | Collection context menu | Yes |
+| List → Plan | Collection context menu | No |
+
+### Conversion Effects
+
+| Conversion | `isStructured` | `parentId` | Ordering |
+| --- | --- | --- | --- |
+| Plan → List | `false` | Cleared for all items | Persist depth-first order in `position`. |
+| List → Plan | `true` | Unchanged (remains nil) | Preserve current list order in `position`. |
 
 ## Invariants
 
-- Conversion does not create a new collection; it updates the existing one.
-- Items remain attached to the collection after conversion.
-- Plan-to-list conversion clears all `parentId` values and preserves ordering
-  via `position`.
-- List-to-plan conversion sets `isStructured = true` and preserves the current
-  item ordering.
-- A confirmation warning is required only for plan-to-list conversion.
+- Conversion preserves all items and their association to the collection.
+- Plan → list conversion requires a confirmation warning about hierarchy loss.
+- Plan → list conversion clears all `parentId` values.
+- Ordering is preserved deterministically via `CollectionItem.position`.
+- Collection hierarchy and ordering rules follow
+  [ADR-0005](../adrs/adr-0005-collection-ordering-and-hierarchy-persistence.md).
 
 ## Examples
 
-- A plan with nested items converts to a flat list with the same items in a
-  deterministic order.
-- A list converts to a plan without losing item order.
+- A plan with nested items converted to a list results in a flat list ordered by
+  a depth-first traversal of the plan hierarchy.
+- A list converted to a plan retains the existing order and has no nested items
+  until the user adds hierarchy.
