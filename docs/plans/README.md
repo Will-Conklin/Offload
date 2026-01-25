@@ -6,7 +6,7 @@ owners:
   - Offload
 applies_to:
   - Offload
-last_updated: 2026-01-22
+last_updated: 2026-01-25
 related:
   - plan-roadmap
 structure_notes:
@@ -30,15 +30,16 @@ introduce requirements, decisions, or architecture changes.
 ## Lifecycle
 
 ```text
-draft → active → completed | archived
+proposed → accepted → in-progress → completed → archived
 ```
 
-| Status      | Meaning                                         |
-| ----------- | ----------------------------------------------- |
-| `draft`     | Plan being developed, not yet approved          |
-| `active`    | Approved and in execution                       |
-| `completed` | All work finished successfully                  |
-| `archived`  | Superseded, abandoned, or no longer relevant    |
+| Status         | Meaning                                      |
+| -------------- | -------------------------------------------- |
+| `proposed`     | Plan drafted, not yet approved               |
+| `accepted`     | Approved and ready to start                  |
+| `in-progress`  | Work underway                                |
+| `completed`    | All work finished successfully               |
+| `archived`     | Superseded, abandoned, or no longer relevant |
 
 ## What belongs here
 
@@ -87,7 +88,7 @@ All other plans have been archived to `_archived/`. See
 ---
 id: plan-{feature-name}
 type: plan
-status: active
+status: proposed
 owners:
   - {name}
 applies_to:

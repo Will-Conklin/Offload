@@ -1,12 +1,12 @@
 ---
 id: research-readme
 type: research
-status: informational
+status: active
 owners:
   - Offload
 applies_to:
   - Offload
-last_updated: 2026-01-04
+last_updated: 2026-01-25
 related:
   - research-adhd-ux-ui
   - research-color-palettes
@@ -36,14 +36,13 @@ Lowest authority. Research is non-authoritative and must not define requirements
 ## Lifecycle
 
 ```text
-in-progress → informational → stale
+active → completed
 ```
 
-| Status          | Meaning                                      |
-| --------------- | -------------------------------------------- |
-| `in-progress`   | Research actively being conducted            |
-| `informational` | Complete, available for reference            |
-| `stale`         | Outdated, may no longer reflect reality      |
+| Status      | Meaning                                      |
+| ----------- | -------------------------------------------- |
+| `active`    | Research actively being conducted            |
+| `completed` | Complete, available for reference            |
 
 ## What belongs here
 
@@ -73,7 +72,7 @@ in-progress → informational → stale
 ---
 id: research-{topic}
 type: research
-status: informational
+status: active
 owners:
   - {name}
 applies_to:

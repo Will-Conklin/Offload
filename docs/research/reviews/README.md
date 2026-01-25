@@ -1,12 +1,12 @@
 ---
 id: research-reviews-readme
 type: research
-status: informational
+status: active
 owners:
   - Offload
 applies_to:
   - reviews
-last_updated: 2026-01-20
+last_updated: 2026-01-25
 related:
   - research-2026-01-04-main-branch-review
 structure_notes:

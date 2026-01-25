@@ -13,6 +13,9 @@ sections:
       - id: docs-agents
         title: Documentation Agent Guide — Offload
         path: AGENTS.md
+      - id: reference-agents
+        title: Reference Agent Guide
+        path: reference/AGENTS.md
       - id: reference-readme
         title: Reference
         path: reference/README.md
@@ -41,6 +44,9 @@ sections:
     title: Architecture Decisions
     description: Architecture and product decisions with rationale.
     documents:
+      - id: adrs-agents
+        title: ADR Agent Guide
+        path: adrs/AGENTS.md
       - id: adrs-readme
         title: ADRs
         path: adrs/README.md
@@ -69,6 +75,9 @@ sections:
     title: Product Requirements
     description: Product requirements, scope, goals, and success metrics.
     documents:
+      - id: prds-agents
+        title: PRD Agent Guide
+        path: prds/AGENTS.md
       - id: prds-readme
         title: PRDs
         path: prds/README.md
@@ -115,6 +124,9 @@ sections:
     title: Design
     description: Technical design and implementation guidance.
     documents:
+      - id: design-agents
+        title: Design Agent Guide
+        path: design/AGENTS.md
       - id: design-readme
         title: Design
         path: design/README.md
@@ -152,6 +164,9 @@ sections:
     title: Implementation Plans
     description: Sequencing, milestones, execution strategy.
     documents:
+      - id: plans-agents
+        title: Plans Agent Guide
+        path: plans/AGENTS.md
       - id: plans-readme
         title: Plans
         path: plans/README.md
@@ -254,10 +269,23 @@ sections:
         title: View Decomposition Plan
         path: plans/_archived/plan-archived-view-decomposition.md
         archived: true
+  - id: discovery
+    title: Discovery
+    description: Early feature discovery and context gathering.
+    documents:
+      - id: discovery-agents
+        title: Discovery Agent Guide
+        path: discovery/AGENTS.md
+      - id: discovery-readme
+        title: Discovery
+        path: discovery/README.md
   - id: research
     title: Research
     description: Exploratory work, spikes, benchmarks, reviews.
     documents:
+      - id: research-agents
+        title: Research Agent Guide
+        path: research/AGENTS.md
       - id: research-readme
         title: Research
         path: research/README.md

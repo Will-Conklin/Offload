@@ -1,12 +1,12 @@
 ---
 id: prds-readme
 type: product-requirements
-status: active
+status: accepted
 owners:
   - Offload
 applies_to:
   - product
-last_updated: 2026-01-17
+last_updated: 2026-01-25
 related:
   - prd-0001-product-requirements
 depends_on: []
@@ -32,17 +32,15 @@ Below reference and adrs. PRDs define WHAT the product must do; they cannot intr
 ## Lifecycle
 
 ```text
-proposed → draft → review → accepted → active → deprecated
+proposed → accepted → implemented → archived
 ```
 
-| Status       | Meaning                                           |
-| ------------ | ------------------------------------------------- |
-| `proposed`   | Initial idea, not yet fully scoped or reviewed    |
-| `draft`      | Being written, not yet ready for review           |
-| `review`     | Under stakeholder review                          |
-| `accepted`   | Approved for implementation                       |
-| `active`     | Implemented and authoritative                     |
-| `deprecated` | Superseded or no longer applicable                |
+| Status         | Meaning                                           |
+| -------------- | ------------------------------------------------- |
+| `proposed`     | Initial idea, not yet fully scoped or reviewed    |
+| `accepted`     | Approved for implementation                       |
+| `implemented`  | Delivered and authoritative                       |
+| `archived`     | Superseded or no longer applicable                |
 
 ## What belongs here
 
