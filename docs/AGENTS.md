@@ -47,6 +47,7 @@ Agents must not infer authority from prose, chronology, or filenames.
 **Purpose**: Define contracts, schemas, APIs, terminology, and invariants that code must follow.
 
 **Contains**:
+
 - API contracts and endpoint definitions
 - Data schemas and model specifications
 - Type definitions and interfaces
@@ -55,24 +56,28 @@ Agents must not infer authority from prose, chronology, or filenames.
 - Configuration contracts
 
 **When to create**:
+
 - During implementation when contracts are finalized
 - After API endpoints are stabilized
 - When schemas/models are established
 - As terminology becomes standardized
 
 **Lifecycle**:
+
 - Created during/after implementation at appropriate points
 - Updated when contracts change (with versioning)
 - NEVER deleted (deprecate and version instead)
 - Must remain synchronized with actual implementation
 
 **Format expectations**:
+
 - No rationale or narrative (factual only)
 - Machine-readable where possible (JSON Schema, OpenAPI, etc.)
 - Clear versioning for breaking changes
 - Examples of valid usage
 
 **Boundaries**:
+
 - Does NOT include "why" decisions were made (see ADRs)
 - Does NOT include implementation details (see design docs)
 - Does NOT include feature requirements (see PRDs)
@@ -84,6 +89,7 @@ Agents must not infer authority from prose, chronology, or filenames.
 **Purpose**: Document significant architectural and product decisions with rationale (WHY).
 
 **Contains**:
+
 - Technology choices (frameworks, libraries, tools)
 - Architectural patterns and approaches
 - Product direction decisions
@@ -92,6 +98,7 @@ Agents must not infer authority from prose, chronology, or filenames.
 - Alternatives considered and rejected
 
 **When to create**:
+
 - Before making significant architectural choices
 - When choosing between multiple valid approaches
 - When decisions impact multiple features or systems
@@ -99,18 +106,21 @@ Agents must not infer authority from prose, chronology, or filenames.
 - ONLY when actual decisions need to be made (not required for every feature)
 
 **Lifecycle**:
+
 - Created after research phase, before design phase
 - Status: proposed → accepted → superseded/deprecated
 - NEVER deleted (preserve historical decisions)
 - Supersede with new ADRs when decisions change
 
 **Format expectations**:
+
 - Standard ADR format: Context, Decision, Consequences
 - Include alternatives considered
 - Document trade-offs explicitly
 - Link to related ADRs, PRDs, and research
 
 **Boundaries**:
+
 - Does NOT define requirements (see PRDs)
 - Does NOT include implementation steps (see design docs or plans)
 - Does NOT replace reference docs (contracts live in reference/)
@@ -122,6 +132,7 @@ Agents must not infer authority from prose, chronology, or filenames.
 **Purpose**: Define product requirements, scope, and success criteria (WHAT).
 
 **Contains**:
+
 - Feature requirements and scope
 - User needs and problems being solved
 - Success criteria and metrics
@@ -130,18 +141,21 @@ Agents must not infer authority from prose, chronology, or filenames.
 - Non-functional requirements
 
 **When to create**:
+
 - After initial discovery phase
 - Before design work begins
 - When defining new features or major enhancements
 - When scope needs formal definition
 
 **Lifecycle**:
+
 - Created after discovery, before ADRs/design
 - Status: draft → accepted → implemented/archived
 - Updated when requirements change significantly
 - Archived when implementation is complete
 
 **Format expectations**:
+
 - Clear problem statement
 - User-focused requirements (not implementation details)
 - Measurable success criteria
@@ -149,6 +163,7 @@ Agents must not infer authority from prose, chronology, or filenames.
 - Links to discovery docs that informed requirements
 
 **Boundaries**:
+
 - Does NOT include technical decisions (see ADRs)
 - Does NOT include implementation approach (see design docs)
 - Does NOT include execution strategy (see plans)
@@ -161,6 +176,7 @@ Agents must not infer authority from prose, chronology, or filenames.
 **Purpose**: Document technical architecture and implementation approach (HOW).
 
 **Contains**:
+
 - System architecture diagrams
 - Component structure and relationships
 - Data flow and state management
@@ -169,18 +185,21 @@ Agents must not infer authority from prose, chronology, or filenames.
 - Implementation approach
 
 **When to create**:
+
 - After PRDs and ADRs are accepted
 - Before creating implementation plans
 - When technical approach needs documentation
 - For complex features requiring architectural clarity
 
 **Lifecycle**:
+
 - Created after ADRs, before plans
 - Must not contradict ADRs or PRDs
 - Updated when implementation approach changes
 - Archived when implementation is complete
 
 **Format expectations**:
+
 - Architecture diagrams (Mermaid preferred)
 - Component breakdown
 - Data models and relationships
@@ -188,6 +207,7 @@ Agents must not infer authority from prose, chronology, or filenames.
 - Links to related ADRs and PRDs
 
 **Boundaries**:
+
 - Does NOT make architectural decisions (see ADRs)
 - Does NOT define requirements (see PRDs)
 - Does NOT include execution sequencing (see plans)
@@ -200,6 +220,7 @@ Agents must not infer authority from prose, chronology, or filenames.
 **Purpose**: Define execution sequencing, milestones, and task breakdown (WHEN).
 
 **Contains**:
+
 - Task breakdown and dependencies
 - Implementation phases and milestones
 - Work sequencing and order
@@ -208,12 +229,14 @@ Agents must not infer authority from prose, chronology, or filenames.
 - Testing and validation approach
 
 **When to create**:
+
 - After PRDs, ADRs, and design docs are accepted
 - Before implementation begins
 - When execution strategy needs coordination
 - For tracking progress on complex features
 
 **Lifecycle**:
+
 - Created after design docs, before implementation
 - Status: draft → accepted → in-progress → completed
 - Updated as implementation progresses
@@ -221,12 +244,14 @@ Agents must not infer authority from prose, chronology, or filenames.
 - Completed plans moved to `docs/plans/_archived/`
 
 **Format expectations**:
+
 - Ordered task list with dependencies
 - Clear phases/milestones
 - Links to GitHub issues for tracking
 - References to design docs and PRDs
 
 **Boundaries**:
+
 - Does NOT introduce new requirements (see PRDs)
 - Does NOT make architectural decisions (see ADRs)
 - Does NOT define technical approach (see design docs)
@@ -239,6 +264,7 @@ Agents must not infer authority from prose, chronology, or filenames.
 **Purpose**: Explore feature possibilities and gather context before formal requirements (NON-AUTHORITATIVE).
 
 **Contains**:
+
 - Initial feature exploration
 - Problem space investigation
 - User need discovery
@@ -247,24 +273,28 @@ Agents must not infer authority from prose, chronology, or filenames.
 - Open questions and uncertainties
 
 **When to create**:
+
 - At the very beginning of feature exploration
 - Before PRD creation
 - When problem space is unclear
 - When feasibility is uncertain
 
 **Lifecycle**:
+
 - Created first, before PRDs
 - Status: active → completed/abandoned
 - NON-AUTHORITATIVE (never treated as requirements)
 - Archived or deleted after PRD creation
 
 **Format expectations**:
+
 - Exploratory and informal
 - Questions and hypotheses
 - Preliminary findings
 - Links to research that may follow
 
 **Boundaries**:
+
 - Does NOT define requirements (see PRDs)
 - Does NOT make decisions (see ADRs)
 - Does NOT replace formal research (see research/)
@@ -277,6 +307,7 @@ Agents must not infer authority from prose, chronology, or filenames.
 **Purpose**: Document spikes, experiments, and benchmarks to inform decisions (NON-AUTHORITATIVE).
 
 **Contains**:
+
 - Technical spikes and experiments
 - Performance benchmarks
 - Library/tool evaluations
@@ -285,24 +316,28 @@ Agents must not infer authority from prose, chronology, or filenames.
 - Data to inform ADRs
 
 **When to create**:
+
 - After PRD, before ADRs
 - When decisions need data/evidence
 - When exploring technical unknowns
 - When validating approaches
 
 **Lifecycle**:
+
 - Created as needed to inform decisions
 - Status: active → completed
 - NON-AUTHORITATIVE (never treated as source of truth)
 - Archived after informing ADRs/design docs
 
 **Format expectations**:
+
 - Experimental and data-driven
 - Clear methodology
 - Findings and conclusions
 - Links to ADRs or design docs informed by research
 
 **Boundaries**:
+
 - Does NOT define requirements (see PRDs)
 - Does NOT make decisions (see ADRs)
 - Does NOT replace initial discovery (see discovery/)
@@ -382,6 +417,7 @@ All docs under `docs/` MUST include a short metadata block immediately after the
 YAML front-matter, written for agents and NOT for non-agent automation.
 
 **Required fields:**
+
 - Status: draft | accepted | superseded | archived
 - Owner: @handle or team
 - Depends on: list of doc paths (or "none")
@@ -400,6 +436,7 @@ Accepted at: n/a
 Related issues/PRs: #123
 
 **Rules:**
+
 - Accepted docs must record "Accepted by/at"; changing accepted docs requires
   explicit user approval and an updated metadata block.
 - Non-agent automation must not parse this block; agents may use it for clarity
