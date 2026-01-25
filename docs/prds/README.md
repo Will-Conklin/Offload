@@ -32,7 +32,7 @@ Below reference and adrs. PRDs define WHAT the product must do; they cannot intr
 ## Lifecycle
 
 ```text
-proposed → draft → review → active → deprecated
+proposed → draft → review → accepted → active → deprecated
 ```
 
 | Status       | Meaning                                           |
@@ -40,7 +40,8 @@ proposed → draft → review → active → deprecated
 | `proposed`   | Initial idea, not yet fully scoped or reviewed    |
 | `draft`      | Being written, not yet ready for review           |
 | `review`     | Under stakeholder review                          |
-| `active`     | Approved and authoritative                        |
+| `accepted`   | Approved for implementation                       |
+| `active`     | Implemented and authoritative                     |
 | `deprecated` | Superseded or no longer applicable                |
 
 ## What belongs here
@@ -75,6 +76,12 @@ applies_to:
 last_updated: YYYY-MM-DD
 related:
   - adr-0001-{decision-title}
+depends_on:
+  - docs/adrs/adr-0001-{decision-title}.md
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: 1. Product overview; 2. Problem statement; 3. Product goals; 4. Non-goals (explicit); 5. Target audience; 6. Success metrics (30-day post-launch); 7. Core user flows; 8. Functional requirements; 9. Pricing & limits (hybrid model); 10. AI & backend requirements; 11. Data model; 12. UX & tone requirements; 13. Risks & mitigations; 14. Implementation tracking; 15. Open decisions (tracked); 16. Revision history."
 ---

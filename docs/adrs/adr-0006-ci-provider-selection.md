@@ -12,6 +12,12 @@ applies_to:
 last_updated: 2026-01-22
 related:
   - prd-0006-context-aware-ci-pipeline
+depends_on:
+  - docs/prds/prd-0006-context-aware-ci-pipeline.md
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Context; Decision; Consequences; Alternatives Considered; Implementation Notes; References; Revision History."
 decision-date: 2026-01-21

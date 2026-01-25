@@ -13,6 +13,12 @@ last_updated: 2026-01-22
 related:
   - prd-0006-context-aware-ci-pipeline
   - adr-0006-ci-provider-selection
+depends_on:
+  - docs/prds/prd-0006-context-aware-ci-pipeline.md
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Context; Decision; Consequences; Alternatives Considered; Implementation Notes; References; Revision History."
 decision-date: 2026-01-21

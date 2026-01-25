@@ -14,6 +14,11 @@ applies_to:
   - guardrails
 last_updated: 2026-01-22
 related: []
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Context; Decision; Consequences; Alternatives Considered; Implementation Notes; References; Revision History."
   - "Keep top-level sections: Context; Decision; Consequences; Alternatives Considered; Implementation Notes; References; Revision History."
