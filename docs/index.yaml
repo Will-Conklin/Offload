@@ -28,6 +28,9 @@ sections:
       - id: reference-context-aware-ci-pipeline
         title: Context-Aware CI Pipeline
         path: reference/ci/reference-context-aware-ci-pipeline.md
+      - id: reference-frontmatter-schema
+        title: Frontmatter Schema Reference
+        path: reference/reference-frontmatter-schema.md
       - id: reference-test-runtime-baselines
         title: Test Runtime Baselines
         path: reference/testing/reference-test-runtime-baselines.md
@@ -40,6 +43,9 @@ sections:
       - id: reference-drag-drop-ordering
         title: Drag & Drop Ordering
         path: reference/reference-drag-drop-ordering.md
+      - id: reference-item-search-tags
+        title: Item Search by Text or Tag
+        path: reference/reference-item-search-tags.md
   - id: adrs
     title: Architecture Decisions
     description: Architecture and product decisions with rationale.
@@ -214,7 +220,8 @@ sections:
         archived: true
       - id: plan-roadmap
         title: Offload Roadmap
-        path: plans/plan-roadmap.md
+        path: plans/_archived/plan-roadmap.md
+        archived: true
       - id: plan-testing-polish
         title: "Plan: Testing & Polish"
         path: plans/plan-testing-polish.md
