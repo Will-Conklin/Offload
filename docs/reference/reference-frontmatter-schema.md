@@ -137,6 +137,7 @@ applies_to:
 ```
 
 **Examples:**
+
 ```yaml
 # docs/adrs/AGENTS.md
 applies_to:
@@ -157,6 +158,7 @@ applies_to:
 ```
 
 **Examples:**
+
 ```yaml
 # ADR about iOS architecture
 applies_to:
@@ -176,6 +178,7 @@ applies_to:
 ```
 
 **Common subject tags:**
+
 - `architecture`, `ios`, `backend`, `data-model`
 - `product`, `capture`, `organize`, `navigation`
 - `ui`, `ux`, `adhd`, `accessibility`
@@ -183,6 +186,7 @@ applies_to:
 - `agents`, `documentation`, `reference`
 
 **Rules:**
+
 - NEVER use owner names here (use `owners` field)
 - Use lowercase, kebab-case for multi-word tags
 - Choose descriptive, searchable tags
@@ -221,6 +225,7 @@ applies_to:
 - **Purpose:** Agent guidance for document structure
 - **Format:** Free-form strings describing section order
 - **Examples:**
+
   ```yaml
   structure_notes:
     - "Section order: Context; Decision; Consequences; Alternatives; References; Revision History."
