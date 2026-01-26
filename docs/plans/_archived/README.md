@@ -19,6 +19,11 @@ related:
   - plan-archived-repository-pattern-consistency
   - plan-archived-tag-relationship-refactor
   - plan-archived-view-decomposition
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Naming."
   - "Keep top-level sections: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Naming."

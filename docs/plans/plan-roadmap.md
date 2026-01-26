@@ -18,10 +18,15 @@ related:
   - plan-ai-organization-flows
   - plan-ai-pricing-limits
   - plan-backend-api-privacy
-priority: critical
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Single source of truth for launch planning"
   - "Supersedes plan-archived-master-plan.md"
+priority: critical
 ---
 
 # Offload Roadmap

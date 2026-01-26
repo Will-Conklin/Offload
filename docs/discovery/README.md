@@ -8,6 +8,11 @@ applies_to:
   - discovery
 last_updated: 2026-01-25
 related: []
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Naming."
   - "Keep top-level sections: Purpose; Authority; Lifecycle; What belongs here; What does not belong here; Canonical documents; Naming."

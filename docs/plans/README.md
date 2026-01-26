@@ -9,6 +9,11 @@ applies_to:
 last_updated: 2026-01-25
 related:
   - plan-roadmap
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Purpose; Authority; Lifecycle; What belongs here; What does
     not belong here; Canonical documents; Template; Naming."
@@ -30,7 +35,7 @@ introduce requirements, decisions, or architecture changes.
 ## Lifecycle
 
 ```text
-proposed → accepted → in-progress → completed → archived
+proposed → accepted → in-progress → completed/archived
 ```
 
 | Status         | Meaning                                      |
@@ -56,18 +61,23 @@ proposed → accepted → in-progress → completed → archived
 
 ## Canonical documents
 
-### Active
+### In Progress
 
-- [Offload Roadmap](./plan-roadmap.md) - Single source of truth for launch
 - [Plan: Testing & Polish](./plan-testing-polish.md)
 - [Plan: Release Prep](./plan-release-prep.md)
 
-### Draft (Pre-launch Candidates)
+### Accepted
 
+- [Offload Roadmap](./plan-roadmap.md) - Single source of truth for launch
 - [Plan: Persistent Bottom Tab Bar](./plan-persistent-bottom-tab-bar.md)
 - [Plan: Convert Plans and Lists](./plan-convert-plans-lists.md)
 - [Plan: Drag and Drop Ordering](./plan-drag-drop-ordering.md)
 - [Plan: Item Search by Text or Tag](./plan-item-search-tags.md)
+- [Plan: Logging Implementation](./plan-logging-implementation.md)
+- [Plan: Context-Aware CI Pipeline](./plan-context-aware-ci-pipeline.md)
+
+### Proposed (Pre-launch Candidates)
+
 - [Plan: Tag Relationship Refactor](./plan-tag-relationship-refactor.md)
 - [Plan: View Decomposition](./plan-view-decomposition.md)
 - [Plan: Visual Timeline](./plan-visual-timeline.md)
@@ -96,6 +106,11 @@ applies_to:
 last_updated: YYYY-MM-DD
 related:
   - prd-0001-{feature-name}
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Overview; Goals; Phases; Dependencies; Risks; Progress."
 ---

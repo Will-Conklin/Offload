@@ -8,6 +8,11 @@ applies_to:
   - Offload
 last_updated: 2026-01-22
 related: []
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Overview; Goals; Phases; Dependencies; Risks; Progress."
 ---

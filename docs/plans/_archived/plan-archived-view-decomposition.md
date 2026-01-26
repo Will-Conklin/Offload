@@ -1,7 +1,7 @@
 ---
 id: plan-view-decomposition
 type: plan
-status: active
+status: archived
 owners:
   - Offload
 applies_to:
@@ -9,6 +9,11 @@ applies_to:
   - decomposition
 last_updated: 2026-01-17
 related: []
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Overview; Problem Statement; Current State; Proposed Solution; Implementation Steps; Shared Components; Testing Strategy; Success Criteria; Next Steps; Related Documents."
   - "Keep the top-level section outline intact."

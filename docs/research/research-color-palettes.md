@@ -11,6 +11,11 @@ last_updated: 2026-01-17
 related:
   - research-adhd-ux-ui
   - adr-0003-adhd-focused-ux-ui-guardrails
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Option 1: Calm Focus (Light); Option 2: Warm Minimal (Light); Option 3: Cool Clarity (Light); Option 4: Dark Focus (Dark Mode); Usage Guidance."
   - "Keep top-level sections: Option 1: Calm Focus (Light); Option 2: Warm Minimal (Light); Option 3: Cool Clarity (Light); Option 4: Dark Focus (Dark Mode); Usage Guidance."

@@ -1,7 +1,7 @@
 ---
 id: plan-release-prep
 type: plan
-status: active
+status: in-progress
 owners:
   - Offload
 applies_to:
@@ -10,6 +10,11 @@ last_updated: 2026-01-20
 related:
   - plan-roadmap
   - plan-testing-polish
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Overview; Goals; Phases; Dependencies; Risks; Progress."
 ---

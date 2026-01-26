@@ -12,6 +12,11 @@ last_updated: 2026-01-17
 related:
   - prd-0001-product-requirements
   - adr-0003-adhd-focused-ux-ui-guardrails
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Executive Summary; Research Findings: 2025-2026 iOS Trends; Current State Analysis: Offload; Recommendations for Offload; Maintaining ADHD-Friendly Design; Testing & Validation; Sources & References; Appendix: Code Snippets."
   - "Keep the top-level section outline intact."

@@ -10,6 +10,11 @@ applies_to:
 last_updated: 2026-01-25
 related:
   - docs-agents
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Scope; Purpose; Contains; When to create; Lifecycle; Format expectations; Boundaries."
 ---

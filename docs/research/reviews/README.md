@@ -9,6 +9,11 @@ applies_to:
 last_updated: 2026-01-25
 related:
   - research-2026-01-04-main-branch-review
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Naming."
   - "Keep top-level sections: Purpose; Authority; What belongs here; What does not belong here; Canonical documents; Naming."

@@ -8,6 +8,11 @@ applies_to:
   - agents
 last_updated: 2026-01-25
 related: []
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Agent guidance only."
   - "Top-level section order: Scope; Documentation Authority Model (MANDATORY); Directory-Level Agent Guides; Documentation Safety Rules; Structural Rules; Documentation Workflow Dependencies; Expected Agent Behavior."

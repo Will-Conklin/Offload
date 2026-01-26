@@ -12,6 +12,11 @@ last_updated: 2026-01-17
 related:
   - prd-0001-product-requirements
   - adr-0003-adhd-focused-ux-ui-guardrails
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Research Highlights; Visual and Color Guidance; Navigation and Information Architecture; Interaction Patterns; Content and Microcopy; Accessibility Considerations; Recommendations for Offload."
   - "Keep the top-level section outline intact."

@@ -14,6 +14,11 @@ related:
   - research-adhd-ux-ui
   - research-ios-ui-trends-2025
   - adr-0003-adhd-focused-ux-ui-guardrails
+depends_on: []
+supersedes: []
+accepted_by: null
+accepted_at: null
+related_issues: []
 structure_notes:
   - "Section order: Executive Summary; Current Color Scheme Analysis; Design Principles for Alternatives; Alternative Color Schemes; Comparison Matrix; ADHD-Friendliness Assessment; Recommendations; Accessibility Validation Checklist; Conclusion."
   - "Keep the top-level section outline intact."
