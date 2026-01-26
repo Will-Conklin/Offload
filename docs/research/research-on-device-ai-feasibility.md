@@ -6,7 +6,7 @@ owners:
   - Will-Conklin
 applies_to:
   - ai
-  - Will-Conklin
+  - research
 last_updated: 2026-01-25
 related:
   - prd-0001-product-requirements

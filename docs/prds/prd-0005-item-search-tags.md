@@ -5,7 +5,9 @@ status: proposed
 owners:
   - Will-Conklin
 applies_to:
-  - Will-Conklin
+  - product
+  - organize
+  - search
 last_updated: 2026-01-22
 related:
   - adr-0003-adhd-focused-ux-ui-guardrails

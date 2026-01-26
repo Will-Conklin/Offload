@@ -6,7 +6,7 @@ owners:
   - Will-Conklin
 applies_to:
   - agents
-  - Will-Conklin
+  - design
 last_updated: 2026-01-25
 related:
   - docs-agents

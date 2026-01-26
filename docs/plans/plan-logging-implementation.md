@@ -5,7 +5,7 @@ status: accepted
 owners:
   - Will-Conklin
 applies_to:
-  - Will-Conklin
+  - plans
 last_updated: 2026-01-22
 related: []
 depends_on: []

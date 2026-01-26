@@ -5,7 +5,9 @@ status: active
 owners:
   - Will-Conklin
 applies_to:
-  - Will-Conklin
+  - product
+  - capture
+  - organize
 last_updated: 2026-01-20
 related:
   - adr-0001-technology-stack-and-architecture

@@ -93,13 +93,10 @@ If ambiguity remains:
 ## Structural Rules
 
 - One document = one intent
-- Every document MUST include YAML front-matter
-- Front-matter format MUST include: `id`, `type`, `status`, `owners`, `applies_to`, `last_updated`, `related`, `structure_notes`
-- Front-matter is for agent parsing only; non-agent automation must not parse or depend on it
-- Document metadata must live only in YAML front-matter; do not add metadata blocks to the body
+- Every document MUST include YAML frontmatter (see [Frontmatter Schema Reference](reference/reference-frontmatter-schema.md))
+- Frontmatter is for agent parsing only; non-agent automation must not parse or depend on it
+- Document metadata must live only in YAML frontmatter; do not add metadata blocks to the body
 - AGENTS.md files provide agent guidance; README.md files are informational for users
-- Additional front-matter keys MAY be used when required by a doc type (for example: `decision-date`, `decision-makers` for ADRs).
-- `structure_notes` are agent guidance for section order and navigation
 - Use stable document IDs
 - Prefer explicit links or IDs over prose references
 - When referencing other docs in body text, use Markdown links with paths (no bare IDs like `adr-0002`).

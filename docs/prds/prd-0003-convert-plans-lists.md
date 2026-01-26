@@ -5,7 +5,8 @@ status: accepted
 owners:
   - Will-Conklin
 applies_to:
-  - Will-Conklin
+  - product
+  - organize
 last_updated: 2026-01-22
 related:
   - adr-0002-terminology-alignment-for-capture-and-organization

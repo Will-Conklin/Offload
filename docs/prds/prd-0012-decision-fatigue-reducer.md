@@ -5,7 +5,9 @@ status: draft
 owners:
   - Will-Conklin
 applies_to:
-  - Will-Conklin
+  - product
+  - ai
+  - adhd
 last_updated: 2026-01-24
 related:
   - adr-0003-adhd-focused-ux-ui-guardrails

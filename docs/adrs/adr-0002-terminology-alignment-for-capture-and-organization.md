@@ -6,7 +6,7 @@ owners:
   - Will-Conklin
 applies_to:
   - terminology
-  - Will-Conklin
+  - product
   - documentation
 last_updated: 2026-01-20
 related: []

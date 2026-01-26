@@ -5,7 +5,8 @@ status: archived
 owners:
   - Will-Conklin
 applies_to:
-  - Will-Conklin
+  - plans
+  - archived
 last_updated: 2026-01-20
 related:
   - plan-archived-brain-dump-model

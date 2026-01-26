@@ -5,7 +5,7 @@ status: archived
 owners:
   - TBD
 applies_to:
-  - Will-Conklin
+  - plans
 last_updated: 2026-01-17
 related:
   - research-ios-ui-trends-2025

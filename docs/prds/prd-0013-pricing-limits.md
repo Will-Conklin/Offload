@@ -5,7 +5,9 @@ status: proposed
 owners:
   - Will-Conklin
 applies_to:
-  - Will-Conklin
+  - product
+  - ai
+  - pricing
 last_updated: 2026-01-25
 related:
   - prd-0001-product-requirements

@@ -5,7 +5,9 @@ status: accepted
 owners:
   - Will-Conklin
 applies_to:
-  - Will-Conklin
+  - product
+  - ci
+  - automation
 last_updated: 2026-01-22
 related:
   - adr-0006-ci-provider-selection
