@@ -56,7 +56,7 @@ graph LR
         DB[(SwiftData)]
     end
 
-    VIEW -->|@Query| DB
+    VIEW -->|Query| DB
     VIEW --> REPO
     VIEW --> VOICE
     REPO --> DB
