@@ -1,12 +1,12 @@
 ---
 id: plan-release-prep
 type: plan
-status: in-progress
+status: accepted
 owners:
   - Will-Conklin
 applies_to:
   - launch-release
-last_updated: 2026-01-25
+last_updated: 2026-01-26
 related:
   - plan-roadmap
   - plan-testing-polish
