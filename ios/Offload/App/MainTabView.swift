@@ -150,10 +150,9 @@ private struct FloatingTabBar: View {
         .padding(.vertical, 0)
         .background(
             ZStack {
-                // Glassmorphic background
+                // Glassmorphic background (blur comes from Material backdrop)
                 Capsule()
                     .fill(Theme.Glass.surface(colorScheme))
-                    .blur(radius: Theme.Glass.blurRadius)
 
                 // Rainbow gradient border
                 Capsule()
@@ -162,6 +161,7 @@ private struct FloatingTabBar: View {
                     .shadow(color: Color(hex: "EC4899").opacity(0.2), radius: 20)
             }
         )
+        .background(.ultraThinMaterial)
         .animation(Theme.Animations.springOvershoot, value: selectedTab)
     }
 }

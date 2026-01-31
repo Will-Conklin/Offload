@@ -177,11 +177,12 @@ struct CardSurface<Content: View>: View {
                 ZStack {
                     if let gradientIndex = gradientIndex {
                         // Vibrant glassmorphic card with gradient
-                        Theme.Glass.surface(colorScheme)
-                            .blur(radius: Theme.Glass.blurRadius)
+                        RoundedRectangle(cornerRadius: Theme.CornerRadius.xl, style: .continuous)
+                            .fill(Theme.Glass.surface(colorScheme))
 
                         Theme.Gradients.cardGradient(index: gradientIndex, colorScheme)
                             .opacity(0.15)
+                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.xl, style: .continuous))
 
                         RoundedRectangle(cornerRadius: Theme.CornerRadius.xl, style: .continuous)
                             .stroke(Theme.Glass.border(colorScheme), lineWidth: 1.5)
