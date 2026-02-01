@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-
 struct CollectionDetailView: View {
     let collectionID: UUID
 
@@ -54,6 +53,7 @@ struct CollectionDetailView: View {
                             ForEach(Array(viewModel.items.enumerated()), id: \.element.id) { index, collectionItem in
                                 if let item = collectionItem.item {
                                     ItemRow(
+                                        index: index,
                                         item: item,
                                         collectionItem: collectionItem,
                                         isStructured: collection.isStructured,
@@ -221,6 +221,7 @@ struct CollectionDetailView: View {
 // MARK: - Item Row
 
 private struct ItemRow: View {
+    let index: Int
     let item: Item
     let collectionItem: CollectionItem
     let isStructured: Bool
@@ -242,7 +243,7 @@ private struct ItemRow: View {
     }
 
     var body: some View {
-        CardSurface {
+        CardSurface(gradientIndex: index) {
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 HStack(alignment: .top, spacing: Theme.Spacing.sm) {
                     VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
@@ -293,8 +294,12 @@ private struct ItemRow: View {
                 )
             }
         }
+        .optimizedGradients()
         .contentShape(Rectangle())
-        .onTapGesture(perform: handleTap)
+        .onTapGesture {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            handleTap()
+        }
         .onAppear {
             loadLinkedCollectionName()
         }
@@ -724,8 +729,7 @@ private struct AddItemSheet: View {
         } else {
             preRecordingText = content
             _Concurrency.Task {
-                do { try await voiceService.startRecording() }
-                catch { showingPermissionAlert = true }
+                do { try await voiceService.startRecording() } catch { showingPermissionAlert = true }
             }
         }
     }
