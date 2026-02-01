@@ -253,25 +253,16 @@ private struct ItemCard: View {
 
     var body: some View {
         CardSurface(gradientIndex: index) {
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                    Text(item.content)
-                        .font(Theme.Typography.body)
-                        .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
-
-                    if let attachmentData = item.attachmentData,
-                       let uiImage = UIImage(data: attachmentData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 140)
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
-                    }
-
-                    Text(item.createdAt, format: .relative(presentation: .named))
-                        .font(Theme.Typography.timestampMono)
-                        .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
-                }
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                MCMCardContent(
+                    icon: item.itemType?.icon,
+                    title: item.content,
+                    typeLabel: item.type?.uppercased(),
+                    timestamp: item.createdAt.formatted(.relative(presentation: .named)),
+                    image: item.attachmentData.flatMap { UIImage(data: $0) },
+                    tags: item.tags,
+                    onAddTag: onAddTag
+                )
 
                 ItemActionRow(
                     tags: item.tags,

@@ -244,47 +244,16 @@ private struct ItemRow: View {
 
     var body: some View {
         CardSurface(gradientIndex: index) {
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                        Text(displayTitle)
-                            .font(Theme.Typography.body)
-                            .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
-
-                        if let attachmentData = item.attachmentData,
-                           let uiImage = UIImage(data: attachmentData) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxHeight: 140)
-                                .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
-                        }
-
-                        if let type = item.type {
-                            TypeChip(type: type)
-                        }
-                    }
-                    Spacer()
-
-                    Button {
-                        showingMenu = true
-                    } label: {
-                        IconTile(
-                            iconName: Icons.more,
-                            iconSize: 16,
-                            tileSize: 32,
-                            style: .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Item actions")
-                    .accessibilityHint("Show options for this item.")
-                    .confirmationDialog("Item Actions", isPresented: $showingMenu) {
-                        Button("Remove from Collection", role: .destructive) {
-                            onDelete()
-                        }
-                    }
-                }
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                MCMCardContent(
+                    icon: item.itemType?.icon,
+                    title: displayTitle,
+                    typeLabel: item.type?.uppercased(),
+                    timestamp: item.createdAt.formatted(.relative(presentation: .named)),
+                    image: item.attachmentData.flatMap { UIImage(data: $0) },
+                    tags: item.tags,
+                    onAddTag: onAddTag
+                )
 
                 ItemActionRow(
                     tags: item.tags,
@@ -292,6 +261,27 @@ private struct ItemRow: View {
                     onAddTag: onAddTag,
                     onToggleStar: toggleStar
                 )
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            Button {
+                showingMenu = true
+            } label: {
+                IconTile(
+                    iconName: Icons.more,
+                    iconSize: 16,
+                    tileSize: 32,
+                    style: .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                )
+            }
+            .buttonStyle(.plain)
+            .padding(Theme.Spacing.md)
+            .accessibilityLabel("Item actions")
+            .accessibilityHint("Show options for this item.")
+            .confirmationDialog("Item Actions", isPresented: $showingMenu) {
+                Button("Remove from Collection", role: .destructive) {
+                    onDelete()
+                }
             }
         }
         .optimizedGradients()
