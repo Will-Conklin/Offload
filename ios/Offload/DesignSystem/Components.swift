@@ -192,7 +192,7 @@ struct CardSurface<Content: View>: View {
                             .fill(cardFill)
                             .overlay(edgeOverlay, alignment: .leading)
                             .overlay(borderOverlay)
-                            .scanLineOverlay(opacity: 0.02, spacing: 2)
+                            .cardTexture(colorScheme)
                     }
                 }
             )

@@ -96,6 +96,74 @@ extension Theme {
                 }
             }
         }
+
+        // MARK: - MCM Textures
+
+        // MARK: Linen Overlay
+
+        /// Mid-Century Modern linen texture - diagonal crosshatch pattern
+        struct LinenOverlay: View {
+            let opacity: Double
+            @Environment(\.accessibilityReduceMotion) var reduceMotion
+
+            var body: some View {
+                if !reduceMotion {
+                    Canvas { context, size in
+                        let spacing: CGFloat = 4
+
+                        // Diagonal lines (45°)
+                        for y in stride(from: -size.width, to: size.height + size.width, by: spacing) {
+                            var path = Path()
+                            path.move(to: CGPoint(x: 0, y: y))
+                            path.addLine(to: CGPoint(x: min(size.width, y + size.width), y: max(0, y)))
+                            context.stroke(path, with: .color(.white.opacity(opacity)), lineWidth: 0.5)
+                        }
+
+                        // Diagonal lines (135°)
+                        for x in stride(from: 0, to: size.width + size.height, by: spacing) {
+                            var path = Path()
+                            path.move(to: CGPoint(x: x, y: 0))
+                            path.addLine(to: CGPoint(x: max(0, x - size.height), y: min(size.height, x)))
+                            context.stroke(path, with: .color(.white.opacity(opacity)), lineWidth: 0.5)
+                        }
+                    }
+                    .blendMode(.overlay)
+                }
+            }
+        }
+
+        // MARK: Canvas Texture
+
+        /// Mid-Century Modern canvas texture - woven grid pattern
+        struct CanvasTexture: View {
+            let opacity: Double
+            @Environment(\.accessibilityReduceMotion) var reduceMotion
+
+            var body: some View {
+                if !reduceMotion {
+                    Canvas { context, size in
+                        let gridSize: CGFloat = 8
+
+                        // Horizontal weave
+                        for y in stride(from: 0, to: size.height, by: gridSize) {
+                            for x in stride(from: 0, to: size.width, by: gridSize * 2) {
+                                let rect = CGRect(x: x, y: y, width: gridSize, height: 1)
+                                context.fill(Path(rect), with: .color(.white.opacity(opacity)))
+                            }
+                        }
+
+                        // Vertical weave
+                        for x in stride(from: 0, to: size.width, by: gridSize) {
+                            for y in stride(from: gridSize, to: size.height, by: gridSize * 2) {
+                                let rect = CGRect(x: x, y: y, width: 1, height: gridSize)
+                                context.fill(Path(rect), with: .color(.white.opacity(opacity)))
+                            }
+                        }
+                    }
+                    .blendMode(.overlay)
+                }
+            }
+        }
     }
 
     // MARK: - Glass Effects
@@ -182,5 +250,45 @@ extension View {
     /// Optimizes gradient rendering performance by caching into an offscreen buffer
     func optimizedGradients() -> some View {
         self.drawingGroup()
+    }
+
+    // MARK: - MCM Textures
+
+    /// Adds MCM linen overlay texture - diagonal crosshatch pattern
+    /// - Parameter opacity: Opacity of the linen texture (default: 0.03)
+    func linenOverlay(opacity: Double = 0.03) -> some View {
+        overlay(
+            Group {
+                if !UIAccessibility.isReduceMotionEnabled {
+                    Theme.Textures.LinenOverlay(opacity: opacity)
+                }
+            }
+        )
+    }
+
+    /// Adds MCM canvas texture - woven grid pattern
+    /// - Parameter opacity: Opacity of the canvas texture (default: 0.04)
+    func canvasTexture(opacity: Double = 0.04) -> some View {
+        overlay(
+            Group {
+                if !UIAccessibility.isReduceMotionEnabled {
+                    Theme.Textures.CanvasTexture(opacity: opacity)
+                }
+            }
+        )
+    }
+
+    /// Adds MCM card texture - linen overlay by default
+    /// - Parameter colorScheme: Current color scheme to adjust opacity
+    func cardTexture(_ colorScheme: ColorScheme) -> some View {
+        overlay(
+            Group {
+                if !UIAccessibility.isReduceMotionEnabled {
+                    Theme.Textures.LinenOverlay(
+                        opacity: colorScheme == .dark ? 0.03 : 0.02
+                    )
+                }
+            }
+        )
     }
 }
