@@ -218,9 +218,11 @@ struct CardSurface<Content: View>: View {
     @ViewBuilder
     private var edgeOverlay: some View {
         if showsEdge {
-            Rectangle()
+            // MCM: Organic kidney-shaped accent bar instead of straight edge
+            Capsule()
                 .fill(Color.black.opacity(Theme.Opacity.cardEdge(colorScheme)))
-                .frame(width: Theme.Cards.edgeWidth)
+                .frame(width: Theme.Cards.edgeWidth, height: 60)
+                .offset(y: -8)  // Slight asymmetric offset for organic feel
                 .blendMode(.multiply)
                 .clipShape(shape)
         }
@@ -444,6 +446,191 @@ struct ItemActionButton: View {
     @ViewBuilder
     private var background: some View {
         Color.clear
+    }
+}
+
+// MARK: - MCM Card Content
+
+/// Mid-Century Modern asymmetric two-column card content layout
+struct MCMCardContent: View {
+    let icon: String?
+    let title: String
+    let bodyText: String?
+    let typeLabel: String?
+    let timestamp: String?
+    let image: UIImage?
+    let tags: [Tag]
+    let onAddTag: (() -> Void)?
+
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
+
+    private var style: ThemeStyle { themeManager.currentStyle }
+
+    init(
+        icon: String? = nil,
+        title: String,
+        bodyText: String? = nil,
+        typeLabel: String? = nil,
+        timestamp: String? = nil,
+        image: UIImage? = nil,
+        tags: [Tag] = [],
+        onAddTag: (() -> Void)? = nil
+    ) {
+        self.icon = icon
+        self.title = title
+        self.bodyText = bodyText
+        self.typeLabel = typeLabel
+        self.timestamp = timestamp
+        self.image = image
+        self.tags = tags
+        self.onAddTag = onAddTag
+    }
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 0) {
+            // Left column (narrow - metadata gutter)
+            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                if let icon = icon {
+                    IconTile(
+                        iconName: icon,
+                        iconSize: 16,
+                        tileSize: 36,
+                        style: .none(Theme.Colors.icon(colorScheme, style: style))
+                    )
+                }
+
+                if let typeLabel = typeLabel {
+                    Text(typeLabel)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                }
+
+                if let timestamp = timestamp {
+                    Text(timestamp)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                }
+            }
+            .frame(width: 60, alignment: .leading)
+
+            // Right column (wide - main content)
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                Text(title)
+                    .font(.system(.title2, design: .default).weight(.bold))  // MCM: Much larger title
+                    .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+                    .lineLimit(3)
+
+                if let bodyText = bodyText {
+                    Text(bodyText)
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                        .lineLimit(4)
+                }
+
+                if let image = image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 140)
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
+                }
+
+                // Tags in flow layout (scattered organically)
+                if !tags.isEmpty {
+                    FlowLayout(spacing: Theme.Spacing.xs) {
+                        ForEach(tags) { tag in
+                            TagPill(
+                                name: tag.name,
+                                color: tag.color
+                                    .map { Color(hex: $0) }
+                                    ?? Theme.Colors.tagColor(for: tag.name, colorScheme, style: style)
+                            )
+                        }
+
+                        if let onAddTag = onAddTag {
+                            Button(action: onAddTag) {
+                                HStack(spacing: 4) {
+                                    AppIcon(name: Icons.add, size: 10)
+                                    Text("Tag")
+                                        .font(Theme.Typography.caption)
+                                }
+                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                                .padding(.horizontal, Theme.Spacing.pillHorizontal)
+                                .padding(.vertical, Theme.Spacing.pillVertical)
+                                .background(
+                                    Capsule()
+                                        .strokeBorder(
+                                            Theme.Colors.borderMuted(colorScheme, style: style),
+                                            lineWidth: 1
+                                        )
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+            .padding(.leading, 12)  // Generous left margin for right column
+        }
+    }
+}
+
+/// Simple flow layout for tags (wraps to multiple rows)
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = FlowResult(
+            in: proposal.replacingUnspecifiedDimensions().width,
+            subviews: subviews,
+            spacing: spacing
+        )
+        return result.size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = FlowResult(
+            in: bounds.width,
+            subviews: subviews,
+            spacing: spacing
+        )
+        for (index, subview) in subviews.enumerated() {
+            subview.place(at: CGPoint(x: bounds.minX + result.positions[index].x, y: bounds.minY + result.positions[index].y), proposal: .unspecified)
+        }
+    }
+
+    struct FlowResult {
+        var size: CGSize
+        var positions: [CGPoint]
+
+        init(in maxWidth: CGFloat, subviews: Subviews, spacing: CGFloat) {
+            var size: CGSize = .zero
+            var positions: [CGPoint] = []
+            var currentX: CGFloat = 0
+            var currentY: CGFloat = 0
+            var lineHeight: CGFloat = 0
+
+            for subview in subviews {
+                let subviewSize = subview.sizeThatFits(.unspecified)
+
+                if currentX + subviewSize.width > maxWidth, currentX > 0 {
+                    // Move to next line
+                    currentX = 0
+                    currentY += lineHeight + spacing
+                    lineHeight = 0
+                }
+
+                positions.append(CGPoint(x: currentX, y: currentY))
+                currentX += subviewSize.width + spacing
+                lineHeight = max(lineHeight, subviewSize.height)
+                size.width = max(size.width, currentX - spacing)
+                size.height = currentY + lineHeight
+            }
+
+            self.size = size
+            self.positions = positions
+        }
     }
 }
 
