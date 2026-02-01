@@ -307,27 +307,75 @@ private struct CollectionCard: View {
 
     var body: some View {
         CardSurface(gradientIndex: paletteIndex) {
-            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                HStack {
-                    Text(collection.name)
-                        .font(Theme.Typography.body)
-                        .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                // MCM card content with custom metadata for collections
+                HStack(alignment: .top, spacing: 0) {
+                    // Left column (narrow - metadata gutter)
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                        IconTile(
+                            iconName: collection.isStructured ? Icons.plans : Icons.lists,
+                            iconSize: 16,
+                            tileSize: 36,
+                            style: .none(Theme.Colors.icon(colorScheme, style: style))
+                        )
 
-                    Spacer()
-                }
+                        Text(collection.isStructured ? "PLAN" : "LIST")
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
 
-                HStack {
-                    Text(collection.createdAt, format: .dateTime.month(.abbreviated).day())
-                        .font(Theme.Typography.timestampMono)
-                        .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
+                        Text(collection.createdAt, format: .dateTime.month(.abbreviated).day())
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
 
-                    Spacer()
-
-                    if let count = collection.collectionItems?.count, count > 0 {
-                        Text("\(count) item\(count == 1 ? "" : "s")")
-                            .font(Theme.Typography.metadata)
-                            .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
+                        if let count = collection.collectionItems?.count, count > 0 {
+                            Text("\(count) item\(count == 1 ? "" : "s")")
+                                .font(Theme.Typography.caption)
+                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                        }
                     }
+                    .frame(width: 60, alignment: .leading)
+
+                    // Right column (wide - main content)
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                        Text(collection.name)
+                            .font(.system(.title2, design: .default).weight(.bold))
+                            .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+                            .lineLimit(3)
+
+                        // Tags in flow layout
+                        if !collection.tags.isEmpty {
+                            FlowLayout(spacing: Theme.Spacing.xs) {
+                                ForEach(collection.tags) { tag in
+                                    TagPill(
+                                        name: tag.name,
+                                        color: tag.color
+                                            .map { Color(hex: $0) }
+                                            ?? Theme.Colors.tagColor(for: tag.name, colorScheme, style: style)
+                                    )
+                                }
+
+                                Button(action: onAddTag) {
+                                    HStack(spacing: 4) {
+                                        AppIcon(name: Icons.add, size: 10)
+                                        Text("Tag")
+                                            .font(Theme.Typography.caption)
+                                    }
+                                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                                    .padding(.horizontal, Theme.Spacing.pillHorizontal)
+                                    .padding(.vertical, Theme.Spacing.pillVertical)
+                                    .background(
+                                        Capsule()
+                                            .strokeBorder(
+                                                Theme.Colors.borderMuted(colorScheme, style: style),
+                                                lineWidth: 1
+                                            )
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    .padding(.leading, 12)
                 }
 
                 ItemActionRow(
