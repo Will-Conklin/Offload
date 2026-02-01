@@ -201,13 +201,13 @@ struct CardSurface<Content: View>: View {
                 : shape)
             .shadow(
                 color: gradientIndex != nil
-                    ? Color(hex: "4F46E5").opacity(0.25)
+                    ? Color(hex: "E67E22").opacity(0.25)  // MCM burnt orange
                     : Theme.Shadows.ultraLight(colorScheme),
                 radius: gradientIndex != nil ? 12 : Theme.Shadows.elevationUltraLight,
                 y: gradientIndex != nil ? 6 : Theme.Shadows.offsetYUltraLight
             )
             .shadow(
-                color: gradientIndex != nil ? Color(hex: "7C3AED").opacity(0.2) : .clear,
+                color: gradientIndex != nil ? Color(hex: "27AE60").opacity(0.2) : .clear,  // MCM avocado green
                 radius: gradientIndex != nil ? 16 : 0,
                 y: gradientIndex != nil ? 8 : 0
             )

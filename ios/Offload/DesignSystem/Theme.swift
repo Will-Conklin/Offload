@@ -510,12 +510,12 @@ struct Theme {
             )
         }
 
-        // MARK: - Vibrant Gradient Canvas System
+        // MARK: - MCM Gradient System
 
-        // Primary gradients
+        // MCM earth tone gradients
         static func electricBlueViolet(_ colorScheme: ColorScheme) -> LinearGradient {
             LinearGradient(
-                colors: [Color(hex: "4F46E5"), Color(hex: "7C3AED")],
+                colors: [Color(hex: "E67E22"), Color(hex: "D35400")],  // Burnt orange
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -523,7 +523,7 @@ struct Theme {
 
         static func coralPink(_ colorScheme: ColorScheme) -> LinearGradient {
             LinearGradient(
-                colors: [Color(hex: "F87171"), Color(hex: "EC4899")],
+                colors: [Color(hex: "27AE60"), Color(hex: "229954")],  // Avocado green
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -531,7 +531,7 @@ struct Theme {
 
         static func emeraldTeal(_ colorScheme: ColorScheme) -> LinearGradient {
             LinearGradient(
-                colors: [Color(hex: "10B981"), Color(hex: "14B8A6")],
+                colors: [Color(hex: "00695C"), Color(hex: "1F5C47")],  // Teal
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -539,7 +539,7 @@ struct Theme {
 
         static func amberOrange(_ colorScheme: ColorScheme) -> LinearGradient {
             LinearGradient(
-                colors: [Color(hex: "F59E0B"), Color(hex: "F97316")],
+                colors: [Color(hex: "FFB300"), Color(hex: "F57C00")],  // Goldenrod/amber
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -547,19 +547,19 @@ struct Theme {
 
         static func violetPink(_ colorScheme: ColorScheme) -> LinearGradient {
             LinearGradient(
-                colors: [Color(hex: "A78BFA"), Color(hex: "EC4899")],
+                colors: [Color(hex: "795548"), Color(hex: "7D5229")],  // Warm brown/goldenrod
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
         }
 
-        // Background gradient
+        // Background gradient - MCM warm earth tones
         static func deepBackground(_ colorScheme: ColorScheme) -> LinearGradient {
             LinearGradient(
                 colors: colorScheme == .dark ? [
-                    Color(hex: "0F0A1E"), Color(hex: "1A0E2E")
+                    Color(hex: "2C1810"), Color(hex: "1F1108")  // Chocolate brown gradient
                 ] : [
-                    Color(hex: "F8F7FF"), Color(hex: "FFF8FA")
+                    Color(hex: "F5F0E8"), Color(hex: "FFF9F0")  // Warm beige to cream
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -601,9 +601,9 @@ struct Theme {
 
         static let rainbowBorder = LinearGradient(
             colors: [
-                Color(hex: "4F46E5"), Color(hex: "EC4899"),
-                Color(hex: "10B981"), Color(hex: "F59E0B"),
-                Color(hex: "4F46E5")
+                Color(hex: "E67E22"), Color(hex: "27AE60"),
+                Color(hex: "D35400"), Color(hex: "229954"),
+                Color(hex: "E67E22")
             ],
             startPoint: .leading,
             endPoint: .trailing
