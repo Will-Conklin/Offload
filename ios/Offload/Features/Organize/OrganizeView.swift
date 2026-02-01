@@ -306,7 +306,7 @@ private struct CollectionCard: View {
     let onToggleStar: () -> Void
 
     var body: some View {
-        CardSurface(gradientIndex: paletteIndex) {
+        CardSurface(fill: Theme.Colors.cardColor(index: paletteIndex, colorScheme, style: style)) {
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 // MCM card content with custom metadata for collections
                 HStack(alignment: .top, spacing: 0) {
@@ -386,7 +386,6 @@ private struct CollectionCard: View {
                 )
             }
         }
-        .optimizedGradients()
     }
 }
 

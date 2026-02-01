@@ -243,7 +243,7 @@ private struct ItemRow: View {
     }
 
     var body: some View {
-        CardSurface(gradientIndex: index) {
+        CardSurface(fill: Theme.Colors.cardColor(index: index, colorScheme, style: style)) {
             VStack(alignment: .leading, spacing: Theme.Spacing.md) {
                 MCMCardContent(
                     icon: item.itemType?.icon,
@@ -284,7 +284,6 @@ private struct ItemRow: View {
                 }
             }
         }
-        .optimizedGradients()
         .contentShape(Rectangle())
         .onTapGesture {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
