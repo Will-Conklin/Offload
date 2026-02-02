@@ -230,44 +230,63 @@ struct Theme {
     // MARK: - Typography
 
     struct Typography {
-        // Base builder (keeps Dynamic Type)
+        // MCM Custom Fonts
+        private static func bebas(size: CGFloat) -> Font {
+            Font.custom("BebasNeue-Regular", size: size)
+        }
+
+        private static func spaceGrotesk(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+            // Space Grotesk weight mapping
+            let fontName: String
+            switch weight {
+            case .bold, .semibold, .heavy, .black:
+                fontName = "SpaceGrotesk-Bold"
+            default:
+                fontName = "SpaceGrotesk-Regular"
+            }
+            return Font.custom(fontName, size: size)
+        }
+
+        // Fallback to system font if custom font fails to load
         private static func system(_ style: Font.TextStyle, weight: Font.Weight = .regular) -> Font {
             Font.system(style, design: .default).weight(weight)
         }
 
-        // Standard text styles (rounded)
-        static let largeTitle = system(.largeTitle, weight: .bold)
-        static let title = system(.title, weight: .bold)
-        static let title2 = system(.title2, weight: .semibold)
-        static let title3 = system(.title3, weight: .semibold)
-        static let headline = system(.headline, weight: .semibold)
-        static let body = system(.body, weight: .regular)
-        static let callout = system(.callout, weight: .regular)
-        static let subheadline = system(.subheadline, weight: .regular)
-        static let subheadlineSemibold = system(.subheadline, weight: .semibold)
-        static let footnote = system(.footnote, weight: .regular)
-        static let caption = system(.caption, weight: .medium)
-        static let caption2 = system(.caption2, weight: .medium)
+        // MCM Display Fonts (Bebas Neue - geometric, bold, condensed)
+        static let largeTitle = bebas(size: 34)
+        static let title = bebas(size: 28)
+        static let title2 = bebas(size: 22)
+        static let title3 = bebas(size: 20)
+        static let headline = bebas(size: 17)
+
+        // MCM Body Fonts (Space Grotesk - retro-futuristic, readable)
+        static let body = spaceGrotesk(size: 17)
+        static let callout = spaceGrotesk(size: 16)
+        static let subheadline = spaceGrotesk(size: 15)
+        static let subheadlineSemibold = spaceGrotesk(size: 15, weight: .semibold)
+        static let footnote = spaceGrotesk(size: 13)
+        static let caption = spaceGrotesk(size: 12)
+        static let caption2 = spaceGrotesk(size: 11)
         static let monospacedBody = Font.system(.body, design: .monospaced).monospacedDigit()
 
         // Semantic styles (use these in components)
-        static let cardTitle = system(.title2, weight: .bold)
-        static let cardTitleEmphasis = system(.title2, weight: .heavy)
-        static let cardBody = system(.callout, weight: .regular)
-        static let cardBodyEmphasis = system(.callout, weight: .semibold)
+        static let cardTitle = bebas(size: 22)  // Bold geometric display
+        static let cardTitleEmphasis = bebas(size: 26)  // Extra large for emphasis
+        static let cardBody = spaceGrotesk(size: 16)
+        static let cardBodyEmphasis = spaceGrotesk(size: 16, weight: .bold)
 
-        static let buttonLabel = system(.headline, weight: .bold)
-        static let buttonLabelEmphasis = system(.headline, weight: .heavy)
+        static let buttonLabel = bebas(size: 17)  // Strong geometric buttons
+        static let buttonLabelEmphasis = bebas(size: 18)
 
-        static let inputLabel = system(.subheadline, weight: .semibold)
-        static let inputLabelEmphasis = system(.subheadline, weight: .bold)
+        static let inputLabel = spaceGrotesk(size: 15, weight: .semibold)
+        static let inputLabelEmphasis = spaceGrotesk(size: 15, weight: .bold)
 
-        static let errorText = system(.caption, weight: .semibold)
-        static let metadata = system(.caption, weight: .semibold)
+        static let errorText = spaceGrotesk(size: 12, weight: .semibold)
+        static let metadata = spaceGrotesk(size: 12, weight: .semibold)
         static let metadataMonospaced = Font.system(.caption, design: .monospaced).monospacedDigit()
 
-        static let badge = system(.caption2, weight: .semibold)
-        static let badgeEmphasis = system(.caption2, weight: .bold)
+        static let badge = spaceGrotesk(size: 11, weight: .semibold)
+        static let badgeEmphasis = spaceGrotesk(size: 11, weight: .bold)
 
         // Retro monospaced typography
         static let timestampMono = Font.system(.caption2, design: .monospaced).weight(.semibold).monospacedDigit()
