@@ -610,31 +610,7 @@ struct ItemActionRow: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
-            ItemActionButton(
-                iconName: Icons.add,
-                tint: Theme.Colors.accentPrimary(colorScheme, style: style),
-                variant: .primaryFilled,
-                action: onAddTag
-            )
-            .accessibilityLabel("Add tag")
-            .accessibilityHint("Assign a tag to this item.")
-
-            if tags.isEmpty {
-                Spacer()
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: Theme.Spacing.xs) {
-                        ForEach(tags) { tag in
-                            TagPill(
-                                name: tag.name,
-                                color: tag.color
-                                    .map { Color(hex: $0) }
-                                    ?? Theme.Colors.tagColor(for: tag.name, colorScheme, style: style)
-                            )
-                        }
-                    }
-                }
-            }
+            Spacer()
 
             ItemActionButton(
                 iconName: isStarred ? Icons.starFilled : Icons.star,
