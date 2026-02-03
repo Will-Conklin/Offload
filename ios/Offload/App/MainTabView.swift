@@ -333,7 +333,6 @@ private struct OffloadQuickActionButton: View {
                     ZStack {
                         AppIcon(name: iconName, size: 24)
                             .foregroundStyle(.white)
-                            .offset(y: 1)
                     }
                     .frame(width: 56, height: 56)
                 }
