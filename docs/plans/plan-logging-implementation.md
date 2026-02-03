@@ -1,7 +1,7 @@
 ---
 id: plan-logging-implementation
 type: plan
-status: in-progress
+status: complete
 owners:
   - Will-Conklin
 applies_to:
@@ -115,7 +115,7 @@ Files:
 
 ### Phase 3: ViewModel State Transitions (Priority: Medium)
 
-**Status:** Not Started
+**Status:** Complete
 
 Add pagination and state change logging:
 
@@ -128,10 +128,10 @@ Add pagination and state change logging:
 
 ### Phase 4: App Lifecycle (Priority: Medium)
 
-**Status:** Not Started
+**Status:** Complete
 
-- [ ] `offloadApp.swift`: log app version on init.
-- [ ] `AppRootView.swift`: log repository initialization.
+- [x] `offloadApp.swift`: log app version on init.
+- [x] `AppRootView.swift`: log repository initialization.
 
 Files:
 
@@ -140,7 +140,7 @@ Files:
 
 ### Phase 5: User Actions in Views (Priority: Lower)
 
-**Status:** Not Started
+**Status:** Complete
 
 - `ios/Offload/Features/Capture/CaptureView.swift`
   - `deleteItem()`, `completeItem()`, `toggleStar()`
@@ -180,7 +180,7 @@ Verification (post-phase checklist):
 
 ## User Verification
 
-- [ ] User verification complete.
+- [x] User verification complete.
 
 ## Progress
 
@@ -189,3 +189,4 @@ Verification (post-phase checklist):
 | 2026-01-20 | Drafted proposed plan for review. |
 | 2026-02-03 | Completed Phase 1: Critical error paths logging in PersistenceController, ErrorPresenter, ItemRepository, and CollectionRepository. |
 | 2026-02-03 | Completed Phase 2: VoiceRecordingService comprehensive logging for permissions, recording lifecycle, and error handling. |
+| 2026-02-03 | Completed Phases 3–5: ViewModel pagination/state logs, app lifecycle logging, and capture user action logging. |
