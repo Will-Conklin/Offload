@@ -41,12 +41,12 @@ struct MainTabView: View {
         case organize
         case account
 
-        var mcmIconType: MCMIcon.IconType {
+        var iconName: String {
             switch self {
-            case .home: .home
-            case .review: .review
-            case .organize: .organize
-            case .account: .account
+            case .home: "house"
+            case .review: "tray"
+            case .organize: "folder"
+            case .account: "person"
             }
         }
 
@@ -419,17 +419,16 @@ private struct TabButton: View {
                             .frame(width: 48, height: 48)
                     }
 
-                    // MCM custom icon
-                    MCMIcon(
-                        type: tab.mcmIconType,
-                        isSelected: isSelected,
-                        color: isSelected
-                            ? Theme.Colors.primary(colorScheme, style: style)
-                            : Theme.Colors.textSecondary(colorScheme, style: style),
-                        lineWidth: isSelected ? 2 : 1.5
-                    )
-                    .frame(width: 24, height: 24)
-                    .scaleEffect(isSelected ? 1.05 : 1.0)
+                    // Thin SF Symbol icon
+                    Image(systemName: tab.iconName)
+                        .font(.system(size: 22, weight: isSelected ? .regular : .ultraLight))
+                        .foregroundStyle(
+                            isSelected
+                                ? Theme.Colors.primary(colorScheme, style: style)
+                                : Theme.Colors.textSecondary(colorScheme, style: style)
+                        )
+                        .frame(width: 24, height: 24)
+                        .scaleEffect(isSelected ? 1.05 : 1.0)
                 }
 
                 // Label
