@@ -5,8 +5,8 @@
 
 //  Flat design capture list with inline tagging and swipe actions
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 import UIKit
 
 struct CaptureView: View {
@@ -19,7 +19,6 @@ struct CaptureView: View {
 
     let navigationTitle: String
     @State private var showingSettings = false
-    @State private var showingAddItem = false
     @State private var selectedItem: Item?
     @State private var tagPickerItem: Item?
     @State private var moveItem: Item?
@@ -29,20 +28,21 @@ struct CaptureView: View {
     private var floatingTabBarClearance: CGFloat {
         Theme.Spacing.xxl + Theme.Spacing.xl + Theme.Spacing.lg + Theme.Spacing.md
     }
+
     init(navigationTitle: String = "Capture") {
         self.navigationTitle = navigationTitle
     }
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottomTrailing) {
+            ZStack {
                 // Vibrant gradient background
                 Theme.Gradients.deepBackground(colorScheme)
                     .ignoresSafeArea()
 
                 ScrollView {
                     LazyVStack(spacing: Theme.Spacing.md) {
-                        if viewModel.items.isEmpty && viewModel.isLoading {
+                        if viewModel.items.isEmpty, viewModel.isLoading {
                             ProgressView()
                                 .padding(.vertical, Theme.Spacing.sm)
                         }
@@ -70,7 +70,7 @@ struct CaptureView: View {
                             }
                         }
 
-                        if viewModel.isLoading && !viewModel.items.isEmpty {
+                        if viewModel.isLoading, !viewModel.items.isEmpty {
                             ProgressView()
                                 .padding(.vertical, Theme.Spacing.sm)
                         }
@@ -83,13 +83,6 @@ struct CaptureView: View {
                     Color.clear
                         .frame(height: floatingTabBarClearance)
                 }
-
-                FloatingActionButton(title: "Add Item", iconName: Icons.addCircleFilled) {
-                    showingAddItem = true
-                }
-                .accessibilityLabel("Add Item")
-                .padding(.trailing, Theme.Spacing.md)
-                .padding(.bottom, floatingTabBarClearance + Theme.Spacing.md)
             }
             .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.large)
@@ -110,11 +103,6 @@ struct CaptureView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
-            }
-            .sheet(isPresented: $showingAddItem, onDismiss: refreshItems) {
-                CaptureComposeView()
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.visible)
             }
             .sheet(item: $selectedItem) { item in
                 CaptureDetailView(item: item)
@@ -261,7 +249,7 @@ private struct ItemCard: View {
                 image: item.attachmentData.flatMap { UIImage(data: $0) },
                 tags: item.tags,
                 onAddTag: onAddTag,
-                size: .compact  // Compact size for item cards
+                size: .compact // Compact size for item cards
             )
         }
         .overlay(alignment: .bottomTrailing) {
@@ -450,7 +438,7 @@ private struct MoveToPlanSheet: View {
                         } icon: {
                             AppIcon(name: Icons.addCircleFilled, size: 16)
                         }
-                                        .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: style))
+                        .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: style))
                     }
                 }
             }
@@ -572,7 +560,7 @@ private struct MoveToListSheet: View {
                         } icon: {
                             AppIcon(name: Icons.addCircleFilled, size: 16)
                         }
-                            .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                        .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
                     }
                 }
             }
