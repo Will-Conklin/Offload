@@ -1,12 +1,12 @@
 ---
 id: plan-logging-implementation
 type: plan
-status: accepted
+status: in-progress
 owners:
   - Will-Conklin
 applies_to:
   - plans
-last_updated: 2026-01-25
+last_updated: 2026-02-03
 related: []
 depends_on: []
 supersedes: []
@@ -81,26 +81,23 @@ func loadNextPage(using repository: ItemRepository) throws {
 
 ### Phase 1: Critical Error Paths (Priority: Highest)
 
-**Status:** Not Started
+**Status:** Complete
 
-- [ ] PersistenceController: log before `fatalError` in production container.
+- [x] PersistenceController: log before `fatalError` in production container.
   - File: `ios/Offload/Data/Persistence/PersistenceController.swift`
-  - Line: 35
-- [ ] PersistenceController: log before `fatalError` in preview container.
+  - Line: 39
+- [x] PersistenceController: log before `fatalError` in preview container.
   - File: `ios/Offload/Data/Persistence/PersistenceController.swift`
-  - Line: 126
-- [ ] ErrorPresenter: log all presented errors in `present(_ error:)`.
+  - Line: 131
+- [x] ErrorPresenter: log all presented errors in `present(_ error:)`.
   - File: `ios/Offload/Common/ErrorHandling.swift`
-  - Line: 15-17
-- [ ] Repository CRUD logging with error handling.
+  - Line: 16
+- [x] Repository CRUD logging with error handling.
   - `ios/Offload/Data/Repositories/ItemRepository.swift`
     - `create()`, `delete()`, `deleteAll()`, `update()`
   - `ios/Offload/Data/Repositories/CollectionRepository.swift`
     - `create()`, `delete()`, `update()`
-  - `ios/Offload/Data/Repositories/CollectionItemRepository.swift`
-    - `addItemToCollection()`, `removeItemFromCollection()`
-  - `ios/Offload/Data/Repositories/TagRepository.swift`
-    - `create()`, `delete()`, `findOrCreate()`
+  - CollectionItemRepository and TagRepository deferred to future phases
 
 ### Phase 2: VoiceRecordingService (Priority: High)
 
@@ -190,3 +187,4 @@ Verification (post-phase checklist):
 | Date | Update |
 | --- | --- |
 | 2026-01-20 | Drafted proposed plan for review. |
+| 2026-02-03 | Completed Phase 1: Critical error paths logging in PersistenceController, ErrorPresenter, ItemRepository, and CollectionRepository. |
