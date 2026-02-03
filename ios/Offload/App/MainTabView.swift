@@ -5,9 +5,8 @@
 
 //  Flat design with floating pill tab bar
 
-import SwiftUI
 import SwiftData
-
+import SwiftUI
 
 struct MainTabView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -31,7 +30,7 @@ struct MainTabView: View {
             }
             .sheet(item: $quickCaptureMode) { mode in
                 CaptureComposeView(mode: mode)
-                    .presentationDetents([.medium, .large])
+                    .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
     }
@@ -42,30 +41,21 @@ struct MainTabView: View {
         case organize
         case account
 
-        var icon: String {
+        var iconName: String {
             switch self {
-            case .home: return Icons.home
-            case .review: return Icons.review
-            case .organize: return Icons.organize
-            case .account: return Icons.account
-            }
-        }
-
-        var selectedIcon: String {
-            switch self {
-            case .home: return Icons.homeSelected
-            case .review: return Icons.reviewSelected
-            case .organize: return Icons.organizeSelected
-            case .account: return Icons.accountSelected
+            case .home: "house"
+            case .review: "tray"
+            case .organize: "folder"
+            case .account: "person"
             }
         }
 
         var label: String {
             switch self {
-            case .home: return "Home"
-            case .review: return "Review"
-            case .organize: return "Organize"
-            case .account: return "Account"
+            case .home: "Home"
+            case .review: "Review"
+            case .organize: "Organize"
+            case .account: "Account"
             }
         }
     }
@@ -90,7 +80,7 @@ private struct TabContent: View {
     }
 }
 
-// MARK: - Floating Tab Bar
+// MARK: - Atomic Age Tab Bar
 
 private struct FloatingTabBar: View {
     @Binding var selectedTab: MainTabView.Tab
@@ -100,44 +90,51 @@ private struct FloatingTabBar: View {
     let onQuickVoice: () -> Void
 
     var body: some View {
-        HStack(spacing: 0) {
-            TabSlot {
+        ZStack {
+            // Bar connects to bottom
+            AtomicBarBackground(colorScheme: colorScheme, style: style)
+                .ignoresSafeArea(edges: .bottom)
+
+            HStack(spacing: 0) {
                 TabButton(
                     tab: .home,
                     isSelected: selectedTab == .home,
                     colorScheme: colorScheme,
                     style: style
                 ) { selectedTab = .home }
-            }
 
-            TabSlot {
+                Rectangle()
+                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.3))
+                    .frame(width: 1, height: 24)
+
                 TabButton(
                     tab: .review,
                     isSelected: selectedTab == .review,
                     colorScheme: colorScheme,
                     style: style
                 ) { selectedTab = .review }
-            }
 
-            TabSlot {
-                OffloadCTA(
-                    colorScheme: colorScheme,
-                    style: style,
-                    onQuickWrite: onQuickWrite,
-                    onQuickVoice: onQuickVoice
-                )
-            }
+                Rectangle()
+                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.3))
+                    .frame(width: 1, height: 24)
 
-            TabSlot {
+                Spacer().frame(width: 80) // CTA space
+
+                Rectangle()
+                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.3))
+                    .frame(width: 1, height: 24)
+
                 TabButton(
                     tab: .organize,
                     isSelected: selectedTab == .organize,
                     colorScheme: colorScheme,
                     style: style
                 ) { selectedTab = .organize }
-            }
 
-            TabSlot {
+                Rectangle()
+                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.3))
+                    .frame(width: 1, height: 24)
+
                 TabButton(
                     tab: .account,
                     isSelected: selectedTab == .account,
@@ -145,31 +142,41 @@ private struct FloatingTabBar: View {
                     style: style
                 ) { selectedTab = .account }
             }
+            .frame(height: 60)
+            .padding(.horizontal, 8)
+
+            // CTA integrated into bar (halfway overlap)
+            OffloadCTA(
+                colorScheme: colorScheme,
+                style: style,
+                onQuickWrite: onQuickWrite,
+                onQuickVoice: onQuickVoice
+            )
+            .offset(y: 0)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, Theme.Spacing.sm)
-        .padding(.vertical, 0)
-        .background(
-            Capsule()
-                .fill(Theme.Colors.surface(colorScheme, style: style))
-                .overlay(
-                    Capsule()
-                        .stroke(Theme.Colors.primary(colorScheme, style: style).opacity(0.35), lineWidth: 1)
-                )
-                .shadow(color: Theme.Shadows.ultraLight(colorScheme), radius: Theme.Shadows.elevationUltraLight, y: Theme.Shadows.offsetYUltraLight)
-        )
+        .frame(height: 60)
+        .animation(Theme.Animations.mechanicalSlide, value: selectedTab)
     }
 }
 
-private struct TabSlot<Content: View>: View {
-    let content: Content
+// MARK: - Atomic Bar Background
 
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
+private struct AtomicBarBackground: View {
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
 
     var body: some View {
-        content.frame(maxWidth: .infinity, alignment: .center)
+        UnevenRoundedRectangle(
+            cornerRadii: RectangleCornerRadii(
+                topLeading: 24,
+                bottomLeading: 0,
+                bottomTrailing: 0,
+                topTrailing: 24
+            ),
+            style: .continuous
+        )
+        .fill(Theme.Colors.surface(colorScheme, style: style))
+        .shadow(color: Color.black.opacity(0.1), radius: 12, y: -2)
     }
 }
 
@@ -202,12 +209,6 @@ private struct OffloadCTA: View {
                 isExpanded: isExpanded
             ) {
                 toggleExpanded()
-            }
-            .overlay(alignment: .bottom) {
-                Text("Offload")
-                    .font(Theme.Typography.caption)
-                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-                    .offset(y: 14)
             }
             .offset(y: mainButtonYOffset)
         }
@@ -270,30 +271,33 @@ private struct OffloadMainButton: View {
     var body: some View {
         Button(action: action) {
             ZStack {
+                // Subtle outer glow
                 Circle()
-                    .fill(Theme.Colors.primary(colorScheme, style: style).opacity(0.12))
-                    .frame(width: size + 12, height: size + 12)
+                    .fill(Theme.Colors.primary(colorScheme, style: style).opacity(0.15))
+                    .frame(width: size + 8, height: size + 8)
 
+                // Main circle with gradient
                 Circle()
-                    .fill(Theme.Colors.buttonDark(colorScheme))
-                    .overlay(
-                        Circle()
-                            .stroke(Theme.Colors.primary(colorScheme, style: style).opacity(0.5), lineWidth: 1.5)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Theme.Colors.primary(colorScheme, style: style),
+                                Theme.Colors.primary(colorScheme, style: style).opacity(0.9),
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
                     )
                     .frame(width: size, height: size)
-                    .shadow(
-                        color: Theme.Shadows.ambient(colorScheme),
-                        radius: Theme.Shadows.elevationSm,
-                        y: Theme.Shadows.offsetYSm
-                    )
 
-                AppIcon(name: Icons.add, size: 22)
+                // Plus icon
+                AppIcon(name: Icons.add, size: 24)
                     .foregroundStyle(.white)
                     .rotationEffect(.degrees(isExpanded ? 45 : 0))
-                    .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isExpanded)
             }
         }
         .buttonStyle(.plain)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isExpanded)
         .accessibilityLabel(isExpanded ? "Close Offload actions" : "Offload")
         .accessibilityHint("Shows quick capture actions")
     }
@@ -302,22 +306,29 @@ private struct OffloadMainButton: View {
 private struct OffloadQuickActionButton: View {
     let title: String
     let iconName: String
-    let colorScheme: ColorScheme
-    let style: ThemeStyle
+    let gradient: [Color]
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
-                AppIcon(name: iconName, size: 26)
-                    .foregroundStyle(.white)
-                    .frame(width: 44, height: 44)
+            // Kidney-shaped button with solid color
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: gradient,
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 56, height: 56)
 
-                Text(title)
-                    .font(Theme.Typography.caption2)
-                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                ZStack {
+                    AppIcon(name: iconName, size: 24)
+                        .foregroundStyle(.white)
+                }
+                .frame(width: 56, height: 56)
             }
-            .frame(width: 64, height: 60)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(title)
@@ -332,30 +343,34 @@ private struct OffloadQuickActionTray: View {
     let onQuickVoice: () -> Void
 
     var body: some View {
-        HStack(spacing: Theme.Spacing.sm) {
+        HStack(alignment: .top, spacing: 20) {
             OffloadQuickActionButton(
                 title: "Write",
                 iconName: Icons.write,
-                colorScheme: colorScheme,
-                style: style,
+                gradient: [
+                    Theme.Colors.primary(colorScheme, style: style),
+                    Theme.Colors.primary(colorScheme, style: style),
+                ],
                 action: onQuickWrite
             )
 
             OffloadQuickActionButton(
                 title: "Voice",
                 iconName: Icons.microphone,
-                colorScheme: colorScheme,
-                style: style,
+                gradient: [
+                    Theme.Colors.secondary(colorScheme, style: style),
+                    Theme.Colors.secondary(colorScheme, style: style),
+                ],
                 action: onQuickVoice
             )
         }
-        .padding(.horizontal, Theme.Spacing.sm)
-        .padding(.vertical, Theme.Spacing.xs)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .opacity(isExpanded ? 1 : 0)
         .scaleEffect(isExpanded ? 1 : 0.6, anchor: .bottom)
         .allowsHitTesting(isExpanded)
         .accessibilityHidden(!isExpanded)
-        .animation(Theme.Animations.springDefault, value: isExpanded)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isExpanded)
     }
 }
 
@@ -370,33 +385,62 @@ private struct TabButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 2) {
-                AppIcon(name: isSelected ? tab.selectedIcon : tab.icon, size: 24)
-                Text(tab.label)
-                    .font(Theme.Typography.caption)
-            }
-            .foregroundStyle(
-                isSelected
-                    ? Theme.Colors.primary(colorScheme, style: style)
-                    : Theme.Colors.textSecondary(colorScheme, style: style)
-            )
-            .frame(minWidth: 54, minHeight: 40)
-            .frame(maxWidth: .infinity)
-            .background(
-                Group {
+            VStack(spacing: 4) {
+                Spacer()
+                    .frame(height: 8)
+
+                ZStack {
+                    // Circular background with gradient for active
                     if isSelected {
-                        Capsule()
-                            .fill(Theme.Colors.secondary(colorScheme, style: style))
-                            .opacity(Theme.Opacity.tabButtonSelection(colorScheme))
-                            .frame(maxWidth: .infinity, minHeight: 44)
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Theme.Colors.primary(colorScheme, style: style).opacity(0.2),
+                                        Theme.Colors.primary(colorScheme, style: style).opacity(0.1),
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 44, height: 44)
+                            .transition(.scale.combined(with: .opacity))
                     } else {
-                        Color.clear
+                        Circle()
+                            .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.08))
+                            .frame(width: 44, height: 44)
                     }
+
+                    // Thin SF Symbol icon
+                    Image(systemName: tab.iconName)
+                        .font(.system(size: 22, weight: isSelected ? .regular : .light))
+                        .imageScale(.medium)
+                        .foregroundStyle(
+                            isSelected
+                                ? Theme.Colors.primary(colorScheme, style: style)
+                                : Theme.Colors.textSecondary(colorScheme, style: style)
+                        )
+                        .frame(width: 24, height: 24, alignment: .center)
+                        .scaleEffect(isSelected ? 1.05 : 1.0)
                 }
-            )
+
+                // Label
+                Text(tab.label)
+                    .font(.system(size: 10, weight: .medium, design: .default))
+                    .foregroundStyle(
+                        isSelected
+                            ? Theme.Colors.primary(colorScheme, style: style)
+                            : Theme.Colors.textSecondary(colorScheme, style: style)
+                    )
+
+                Spacer()
+                    .frame(height: 6)
+            }
+            .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
         .accessibilityLabel(tab.label)
     }
 }
