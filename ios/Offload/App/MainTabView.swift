@@ -145,14 +145,14 @@ private struct FloatingTabBar: View {
             .frame(height: 60)
             .padding(.horizontal, 8)
 
-            // CTA integrated closer to bar
+            // CTA integrated into bar (halfway overlap)
             OffloadCTA(
                 colorScheme: colorScheme,
                 style: style,
                 onQuickWrite: onQuickWrite,
                 onQuickVoice: onQuickVoice
             )
-            .offset(y: -24)
+            .offset(y: -8)
         }
         .frame(height: 60)
         .animation(Theme.Animations.mechanicalSlide, value: selectedTab)
