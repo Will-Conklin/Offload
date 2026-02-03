@@ -542,9 +542,12 @@ private struct OrganizeSearchView: View {
     @Binding var searchQuery: String
     @Environment(\.dismiss) private var dismiss
     @Environment(\.collectionRepository) private var collectionRepository
+    @Environment(\.tagRepository) private var tagRepository
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var searchResults: [Collection] = []
+    @State private var matchingTags: [Tag] = []
+    @State private var selectedTags: Set<UUID> = []
     @State private var errorPresenter = ErrorPresenter()
 
     private var style: ThemeStyle { themeManager.currentStyle }
@@ -596,6 +599,54 @@ private struct OrganizeSearchView: View {
                     }
                     .padding(.horizontal, Theme.Spacing.md)
                     .padding(.top, Theme.Spacing.md)
+
+                    // Tag chips
+                    if !matchingTags.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: Theme.Spacing.xs) {
+                                ForEach(matchingTags) { tag in
+                                    Button {
+                                        toggleTagSelection(tag)
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            Text(tag.name)
+                                                .font(Theme.Typography.caption)
+                                            if selectedTags.contains(tag.id) {
+                                                AppIcon(name: Icons.closeCircleFilled, size: 12)
+                                            }
+                                        }
+                                        .foregroundStyle(
+                                            selectedTags.contains(tag.id)
+                                                ? Theme.Colors.cardTextPrimary(colorScheme, style: style)
+                                                : Theme.Colors.textSecondary(colorScheme, style: style)
+                                        )
+                                        .padding(.horizontal, Theme.Spacing.pillHorizontal)
+                                        .padding(.vertical, Theme.Spacing.pillVertical)
+                                        .background(
+                                            Capsule()
+                                                .fill(
+                                                    selectedTags.contains(tag.id)
+                                                        ? (tag.color.flatMap { Color(hex: $0) } ?? Theme.Colors.tagColor(for: tag.name, colorScheme, style: style))
+                                                        : Theme.Colors.surface(colorScheme, style: style)
+                                                )
+                                        )
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(
+                                                    selectedTags.contains(tag.id)
+                                                        ? Color.clear
+                                                        : Theme.Colors.borderMuted(colorScheme, style: style),
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.horizontal, Theme.Spacing.md)
+                        }
+                        .padding(.bottom, Theme.Spacing.sm)
+                    }
 
                     // Results
                     ScrollView {
@@ -683,13 +734,46 @@ private struct OrganizeSearchView: View {
     private func performSearch(_ query: String) {
         guard !query.isEmpty else {
             searchResults = []
+            matchingTags = []
             return
         }
 
         do {
-            searchResults = try collectionRepository.searchByName(query)
+            // Search by name
+            let nameResults = try collectionRepository.searchByName(query)
+
+            // Search for matching tags
+            matchingTags = try tagRepository.searchByName(query)
+
+            // Apply tag filters if any are selected
+            if selectedTags.isEmpty {
+                searchResults = nameResults
+            } else {
+                searchResults = applyTagFilters(to: nameResults)
+            }
         } catch {
             errorPresenter.present(error)
+            searchResults = []
+            matchingTags = []
+        }
+    }
+
+    private func toggleTagSelection(_ tag: Tag) {
+        if selectedTags.contains(tag.id) {
+            selectedTags.remove(tag.id)
+        } else {
+            selectedTags.insert(tag.id)
+        }
+
+        // Re-run search with updated filters
+        performSearch(searchQuery)
+    }
+
+    private func applyTagFilters(to collections: [Collection]) -> [Collection] {
+        collections.filter { collection in
+            selectedTags.allSatisfy { tagId in
+                collection.tags.contains(where: { $0.id == tagId })
+            }
         }
     }
 }

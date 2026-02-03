@@ -46,15 +46,15 @@ chips for scoped searches and minimal disruption to existing flows.
 
 ### Phase 2: Querying and Results
 
-**Status:** In Progress
+**Status:** Complete
 
 - [x] Add repository queries for text and tag matching.
-- [ ] Integrate search state into view models for Capture and Organize.
-  - [ ] Ensure tag matching uses `tagLinks` and does not depend on `legacyTags`.
+- [x] Integrate search state into view models for Capture and Organize.
+  - [x] Ensure tag matching uses `tagLinks` and does not depend on `legacyTags`.
 
 ### Phase 3: Tag Chips
 
-**Status:** Not Started
+**Status:** In Progress
 
 - [ ] Surface matching tag chips below the search bar.
 - [ ] Implement selected chip state and scoped filtering.
@@ -91,4 +91,5 @@ chips for scoped searches and minimal disruption to existing flows.
 | ---------- | ------------------------------------------------------------ |
 | 2026-01-21 | Draft plan created.                                          |
 | 2026-02-03 | Phase 1 complete: Search UI implemented for CaptureView.    |
-| 2026-02-03 | Phase 2 started: Adding search to OrganizeView.             |
+| 2026-02-03 | Phase 2 complete: Search UI implemented for OrganizeView.   |
+| 2026-02-03 | Phase 3 started: Implementing tag chip filtering.           |

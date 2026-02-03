@@ -660,9 +660,12 @@ private struct CaptureSearchView: View {
     @Binding var searchQuery: String
     @Environment(\.dismiss) private var dismiss
     @Environment(\.itemRepository) private var itemRepository
+    @Environment(\.tagRepository) private var tagRepository
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var searchResults: [Item] = []
+    @State private var matchingTags: [Tag] = []
+    @State private var selectedTags: Set<UUID> = []
     @State private var errorPresenter = ErrorPresenter()
     @FocusState private var isSearchFocused: Bool
 
@@ -705,6 +708,54 @@ private struct CaptureSearchView: View {
                         }
                     }
                     .padding(Theme.Spacing.md)
+
+                    // Tag chips
+                    if !matchingTags.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: Theme.Spacing.xs) {
+                                ForEach(matchingTags) { tag in
+                                    Button {
+                                        toggleTagSelection(tag)
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            Text(tag.name)
+                                                .font(Theme.Typography.caption)
+                                            if selectedTags.contains(tag.id) {
+                                                AppIcon(name: Icons.closeCircleFilled, size: 12)
+                                            }
+                                        }
+                                        .foregroundStyle(
+                                            selectedTags.contains(tag.id)
+                                                ? Theme.Colors.cardTextPrimary(colorScheme, style: style)
+                                                : Theme.Colors.textSecondary(colorScheme, style: style)
+                                        )
+                                        .padding(.horizontal, Theme.Spacing.pillHorizontal)
+                                        .padding(.vertical, Theme.Spacing.pillVertical)
+                                        .background(
+                                            Capsule()
+                                                .fill(
+                                                    selectedTags.contains(tag.id)
+                                                        ? (tag.color.flatMap { Color(hex: $0) } ?? Theme.Colors.tagColor(for: tag.name, colorScheme, style: style))
+                                                        : Theme.Colors.surface(colorScheme, style: style)
+                                                )
+                                        )
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(
+                                                    selectedTags.contains(tag.id)
+                                                        ? Color.clear
+                                                        : Theme.Colors.borderMuted(colorScheme, style: style),
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.horizontal, Theme.Spacing.md)
+                        }
+                        .padding(.bottom, Theme.Spacing.sm)
+                    }
 
                     // Results
                     if searchQuery.isEmpty {
@@ -775,14 +826,46 @@ private struct CaptureSearchView: View {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             searchResults = []
+            matchingTags = []
             return
         }
 
         do {
-            searchResults = try itemRepository.searchByContent(trimmed)
+            // Search by content
+            let contentResults = try itemRepository.searchByContent(trimmed)
+
+            // Search for matching tags
+            matchingTags = try tagRepository.searchByName(trimmed)
+
+            // Apply tag filters if any are selected
+            if selectedTags.isEmpty {
+                searchResults = contentResults
+            } else {
+                searchResults = applyTagFilters(to: contentResults)
+            }
         } catch {
             errorPresenter.present(error)
             searchResults = []
+            matchingTags = []
+        }
+    }
+
+    private func toggleTagSelection(_ tag: Tag) {
+        if selectedTags.contains(tag.id) {
+            selectedTags.remove(tag.id)
+        } else {
+            selectedTags.insert(tag.id)
+        }
+
+        // Re-run search with updated filters
+        performSearch(searchQuery)
+    }
+
+    private func applyTagFilters(to items: [Item]) -> [Item] {
+        items.filter { item in
+            selectedTags.allSatisfy { tagId in
+                item.tags.contains(where: { $0.id == tagId })
+            }
         }
     }
 }
