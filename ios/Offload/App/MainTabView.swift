@@ -421,7 +421,7 @@ private struct TabButton: View {
 
                     // Thin SF Symbol icon
                     Image(systemName: tab.iconName)
-                        .font(.system(size: 22, weight: isSelected ? .regular : .ultraLight))
+                        .font(.system(size: 22, weight: isSelected ? .regular : .light))
                         .foregroundStyle(
                             isSelected
                                 ? Theme.Colors.primary(colorScheme, style: style)
