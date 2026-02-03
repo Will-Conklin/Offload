@@ -5,8 +5,8 @@
 
 //  Flat design with floating pill tab bar
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct MainTabView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -41,30 +41,21 @@ struct MainTabView: View {
         case organize
         case account
 
-        var icon: String {
+        var iconName: String {
             switch self {
-            case .home: return Icons.home
-            case .review: return Icons.review
-            case .organize: return Icons.organize
-            case .account: return Icons.account
-            }
-        }
-
-        var selectedIcon: String {
-            switch self {
-            case .home: return Icons.homeSelected
-            case .review: return Icons.reviewSelected
-            case .organize: return Icons.organizeSelected
-            case .account: return Icons.accountSelected
+            case .home: "house.fill"
+            case .review: "tray.fill"
+            case .organize: "folder.fill"
+            case .account: "person.fill"
             }
         }
 
         var label: String {
             switch self {
-            case .home: return "Home"
-            case .review: return "Review"
-            case .organize: return "Organize"
-            case .account: return "Account"
+            case .home: "Home"
+            case .review: "Review"
+            case .organize: "Organize"
+            case .account: "Account"
             }
         }
     }
@@ -189,8 +180,6 @@ private struct AtomicBarBackground: View {
     }
 }
 
-
-
 // MARK: - Offload CTA
 
 private struct OffloadCTA: View {
@@ -299,7 +288,7 @@ private struct OffloadMainButton: View {
                         LinearGradient(
                             colors: [
                                 Theme.Colors.primary(colorScheme, style: style),
-                                Theme.Colors.primary(colorScheme, style: style).opacity(0.9)
+                                Theme.Colors.primary(colorScheme, style: style).opacity(0.9),
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -371,7 +360,7 @@ private struct OffloadQuickActionTray: View {
                 iconName: Icons.write,
                 gradient: [
                     Theme.Colors.primary(colorScheme, style: style),
-                    Color(hex: "FFB300")
+                    Color(hex: "FFB300"),
                 ],
                 action: onQuickWrite
             )
@@ -381,7 +370,7 @@ private struct OffloadQuickActionTray: View {
                 iconName: Icons.microphone,
                 gradient: [
                     Theme.Colors.secondary(colorScheme, style: style),
-                    Color(hex: "00695C")
+                    Color(hex: "00695C"),
                 ],
                 action: onQuickVoice
             )
@@ -416,7 +405,7 @@ private struct TabButton: View {
                                 LinearGradient(
                                     colors: [
                                         Theme.Colors.primary(colorScheme, style: style).opacity(0.2),
-                                        Theme.Colors.primary(colorScheme, style: style).opacity(0.1)
+                                        Theme.Colors.primary(colorScheme, style: style).opacity(0.1),
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
@@ -430,8 +419,9 @@ private struct TabButton: View {
                             .frame(width: 48, height: 48)
                     }
 
-                    // Larger icon
-                    AppIcon(name: isSelected ? tab.selectedIcon : tab.icon, size: 24)
+                    // SF Symbol icon
+                    Image(systemName: tab.iconName)
+                        .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
                         .foregroundStyle(
                             isSelected
                                 ? Theme.Colors.primary(colorScheme, style: style)
