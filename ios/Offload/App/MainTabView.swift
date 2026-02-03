@@ -396,7 +396,10 @@ private struct TabButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
+                Spacer()
+                    .frame(height: 8)
+
                 ZStack {
                     // Circular background with gradient for active
                     if isSelected {
@@ -411,23 +414,24 @@ private struct TabButton: View {
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .frame(width: 48, height: 48)
+                            .frame(width: 44, height: 44)
                             .transition(.scale.combined(with: .opacity))
                     } else {
                         Circle()
                             .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.08))
-                            .frame(width: 48, height: 48)
+                            .frame(width: 44, height: 44)
                     }
 
                     // Thin SF Symbol icon
                     Image(systemName: tab.iconName)
                         .font(.system(size: 22, weight: isSelected ? .regular : .light))
+                        .imageScale(.medium)
                         .foregroundStyle(
                             isSelected
                                 ? Theme.Colors.primary(colorScheme, style: style)
                                 : Theme.Colors.textSecondary(colorScheme, style: style)
                         )
-                        .frame(width: 24, height: 24)
+                        .frame(width: 24, height: 24, alignment: .center)
                         .scaleEffect(isSelected ? 1.05 : 1.0)
                 }
 
@@ -439,6 +443,9 @@ private struct TabButton: View {
                             ? Theme.Colors.primary(colorScheme, style: style)
                             : Theme.Colors.textSecondary(colorScheme, style: style)
                     )
+
+                Spacer()
+                    .frame(height: 6)
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
