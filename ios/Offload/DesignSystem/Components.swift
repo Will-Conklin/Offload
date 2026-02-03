@@ -117,28 +117,6 @@ struct IconTile: View {
 
 // MARK: - Cards
 
-struct AnyShape: Shape, @unchecked Sendable {
-    private let pathBuilder: (CGRect) -> Path
-
-    init<S: Shape>(_ shape: S) {
-        self.pathBuilder = { rect in
-            shape.path(in: rect)
-        }
-    }
-
-    func path(in rect: CGRect) -> Path {
-        pathBuilder(rect)
-    }
-}
-
-struct CardButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? Theme.Cards.pressScale : 1)
-            .animation(Theme.Animations.easeInOutShort, value: configuration.isPressed)
-    }
-}
-
 enum CardVariant {
     case floatingSoft
 }
@@ -794,36 +772,6 @@ struct FlowLayout: Layout {
 }
 
 // MARK: - Item Actions
-
-struct ItemActionRow: View {
-    let tags: [Tag]
-    let isStarred: Bool
-    let onAddTag: () -> Void
-    let onToggleStar: () -> Void
-
-    @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var themeManager: ThemeManager
-
-    private var style: ThemeStyle { themeManager.currentStyle }
-
-    var body: some View {
-        HStack(spacing: Theme.Spacing.sm) {
-            Spacer()
-
-            ItemActionButton(
-                iconName: isStarred ? Icons.starFilled : Icons.star,
-                tint: isStarred
-                    ? Theme.Colors.caution(colorScheme, style: style)
-                    : Theme.Colors.cardTextSecondary(colorScheme, style: style),
-                variant: isStarred ? .primaryFilled : .secondaryOutlined,
-                action: onToggleStar
-            )
-            .accessibilityLabel(isStarred ? "Unstar item" : "Star item")
-            .accessibilityHint("Toggle the star for this item.")
-        }
-    }
-}
-
 // MARK: - Tag Sheets
 
 struct ItemTagPickerSheet: View {
