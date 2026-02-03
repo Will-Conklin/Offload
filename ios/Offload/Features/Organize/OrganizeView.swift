@@ -138,7 +138,6 @@ struct OrganizeView: View {
                     )
                 }
                 .buttonStyle(.plain)
-                .cardButtonStyle()
                 .onAppear {
                     if index == viewModel.collections.count - 1 {
                         loadNextPage()
