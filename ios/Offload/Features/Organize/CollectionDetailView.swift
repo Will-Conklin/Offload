@@ -28,10 +28,31 @@ struct CollectionDetailView: View {
     @State private var errorPresenter = ErrorPresenter()
     @State private var viewModel = CollectionDetailViewModel()
     @State private var editMode: EditMode = .inactive
+    @State private var expandedItems: Set<UUID> = [] // Track which parent items are expanded
 
     private var style: ThemeStyle { themeManager.currentStyle }
     private var floatingTabBarClearance: CGFloat {
         Theme.Spacing.xxl + Theme.Spacing.xl + Theme.Spacing.lg + Theme.Spacing.md
+    }
+
+    private var visiblePlanItems: [CollectionItem] {
+        guard collection?.isStructured == true else { return viewModel.items }
+
+        var visible: [CollectionItem] = []
+
+        func addVisibleItems(parentId: UUID?) {
+            let itemsAtLevel = viewModel.items.filter { $0.parentId == parentId }
+            for item in itemsAtLevel {
+                visible.append(item)
+                // Only show children if parent is expanded
+                if expandedItems.contains(item.id) {
+                    addVisibleItems(parentId: item.id)
+                }
+            }
+        }
+
+        addVisibleItems(parentId: nil) // Start with root items
+        return visible
     }
     var body: some View {
         ZStack {
@@ -53,12 +74,14 @@ struct CollectionDetailView: View {
                                         .padding(.vertical, Theme.Spacing.sm)
                                 }
 
-                                ForEach(Array(viewModel.items.enumerated()), id: \.element.id) { index, collectionItem in
+                                ForEach(Array(visiblePlanItems.enumerated()), id: \.element.id) { index, collectionItem in
                                     if let item = collectionItem.item {
                                         HierarchicalItemRow(
                                             index: index,
                                             item: item,
                                             collectionItem: collectionItem,
+                                            isExpanded: expandedItems.contains(collectionItem.id),
+                                            hasChildren: collectionItem.hasChildren(in: collectionItemRepository.modelContext),
                                             colorScheme: colorScheme,
                                             style: style,
                                             onAddTag: { tagPickerItem = item },
@@ -68,10 +91,13 @@ struct CollectionDetailView: View {
                                             onError: { errorPresenter.present($0) },
                                             onDrop: { droppedId, targetId, isNesting in
                                                 handlePlanDrop(droppedId: droppedId, targetId: targetId, isNesting: isNesting)
+                                            },
+                                            onToggleExpand: {
+                                                toggleExpanded(collectionItem.id)
                                             }
                                         )
                                         .onAppear {
-                                            if index == viewModel.items.count - 1 {
+                                            if index == visiblePlanItems.count - 1 {
                                                 loadNextPage()
                                             }
                                         }
@@ -350,6 +376,14 @@ struct CollectionDetailView: View {
             errorPresenter.present(error)
         }
     }
+
+    private func toggleExpanded(_ itemId: UUID) {
+        if expandedItems.contains(itemId) {
+            expandedItems.remove(itemId)
+        } else {
+            expandedItems.insert(itemId)
+        }
+    }
 }
 
 // MARK: - Hierarchical Item Row (for Plans)
@@ -358,6 +392,8 @@ private struct HierarchicalItemRow: View {
     let index: Int
     let item: Item
     let collectionItem: CollectionItem
+    let isExpanded: Bool
+    let hasChildren: Bool
     let colorScheme: ColorScheme
     let style: ThemeStyle
     let onAddTag: () -> Void
@@ -366,31 +402,72 @@ private struct HierarchicalItemRow: View {
     let onOpenLink: (UUID) -> Void
     let onError: (Error) -> Void
     let onDrop: (UUID, UUID, Bool) -> Void
+    let onToggleExpand: () -> Void
 
     @Environment(\.itemRepository) private var itemRepository
     @Environment(\.collectionRepository) private var collectionRepository
+    @Environment(\.collectionItemRepository) private var collectionItemRepository
     @State private var showingMenu = false
     @State private var linkedCollectionName: String?
     @State private var isDropTarget = false
+    @State private var nestingLevel: Int = 0
 
     private var isLink: Bool {
         item.itemType == .link
     }
 
+    private var indentation: CGFloat {
+        CGFloat(nestingLevel) * Theme.Spacing.xl
+    }
+
     var body: some View {
-        ItemRow(
-            index: index,
-            item: item,
-            collectionItem: collectionItem,
-            isStructured: true,
-            colorScheme: colorScheme,
-            style: style,
-            onAddTag: onAddTag,
-            onDelete: onDelete,
-            onEdit: onEdit,
-            onOpenLink: onOpenLink,
-            onError: onError
-        )
+        HStack(spacing: 0) {
+            // Indentation for nested items
+            if nestingLevel > 0 {
+                Color.clear
+                    .frame(width: indentation)
+
+                // Visual indicator for nesting
+                Rectangle()
+                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.3))
+                    .frame(width: 2)
+                    .padding(.trailing, Theme.Spacing.sm)
+            }
+
+            // Expand/collapse button for parent items
+            if hasChildren {
+                Button {
+                    onToggleExpand()
+                } label: {
+                    AppIcon(
+                        name: isExpanded ? Icons.chevronDown : Icons.chevronRight,
+                        size: 16
+                    )
+                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                    .frame(width: 24, height: 24)
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, Theme.Spacing.xs)
+            } else {
+                Color.clear
+                    .frame(width: 24)
+                    .padding(.trailing, Theme.Spacing.xs)
+            }
+
+            ItemRow(
+                index: index,
+                item: item,
+                collectionItem: collectionItem,
+                isStructured: true,
+                colorScheme: colorScheme,
+                style: style,
+                onAddTag: onAddTag,
+                onDelete: onDelete,
+                onEdit: onEdit,
+                onOpenLink: onOpenLink,
+                onError: onError
+            )
+        }
         .draggable(collectionItem.id.uuidString) {
             // Preview while dragging
             Text(item.content)
@@ -421,6 +498,30 @@ private struct HierarchicalItemRow: View {
                 .stroke(Theme.Colors.primary(colorScheme, style: style), lineWidth: 2)
                 .opacity(isDropTarget ? 0.5 : 0)
         )
+        .onAppear {
+            calculateNestingLevel()
+        }
+    }
+
+    private func calculateNestingLevel() {
+        var level = 0
+        var currentParentId = collectionItem.parentId
+
+        while let parentId = currentParentId, level < 10 { // Max depth of 10 to prevent infinite loops
+            level += 1
+            do {
+                if let parent = try collectionItemRepository.fetchById(parentId) {
+                    currentParentId = parent.parentId
+                } else {
+                    break
+                }
+            } catch {
+                onError(error)
+                break
+            }
+        }
+
+        nestingLevel = level
     }
 }
 
