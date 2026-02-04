@@ -313,9 +313,10 @@ struct CollectionDetailView: View {
             newItems.remove(at: droppedIndex)
             newItems.insert(droppedItem, at: targetIndex)
 
-            // Update all positions
+            // Update all positions and clear parent relationships (flat hierarchy)
             for (index, item) in newItems.enumerated() {
                 item.position = index
+                item.parentId = nil  // Clear any parent relationship for flat ordering
             }
 
             try collectionItemRepository.modelContext.save()
@@ -352,9 +353,10 @@ struct CollectionDetailView: View {
             newItems.remove(at: droppedIndex)
             newItems.insert(droppedItem, at: targetIndex)
 
-            // Update all positions
+            // Update all positions and clear parent relationships (flat hierarchy)
             for (index, item) in newItems.enumerated() {
                 item.position = index
+                item.parentId = nil  // Clear any parent relationship for flat ordering
             }
 
             try collectionItemRepository.modelContext.save()
