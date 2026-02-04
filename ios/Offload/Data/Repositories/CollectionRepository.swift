@@ -199,10 +199,10 @@ final class CollectionRepository {
     }
 
     func backfillPositions(_ collection: Collection) throws {
-        AppLogger.general.info("Backfilling positions for collection \(collection.name)", privacy: .public)
+        AppLogger.general.info("Backfilling positions for collection \(collection.name, privacy: .public)")
 
         guard let collectionItems = collection.collectionItems else {
-            AppLogger.general.info("No items to backfill", privacy: .public)
+            AppLogger.general.info("No items to backfill")
             return
         }
 
@@ -214,11 +214,11 @@ final class CollectionRepository {
         }
 
         if itemsNeedingPosition.isEmpty {
-            AppLogger.general.info("All items already have positions", privacy: .public)
+            AppLogger.general.info("All items already have positions")
             return
         }
 
-        AppLogger.general.info("Found \(itemsNeedingPosition.count) items needing positions", privacy: .public)
+        AppLogger.general.info("Found \(itemsNeedingPosition.count, privacy: .public) items needing positions")
 
         // Sort items needing position by creation date to maintain chronological order
         let sortedItems = itemsNeedingPosition.sorted { item1, item2 in
@@ -240,6 +240,6 @@ final class CollectionRepository {
         }
 
         try modelContext.save()
-        AppLogger.general.info("Backfilled \(sortedItems.count) positions", privacy: .public)
+        AppLogger.general.info("Backfilled \(sortedItems.count, privacy: .public) positions")
     }
 }

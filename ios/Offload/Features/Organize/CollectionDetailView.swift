@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import UIKit
+import OSLog
 
 struct CollectionDetailView: View {
     let collectionID: UUID
@@ -300,22 +301,22 @@ struct CollectionDetailView: View {
 
     private func reorderItems(from source: IndexSet, to destination: Int) {
         guard let collection = collection, !collection.isStructured else {
-            AppLogger.general.warning("Attempted reorder on structured collection, ignoring", privacy: .public)
+            AppLogger.general.warning("Attempted reorder on structured collection, ignoring")
             return
         }
 
-        AppLogger.general.info("Reordering items from \(source.description) to \(destination)", privacy: .public)
+        AppLogger.general.info("Reordering items from \(source.description) to \(destination)")
 
         // Reorder in view model
-        viewModel.items.move(fromOffsets: source, toOffset: destination)
+        viewModel.reorder(from: source, to: destination)
 
         // Persist the new order
         do {
             let itemIds = viewModel.items.map { $0.itemId }
             try collectionItemRepository.reorderItems(collection.id, itemIds: itemIds)
-            AppLogger.general.info("Items reordered successfully", privacy: .public)
+            AppLogger.general.info("Items reordered successfully")
         } catch {
-            AppLogger.general.error("Failed to persist item reorder: \(error.localizedDescription)", privacy: .public)
+            AppLogger.general.error("Failed to persist item reorder: \(error.localizedDescription)")
             errorPresenter.present(error)
             // Refresh to restore correct order
             refreshItems()
@@ -324,33 +325,33 @@ struct CollectionDetailView: View {
 
     private func handlePlanDrop(droppedId: UUID, targetId: UUID, isNesting: Bool) {
         guard let collection = collection, collection.isStructured else {
-            AppLogger.general.warning("Attempted plan drop on unstructured collection, ignoring", privacy: .public)
+            AppLogger.general.warning("Attempted plan drop on unstructured collection, ignoring")
             return
         }
 
-        AppLogger.general.info("Plan drop: \(droppedId) onto \(targetId), nesting: \(isNesting)", privacy: .public)
+        AppLogger.general.info("Plan drop: \(droppedId) onto \(targetId), nesting: \(isNesting)")
 
         do {
             guard let droppedItem = try collectionItemRepository.fetchById(droppedId) else {
-                AppLogger.general.error("Dropped item not found: \(droppedId)", privacy: .public)
+                AppLogger.general.error("Dropped item not found: \(droppedId)")
                 return
             }
 
             if isNesting {
                 // Make droppedItem a child of targetId
                 try collectionItemRepository.updateParent(droppedItem, parentId: targetId)
-                AppLogger.general.info("Item nested under parent \(targetId)", privacy: .public)
+                AppLogger.general.info("Item nested under parent \(targetId)")
             } else {
                 // Reorder at the same level as targetId
                 guard let targetItem = try collectionItemRepository.fetchById(targetId) else {
-                    AppLogger.general.error("Target item not found: \(targetId)", privacy: .public)
+                    AppLogger.general.error("Target item not found: \(targetId)")
                     return
                 }
 
                 // Get current root items
                 let rootItems = try collectionItemRepository.fetchRootItems(collection.id)
                 guard let targetIndex = rootItems.firstIndex(where: { $0.id == targetId }) else {
-                    AppLogger.general.error("Target item not in root items", privacy: .public)
+                    AppLogger.general.error("Target item not in root items")
                     return
                 }
 
@@ -366,13 +367,13 @@ struct CollectionDetailView: View {
                 }
 
                 try collectionItemRepository.modelContext.save()
-                AppLogger.general.info("Items reordered at same level", privacy: .public)
+                AppLogger.general.info("Items reordered at same level")
             }
 
             // Refresh to show new hierarchy
             refreshItems()
         } catch {
-            AppLogger.general.error("Failed to handle plan drop: \(error.localizedDescription)", privacy: .public)
+            AppLogger.general.error("Failed to handle plan drop: \(error.localizedDescription)")
             errorPresenter.present(error)
         }
     }

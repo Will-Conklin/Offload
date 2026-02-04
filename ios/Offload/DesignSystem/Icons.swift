@@ -47,4 +47,6 @@ struct Icons {
     static let tag = "tag"
     static let tagFilled = "tag.fill"
     static let search = "magnifyingglass"
+    static let chevronDown = "chevron.down"
+    static let chevronRight = "chevron.right"
 }

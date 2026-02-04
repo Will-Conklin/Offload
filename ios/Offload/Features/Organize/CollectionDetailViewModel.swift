@@ -6,6 +6,7 @@
 import Foundation
 import Observation
 import OSLog
+import SwiftUI
 
 
 @Observable
@@ -104,6 +105,11 @@ final class CollectionDetailViewModel {
         AppLogger.workflow.debug(
             "CollectionDetail remove completed - removed: \(removedCount, privacy: .public), offset: \(self.offset, privacy: .public)"
         )
+    }
+
+    func reorder(from source: IndexSet, to destination: Int) {
+        items.move(fromOffsets: source, toOffset: destination)
+        AppLogger.workflow.debug("CollectionDetail reorder completed")
     }
 
     private func reset() {
