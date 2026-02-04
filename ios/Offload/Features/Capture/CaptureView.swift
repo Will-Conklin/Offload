@@ -835,17 +835,17 @@ private struct CaptureSearchView: View {
             // Search for matching tags
             matchingTags = try tagRepository.searchByName(trimmed)
 
-            // If tags are selected, show items with those tags
+            // If tags are selected, show ALL items with those tags (not just matching search text)
             if !selectedTags.isEmpty {
                 var taggedItems: [Item] = []
                 for tagId in selectedTags {
-                    if let tag = matchingTags.first(where: { $0.id == tagId }) {
+                    // Fetch tag directly by ID to get all items, not just those matching search
+                    if let tag = try tagRepository.fetchById(tagId) {
                         taggedItems.append(contentsOf: try itemRepository.fetchByTag(tag))
                     }
                 }
-                // Remove duplicates and combine with text search
-                let contentResults = try itemRepository.searchByContent(trimmed)
-                searchResults = Array(Set(taggedItems + contentResults)).sorted { $0.createdAt > $1.createdAt }
+                // Don't combine with text search - just show tagged items
+                searchResults = Array(Set(taggedItems)).sorted { $0.createdAt > $1.createdAt }
             } else {
                 // No tags selected, just show text search results
                 searchResults = try itemRepository.searchByContent(trimmed)

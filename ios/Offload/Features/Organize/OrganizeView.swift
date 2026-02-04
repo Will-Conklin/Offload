@@ -741,7 +741,7 @@ private struct OrganizeSearchView: View {
             // Search for matching tags
             matchingTags = try tagRepository.searchByName(query)
 
-            // If tags are selected, show collections with those tags
+            // If tags are selected, show ALL collections with those tags (not just matching search text)
             if !selectedTags.isEmpty {
                 // Get all collections that have the selected tags
                 let allCollections = try collectionRepository.fetchAll()
@@ -750,9 +750,8 @@ private struct OrganizeSearchView: View {
                         collection.tags.contains(where: { $0.id == tagId })
                     }
                 }
-                // Combine with name search results
-                let nameResults = try collectionRepository.searchByName(query)
-                searchResults = Array(Set(taggedCollections + nameResults)).sorted { $0.createdAt > $1.createdAt }
+                // Don't combine with name search - just show tagged collections
+                searchResults = taggedCollections.sorted { $0.createdAt > $1.createdAt }
             } else {
                 // No tags selected, just show name search results
                 searchResults = try collectionRepository.searchByName(query)
