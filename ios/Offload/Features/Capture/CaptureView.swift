@@ -827,21 +827,28 @@ private struct CaptureSearchView: View {
         guard !trimmed.isEmpty else {
             searchResults = []
             matchingTags = []
+            selectedTags.removeAll()
             return
         }
 
         do {
-            // Search by content
-            let contentResults = try itemRepository.searchByContent(trimmed)
-
             // Search for matching tags
             matchingTags = try tagRepository.searchByName(trimmed)
 
-            // Apply tag filters if any are selected
-            if selectedTags.isEmpty {
-                searchResults = contentResults
+            // If tags are selected, show items with those tags
+            if !selectedTags.isEmpty {
+                var taggedItems: [Item] = []
+                for tagId in selectedTags {
+                    if let tag = matchingTags.first(where: { $0.id == tagId }) {
+                        taggedItems.append(contentsOf: try itemRepository.fetchByTag(tag))
+                    }
+                }
+                // Remove duplicates and combine with text search
+                let contentResults = try itemRepository.searchByContent(trimmed)
+                searchResults = Array(Set(taggedItems + contentResults)).sorted { $0.createdAt > $1.createdAt }
             } else {
-                searchResults = applyTagFilters(to: contentResults)
+                // No tags selected, just show text search results
+                searchResults = try itemRepository.searchByContent(trimmed)
             }
         } catch {
             errorPresenter.present(error)
@@ -859,14 +866,6 @@ private struct CaptureSearchView: View {
 
         // Re-run search with updated filters
         performSearch(searchQuery)
-    }
-
-    private func applyTagFilters(to items: [Item]) -> [Item] {
-        items.filter { item in
-            selectedTags.allSatisfy { tagId in
-                item.tags.contains(where: { $0.id == tagId })
-            }
-        }
     }
 }
 

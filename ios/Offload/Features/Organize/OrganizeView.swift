@@ -733,21 +733,29 @@ private struct OrganizeSearchView: View {
         guard !query.isEmpty else {
             searchResults = []
             matchingTags = []
+            selectedTags.removeAll()
             return
         }
 
         do {
-            // Search by name
-            let nameResults = try collectionRepository.searchByName(query)
-
             // Search for matching tags
             matchingTags = try tagRepository.searchByName(query)
 
-            // Apply tag filters if any are selected
-            if selectedTags.isEmpty {
-                searchResults = nameResults
+            // If tags are selected, show collections with those tags
+            if !selectedTags.isEmpty {
+                // Get all collections that have the selected tags
+                let allCollections = try collectionRepository.fetchAll()
+                let taggedCollections = allCollections.filter { collection in
+                    selectedTags.contains { tagId in
+                        collection.tags.contains(where: { $0.id == tagId })
+                    }
+                }
+                // Combine with name search results
+                let nameResults = try collectionRepository.searchByName(query)
+                searchResults = Array(Set(taggedCollections + nameResults)).sorted { $0.createdAt > $1.createdAt }
             } else {
-                searchResults = applyTagFilters(to: nameResults)
+                // No tags selected, just show name search results
+                searchResults = try collectionRepository.searchByName(query)
             }
         } catch {
             errorPresenter.present(error)
@@ -765,14 +773,6 @@ private struct OrganizeSearchView: View {
 
         // Re-run search with updated filters
         performSearch(searchQuery)
-    }
-
-    private func applyTagFilters(to collections: [Collection]) -> [Collection] {
-        collections.filter { collection in
-            selectedTags.allSatisfy { tagId in
-                collection.tags.contains(where: { $0.id == tagId })
-            }
-        }
     }
 }
 
