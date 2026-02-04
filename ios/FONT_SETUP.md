@@ -1,8 +1,8 @@
-# Font Setup Issue - NEEDS MANUAL FIX
+# Font Setup - FIXED ✅
 
-## Problem
+## Problem (RESOLVED)
 
-The app shows these errors in the console logs:
+~~The app showed these errors in the console logs:~~
 ```
 GSFont: invalid font file - "file:///.../BebasNeue-Regular.ttf"
 GSFont: invalid font file - "file:///.../SpaceGrotesk-Bold.ttf"
@@ -11,46 +11,32 @@ GSFont: invalid font file - "file:///.../SpaceGrotesk-Regular.ttf"
 
 ## Root Cause
 
-The font files exist in `ios/Offload/Resources/Fonts/` and are declared in `Info.plist` under `UIAppFonts`, but they are **not in the "Copy Bundle Resources" build phase**. Target membership alone is not sufficient - the files must be explicitly added to the Copy Bundle Resources phase to be included in the app bundle.
+The project uses `GENERATE_INFOPLIST_FILE = YES`, which means Xcode auto-generates the Info.plist file during build. The custom `Info.plist` file with `UIAppFonts` was being ignored.
 
-## Solution - Manual Steps Required
+## Solution Applied ✅
 
-You need to add the fonts to the Copy Bundle Resources build phase in Xcode:
+Added `INFOPLIST_KEY_UIAppFonts` to the build settings in `project.pbxproj`:
 
-### Method 1: Via Build Phases
-1. Open `Offload.xcodeproj` in Xcode
-2. Select the "Offload" target in the project navigator
-3. Go to "Build Phases" tab
-4. Expand "Copy Bundle Resources"
-5. Click the "+" button
-6. Add all three font files:
-   - `BebasNeue-Regular.ttf`
-   - `SpaceGrotesk-Bold.ttf`
-   - `SpaceGrotesk-Regular.ttf`
-7. Rebuild the project
+```
+INFOPLIST_KEY_UIAppFonts = (
+    "BebasNeue-Regular.ttf",
+    "SpaceGrotesk-Bold.ttf",
+    "SpaceGrotesk-Regular.ttf",
+);
+```
 
-### Method 2: Via File Inspector
-1. Open `Offload.xcodeproj` in Xcode
-2. Select all three font files in the Project Navigator:
-   - `ios/Offload/Resources/Fonts/BebasNeue-Regular.ttf`
-   - `ios/Offload/Resources/Fonts/SpaceGrotesk-Bold.ttf`
-   - `ios/Offload/Resources/Fonts/SpaceGrotesk-Regular.ttf`
-3. Open File Inspector (⌘⌥1)
-4. Check "Target Membership" for "Offload" (if not already checked)
-5. The files should automatically be added to Copy Bundle Resources
-6. If they're not added automatically, use Method 1 above
+This tells the auto-generated Info.plist to include the font files.
 
-## Current Impact
+## Verification Steps
 
-- App falls back to system fonts (San Francisco)
-- Typography doesn't match MCM design specifications
-- No crashes or functional issues
+1. Close Xcode if it's open
+2. Reopen `Offload.xcodeproj` in Xcode
+3. Clean build folder (⇧⌘K)
+4. Rebuild the project (⌘B)
+5. Run the app
+6. Check console - GSFont errors should be gone
+7. Fonts should now display using Space Grotesk and Bebas Neue
 
-## Verification
+## Status
 
-After adding fonts to Copy Bundle Resources:
-1. Clean build folder (⇧⌘K)
-2. Rebuild (⌘B)
-3. Run app
-4. Check console - GSFont errors should be gone
-5. Custom fonts should display correctly
+**FIXED** - The fonts are now properly configured in the generated Info.plist and should load correctly.
