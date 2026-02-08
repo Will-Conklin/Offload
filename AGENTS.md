@@ -26,7 +26,13 @@ iOS application built with SwiftUI and SwiftData, targeting iPhone and iPad.
 ## Common Commands
 
 ```bash
-open ios/Offload.xcodeproj    # Open in Xcode
+just                          # List available commands
+just xcode-open               # Open in Xcode
+just build                    # Build
+just test                     # Test
+just lint                     # Run markdownlint/yamllint
+
+# Manual Xcode shortcuts
 # Cmd+B                       # Build
 # Cmd+R                       # Run
 # Cmd+U                       # Test
@@ -61,7 +67,7 @@ open ios/Offload.xcodeproj    # Open in Xcode
 - NEVER use markdown files to drive non-agent processes or store configuration
   that non-agent scripts parse; document metadata for agents must live only in
   YAML front-matter per `docs/AGENTS.md`
-- Prioritize using `just` for common commands - create and maintain a `justfile` at project root
+- Prioritize using `just` for common commands and keep the `justfile` at project root up to date
 
 ## Documentation Authority
 
