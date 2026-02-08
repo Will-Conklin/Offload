@@ -5,8 +5,9 @@
 
 //  Simplified design for Plans and Lists tabs using Collections
 
-import SwiftUI
+import OSLog
 import SwiftData
+import SwiftUI
 
 struct OrganizeView: View {
     enum Scope: String, CaseIterable, Identifiable {
@@ -16,15 +17,15 @@ struct OrganizeView: View {
 
         var title: String {
             switch self {
-            case .plans: return "Plans"
-            case .lists: return "Lists"
+            case .plans: "Plans"
+            case .lists: "Lists"
             }
         }
 
         var isStructured: Bool {
             switch self {
-            case .plans: return true
-            case .lists: return false
+            case .plans: true
+            case .lists: false
             }
         }
     }
@@ -78,6 +79,16 @@ struct OrganizeView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button { showingCreate = true } label: {
+                        IconTile(
+                            iconName: Icons.addCircleFilled,
+                            iconSize: 18,
+                            tileSize: 32,
+                            style: .secondaryOutlined(Theme.Colors.accentPrimary(colorScheme, style: style))
+                        )
+                    }
+                    .accessibilityLabel("Add \(selectedScope == .plans ? "Plan" : "List")")
+
                     Button {
                         showingSearch = true
                     } label: {
@@ -106,18 +117,22 @@ struct OrganizeView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
+                    .environmentObject(themeManager)
             }
             .sheet(isPresented: $showingSearch) {
                 OrganizeSearchView(searchQuery: $searchQuery)
+                    .environmentObject(themeManager)
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
             .sheet(item: $tagPickerCollection) { collection in
                 CollectionTagPickerSheet(collection: collection)
+                    .environmentObject(themeManager)
                     .presentationDetents([.medium])
             }
             .navigationDestination(item: $selectedCollection) { collection in
                 CollectionDetailView(collectionID: collection.id)
+                    .environmentObject(themeManager)
             }
             .errorToasts(errorPresenter)
         }
@@ -142,19 +157,17 @@ struct OrganizeView: View {
             }
         } else {
             ForEach(Array(viewModel.collections.enumerated()), id: \.element.id) { index, collection in
-                Button {
-                    selectedCollection = collection
-                } label: {
-                    CollectionCard(
-                        paletteIndex: index,
-                        collection: collection,
-                        colorScheme: colorScheme,
-                        style: style,
-                        onAddTag: { tagPickerCollection = collection },
-                        onToggleStar: { toggleStar(collection) }
-                    )
-                }
-                .buttonStyle(.plain)
+                DraggableCollectionCard(
+                    collection: collection,
+                    colorScheme: colorScheme,
+                    style: style,
+                    onTap: { selectedCollection = collection },
+                    onAddTag: { tagPickerCollection = collection },
+                    onToggleStar: { toggleStar(collection) },
+                    onDrop: { droppedId, targetId in
+                        handleCollectionReorder(droppedId: droppedId, targetId: targetId)
+                    }
+                )
                 .onAppear {
                     if index == viewModel.collections.count - 1 {
                         loadNextPage()
@@ -167,35 +180,27 @@ struct OrganizeView: View {
                     .padding(.vertical, Theme.Spacing.sm)
             }
 
-            addCollectionButton
-                .padding(.top, Theme.Spacing.sm)
+            if !viewModel.collections.isEmpty {
+                BottomCollectionDropZone(
+                    colorScheme: colorScheme,
+                    style: style,
+                    onDrop: { droppedId in
+                        handleCollectionDropAtEnd(droppedId: droppedId)
+                    }
+                )
+            }
         }
     }
 
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: Theme.Spacing.md) {
-            AppIcon(name: selectedScope == .plans ? Icons.plans : Icons.lists, size: 34)
-                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-            Text("No \(selectedScope.title.lowercased()) yet")
-                .font(Theme.Typography.body)
-                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-            addCollectionButton
-                .padding(.top, Theme.Spacing.sm)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Theme.Spacing.xxl)
-    }
-
-    private var addCollectionButton: some View {
-        FloatingActionButton(
-            title: "Add \(selectedScope == .plans ? "Plan" : "List")",
-            iconName: Icons.addCircleFilled
-        ) {
-            showingCreate = true
-        }
-        .accessibilityLabel("Add \(selectedScope.title)")
+        EmptyStateView(
+            iconName: selectedScope == .plans ? Icons.plans : Icons.lists,
+            message: "No \(selectedScope.title.lowercased()) yet",
+            actionTitle: "Add \(selectedScope == .plans ? "Plan" : "List")",
+            action: { showingCreate = true }
+        )
     }
 
     // MARK: - Scope Picker
@@ -281,11 +286,19 @@ struct OrganizeView: View {
 
     private func loadScopeIfNeeded() {
         guard !viewModel.hasLoaded else { return }
+        // Backfill positions for existing collections
+        do {
+            try collectionRepository.backfillCollectionPositions(isStructured: selectedScope.isStructured)
+        } catch {
+            AppLogger.general.error("Failed to backfill collection positions: \(error.localizedDescription)")
+        }
         updateScope()
     }
 
     private func updateScope() {
         do {
+            // Backfill positions when switching scopes
+            try collectionRepository.backfillCollectionPositions(isStructured: selectedScope.isStructured)
             try viewModel.setScope(isStructured: selectedScope.isStructured, using: collectionRepository)
         } catch {
             errorPresenter.present(error)
@@ -307,12 +320,192 @@ struct OrganizeView: View {
             errorPresenter.present(error)
         }
     }
+
+    private func handleCollectionReorder(droppedId: UUID, targetId: UUID) {
+        AppLogger.general.info("Collection reorder: \(droppedId) to position of \(targetId)")
+
+        do {
+            // Find the dropped and target collections
+            guard let droppedIndex = viewModel.collections.firstIndex(where: { $0.id == droppedId }),
+                  let targetIndex = viewModel.collections.firstIndex(where: { $0.id == targetId })
+            else {
+                AppLogger.general.error("Could not find dropped or target collection")
+                return
+            }
+
+            // Reorder in view model
+            let droppedCollection = viewModel.collections[droppedIndex]
+            var newCollections = viewModel.collections
+            newCollections.remove(at: droppedIndex)
+
+            // Adjust target index if item was removed before target position
+            let adjustedTargetIndex = droppedIndex < targetIndex ? targetIndex - 1 : targetIndex
+            newCollections.insert(droppedCollection, at: adjustedTargetIndex)
+
+            // Update all positions
+            for (index, collection) in newCollections.enumerated() {
+                collection.position = index
+            }
+
+            try collectionRepository.reorderCollections(newCollections)
+            AppLogger.general.info("Collections reordered successfully")
+
+            // Refresh to show new order
+            refreshCollections()
+        } catch {
+            AppLogger.general.error("Failed to handle collection reorder: \(error.localizedDescription)")
+            errorPresenter.present(error)
+        }
+    }
+
+    private func handleCollectionDropAtEnd(droppedId: UUID) {
+        AppLogger.general.info("Collection drop at end: \(droppedId)")
+
+        do {
+            guard let droppedCollection = viewModel.collections.first(where: { $0.id == droppedId }) else {
+                AppLogger.general.error("Could not find dropped collection")
+                return
+            }
+
+            // Remove from current position
+            var newCollections = viewModel.collections.filter { $0.id != droppedId }
+            // Add to end
+            newCollections.append(droppedCollection)
+
+            // Update all positions
+            for (index, collection) in newCollections.enumerated() {
+                collection.position = index
+            }
+
+            try collectionRepository.reorderCollections(newCollections)
+            AppLogger.general.info("Collection moved to end successfully")
+
+            // Refresh to show new order
+            refreshCollections()
+        } catch {
+            AppLogger.general.error("Failed to handle collection drop at end: \(error.localizedDescription)")
+            errorPresenter.present(error)
+        }
+    }
+}
+
+// MARK: - Draggable Collection Card
+
+private struct DraggableCollectionCard: View {
+    let collection: Collection
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let onTap: () -> Void
+    let onAddTag: () -> Void
+    let onToggleStar: () -> Void
+    let onDrop: (UUID, UUID) -> Void
+
+    @State private var isDropTarget = false
+
+    var body: some View {
+        Button {
+            onTap()
+        } label: {
+            CollectionCard(
+                collection: collection,
+                colorScheme: colorScheme,
+                style: style,
+                onAddTag: onAddTag,
+                onToggleStar: onToggleStar
+            )
+        }
+        .buttonStyle(.plain)
+        .draggable(collection.id.uuidString) {
+            // Preview while dragging
+            Text(collection.name)
+                .font(Theme.Typography.caption)
+                .lineLimit(2)
+                .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+                .padding(Theme.Spacing.sm)
+                .frame(width: 200)
+                .background(
+                    RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                        .fill(Theme.Colors.cardColor(index: collection.stableColorIndex, colorScheme, style: style))
+                )
+        }
+        .dropDestination(for: String.self) { droppedIds, _ in
+            guard let droppedIdString = droppedIds.first,
+                  let droppedId = UUID(uuidString: droppedIdString)
+            else {
+                return false
+            }
+
+            // Prevent dropping on self
+            if droppedId == collection.id {
+                return false
+            }
+
+            onDrop(droppedId, collection.id)
+            return true
+        } isTargeted: { isTargeted in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isDropTarget = isTargeted
+            }
+        }
+        .overlay(alignment: .top) {
+            // Show insertion line when dropping
+            if isDropTarget {
+                Rectangle()
+                    .fill(Theme.Colors.primary(colorScheme, style: style))
+                    .frame(height: 3)
+                    .offset(y: -(Theme.Spacing.md / 2 + 1.5))
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isDropTarget)
+    }
+}
+
+// MARK: - Bottom Collection Drop Zone
+
+private struct BottomCollectionDropZone: View {
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let onDrop: (UUID) -> Void
+
+    @State private var isDropTarget = false
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+            .fill(isDropTarget
+                ? Theme.Colors.primary(colorScheme, style: style).opacity(0.08)
+                : Color.white.opacity(0.001)
+            )
+            .frame(height: isDropTarget ? 60 : 44)
+            .overlay {
+                if isDropTarget {
+                    RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                        .strokeBorder(
+                            Theme.Colors.primary(colorScheme, style: style),
+                            style: StrokeStyle(lineWidth: 2, dash: [6, 3])
+                        )
+                }
+            }
+            .dropDestination(for: String.self) { droppedIds, _ in
+                guard let droppedIdString = droppedIds.first,
+                      let droppedId = UUID(uuidString: droppedIdString)
+                else {
+                    return false
+                }
+
+                onDrop(droppedId)
+                return true
+            } isTargeted: { isTargeted in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isDropTarget = isTargeted
+                }
+            }
+    }
 }
 
 // MARK: - Collection Card
 
 private struct CollectionCard: View {
-    let paletteIndex: Int
     let collection: Collection
     let colorScheme: ColorScheme
     let style: ThemeStyle
@@ -320,92 +513,79 @@ private struct CollectionCard: View {
     let onToggleStar: () -> Void
 
     var body: some View {
-        CardSurface(fill: Theme.Colors.cardColor(index: paletteIndex, colorScheme, style: style)) {
+        CardSurface(fill: Theme.Colors.cardColor(index: collection.stableColorIndex, colorScheme, style: style)) {
             // MCM card content with custom metadata for collections
             HStack(alignment: .top, spacing: 0) {
-                    // Left column (narrow - metadata gutter)
-                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                        IconTile(
-                            iconName: collection.isStructured ? Icons.plans : Icons.lists,
-                            iconSize: 16,
-                            tileSize: 36,
-                            style: .none(Theme.Colors.icon(colorScheme, style: style))
-                        )
+                // Left column (narrow - metadata gutter)
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                    IconTile(
+                        iconName: collection.isStructured ? Icons.plans : Icons.lists,
+                        iconSize: 16,
+                        tileSize: 36,
+                        style: .none(Theme.Colors.icon(colorScheme, style: style))
+                    )
 
-                        Text(collection.isStructured ? "PLAN" : "LIST")
+                    Text(collection.isStructured ? "PLAN" : "LIST")
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+
+                    Text(collection.formattedDate)
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+
+                    if let count = collection.collectionItems?.count, count > 0 {
+                        Text("\(count) item\(count == 1 ? "" : "s")")
                             .font(Theme.Typography.caption)
                             .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-
-                        Text(collection.createdAt, format: .dateTime.month(.abbreviated).day())
-                            .font(Theme.Typography.caption)
-                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-
-                        if let count = collection.collectionItems?.count, count > 0 {
-                            Text("\(count) item\(count == 1 ? "" : "s")")
-                                .font(Theme.Typography.caption)
-                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-                        }
                     }
-                    .frame(width: 60, alignment: .leading)
+                }
+                .frame(width: 60, alignment: .leading)
 
-                    // Right column (wide - main content)
-                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-                        Text(collection.name)
-                            .font(.system(.title2, design: .default).weight(.bold))
-                            .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
-                            .lineLimit(3)
+                // Right column (wide - main content)
+                VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                    Text(collection.name)
+                        .font(.system(.title2, design: .default).weight(.bold))
+                        .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+                        .lineLimit(3)
 
-                        // Tags in flow layout
-                        if !collection.tags.isEmpty {
-                            FlowLayout(spacing: Theme.Spacing.xs) {
-                                ForEach(collection.tags) { tag in
-                                    TagPill(
-                                        name: tag.name,
-                                        color: tag.color
-                                            .map { Color(hex: $0) }
-                                            ?? Theme.Colors.tagColor(for: tag.name, colorScheme, style: style)
-                                    )
-                                }
-
-                                Button(action: onAddTag) {
-                                    HStack(spacing: 4) {
-                                        AppIcon(name: Icons.add, size: 10)
-                                        Text("Tag")
-                                            .font(Theme.Typography.caption)
-                                    }
-                                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-                                    .padding(.horizontal, Theme.Spacing.pillHorizontal)
-                                    .padding(.vertical, Theme.Spacing.pillVertical)
-                                    .background(
-                                        Capsule()
-                                            .strokeBorder(
-                                                Theme.Colors.borderMuted(colorScheme, style: style),
-                                                lineWidth: 1
-                                            )
-                                    )
-                                }
-                                .buttonStyle(.plain)
+                    // Tags in flow layout
+                    if !collection.tags.isEmpty {
+                        FlowLayout(spacing: Theme.Spacing.xs) {
+                            ForEach(collection.tags) { tag in
+                                TagPill(
+                                    name: tag.name,
+                                    color: tag.color
+                                        .map { Color(hex: $0) }
+                                        ?? Theme.Colors.tagColor(for: tag.name, colorScheme, style: style)
+                                )
                             }
+
+                            Button(action: onAddTag) {
+                                HStack(spacing: 4) {
+                                    AppIcon(name: Icons.add, size: 10)
+                                    Text("Tag")
+                                        .font(Theme.Typography.caption)
+                                }
+                                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                                .padding(.horizontal, Theme.Spacing.pillHorizontal)
+                                .padding(.vertical, Theme.Spacing.pillVertical)
+                                .background(
+                                    Capsule()
+                                        .strokeBorder(
+                                            Theme.Colors.borderMuted(colorScheme, style: style),
+                                            lineWidth: 1
+                                        )
+                                )
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
-                    .padding(.leading, 12)
+                }
+                .padding(.leading, 12)
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            Button(action: onToggleStar) {
-                AppIcon(
-                    name: collection.isStarred ? Icons.starFilled : Icons.star,
-                    size: 18
-                )
-                .foregroundStyle(
-                    collection.isStarred
-                        ? Theme.Colors.caution(colorScheme, style: style)
-                        : Theme.Colors.textSecondary(colorScheme, style: style)
-                )
-                .padding(Theme.Spacing.md)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(collection.isStarred ? "Unstar collection" : "Star collection")
+            StarButton(isStarred: collection.isStarred, action: onToggleStar)
         }
     }
 }
@@ -676,45 +856,34 @@ private struct OrganizeSearchView: View {
 
     @ViewBuilder
     private var emptyQueryState: some View {
-        VStack(spacing: Theme.Spacing.md) {
-            AppIcon(name: Icons.search, size: 34)
-                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-            Text("Start typing to search collections")
-                .font(Theme.Typography.body)
-                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Theme.Spacing.xxl)
+        EmptyStateView(
+            iconName: Icons.search,
+            message: "Start typing to search collections"
+        )
     }
 
     @ViewBuilder
     private var noResultsState: some View {
-        VStack(spacing: Theme.Spacing.md) {
-            AppIcon(name: Icons.search, size: 34)
-                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-            Text("No collections found")
-                .font(Theme.Typography.body)
-                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-            Text("Try a different search term")
-                .font(Theme.Typography.caption)
-                .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Theme.Spacing.xxl)
+        EmptyStateView(
+            iconName: Icons.search,
+            message: "No collections found",
+            subtitle: "Try a different search term"
+        )
     }
 
     @ViewBuilder
     private var resultsContent: some View {
-        ForEach(Array(searchResults.enumerated()), id: \.element.id) { index, collection in
+        ForEach(Array(searchResults.enumerated()), id: \.element.id) { _, collection in
             NavigationLink {
                 CollectionDetailView(collectionID: collection.id)
+                    .environmentObject(themeManager)
             } label: {
-                CardSurface(fill: Theme.Colors.cardColor(index: index, colorScheme, style: style)) {
+                CardSurface(fill: Theme.Colors.cardColor(index: collection.stableColorIndex, colorScheme, style: style)) {
                     MCMCardContent(
                         icon: collection.isStructured ? Icons.plans : Icons.lists,
                         title: collection.name,
                         typeLabel: collection.isStructured ? "PLAN" : "LIST",
-                        timestamp: collection.createdAt.formatted(.dateTime.month(.abbreviated).day()),
+                        timestamp: collection.formattedDate,
                         tags: collection.tags,
                         onAddTag: nil,
                         size: .standard

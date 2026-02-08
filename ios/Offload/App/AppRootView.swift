@@ -3,31 +3,27 @@
 // Governed by: AGENTS.md
 // Additional instructions: Keep navigation flow consistent with MainTabView -> NavigationStack -> sheets.
 
-import SwiftUI
-import SwiftData
 import os
-
-
+import SwiftData
+import SwiftUI
 
 struct AppRootView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var themeManager: ThemeManager
-    @State private var didLogRepositories = false
+    @State private var repositories: RepositoryBundle?
 
     var body: some View {
-        let repositories = RepositoryBundle.make(modelContext: modelContext)
-
         MainTabView()
-            .environment(\.itemRepository, repositories.itemRepository)
-            .environment(\.collectionRepository, repositories.collectionRepository)
-            .environment(\.collectionItemRepository, repositories.collectionItemRepository)
-            .environment(\.tagRepository, repositories.tagRepository)
+            .environment(\.itemRepository, repositories?.itemRepository ?? ItemRepository(modelContext: modelContext))
+            .environment(\.collectionRepository, repositories?.collectionRepository ?? CollectionRepository(modelContext: modelContext))
+            .environment(\.collectionItemRepository, repositories?.collectionItemRepository ?? CollectionItemRepository(modelContext: modelContext))
+            .environment(\.tagRepository, repositories?.tagRepository ?? TagRepository(modelContext: modelContext))
             .preferredColorScheme(themeManager.appearancePreference.colorScheme)
             .withToast()
             .task {
-                if !didLogRepositories {
+                if repositories == nil {
+                    repositories = RepositoryBundle.make(modelContext: modelContext)
                     AppLogger.general.info("Repository bundle initialized")
-                    didLogRepositories = true
                 }
                 do {
                     try TagMigration.runIfNeeded(modelContext: modelContext)
