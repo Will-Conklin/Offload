@@ -63,28 +63,62 @@ final class CollectionRepository {
 
     func fetchStructured() throws -> [Collection] {
         let descriptor = FetchDescriptor<Collection>(
-            predicate: #Predicate { $0.isStructured == true },
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+            predicate: #Predicate { $0.isStructured == true }
         )
-        return try modelContext.fetch(descriptor)
+        let collections = try modelContext.fetch(descriptor)
+        // Sort by position (if set), then by createdAt
+        return collections.sorted { c1, c2 in
+            if let p1 = c1.position, let p2 = c2.position {
+                return p1 < p2
+            } else if c1.position != nil {
+                return true  // c1 has position, c2 doesn't
+            } else if c2.position != nil {
+                return false // c2 has position, c1 doesn't
+            } else {
+                return c1.createdAt > c2.createdAt // Both nil, use createdAt descending
+            }
+        }
     }
 
     func fetchUnstructured() throws -> [Collection] {
         let descriptor = FetchDescriptor<Collection>(
-            predicate: #Predicate { $0.isStructured == false },
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+            predicate: #Predicate { $0.isStructured == false }
         )
-        return try modelContext.fetch(descriptor)
+        let collections = try modelContext.fetch(descriptor)
+        // Sort by position (if set), then by createdAt
+        return collections.sorted { c1, c2 in
+            if let p1 = c1.position, let p2 = c2.position {
+                return p1 < p2
+            } else if c1.position != nil {
+                return true  // c1 has position, c2 doesn't
+            } else if c2.position != nil {
+                return false // c2 has position, c1 doesn't
+            } else {
+                return c1.createdAt > c2.createdAt // Both nil, use createdAt descending
+            }
+        }
     }
 
     func fetchPage(isStructured: Bool, limit: Int, offset: Int) throws -> [Collection] {
-        var descriptor = FetchDescriptor<Collection>(
-            predicate: #Predicate { $0.isStructured == isStructured },
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        // Fetch all, sort, then apply pagination
+        let descriptor = FetchDescriptor<Collection>(
+            predicate: #Predicate { $0.isStructured == isStructured }
         )
-        descriptor.fetchLimit = limit
-        descriptor.fetchOffset = offset
-        return try modelContext.fetch(descriptor)
+        let collections = try modelContext.fetch(descriptor)
+        let sorted = collections.sorted { c1, c2 in
+            if let p1 = c1.position, let p2 = c2.position {
+                return p1 < p2
+            } else if c1.position != nil {
+                return true
+            } else if c2.position != nil {
+                return false
+            } else {
+                return c1.createdAt > c2.createdAt
+            }
+        }
+        let startIndex = min(offset, sorted.count)
+        let endIndex = min(offset + limit, sorted.count)
+        return Array(sorted[startIndex..<endIndex])
     }
 
     func searchByName(_ query: String) throws -> [Collection] {
@@ -192,6 +226,45 @@ final class CollectionRepository {
             AppLogger.persistence.error("Collection delete failed - id: \(collectionId, privacy: .public), error: \(error.localizedDescription, privacy: .public)")
             throw error
         }
+    }
+
+    // MARK: - Reordering
+
+    func reorderCollections(_ collections: [Collection]) throws {
+        AppLogger.persistence.debug("Reordering \(collections.count, privacy: .public) collections")
+        for (index, collection) in collections.enumerated() {
+            collection.position = index
+        }
+        do {
+            try modelContext.save()
+            AppLogger.persistence.info("Collections reordered successfully")
+        } catch {
+            AppLogger.persistence.error("Collections reorder failed: \(error.localizedDescription, privacy: .public)")
+            throw error
+        }
+    }
+
+    func backfillCollectionPositions(isStructured: Bool) throws {
+        AppLogger.general.info("Backfilling collection positions for \(isStructured ? "plans" : "lists", privacy: .public)")
+
+        let collections = try isStructured ? fetchStructured() : fetchUnstructured()
+        let collectionsNeedingPosition = collections.filter { $0.position == nil }
+
+        guard !collectionsNeedingPosition.isEmpty else {
+            AppLogger.general.info("All collections already have positions")
+            return
+        }
+
+        AppLogger.general.info("Found \(collectionsNeedingPosition.count, privacy: .public) collections needing positions")
+
+        // Sort by creation date and assign positions
+        let sorted = collectionsNeedingPosition.sorted { $0.createdAt < $1.createdAt }
+        for (index, collection) in sorted.enumerated() {
+            collection.position = index
+        }
+
+        try modelContext.save()
+        AppLogger.general.info("Collection positions backfilled successfully")
     }
 
     // MARK: - Helper methods

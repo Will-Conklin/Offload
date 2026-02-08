@@ -13,6 +13,7 @@ final class Collection {
     var isStructured: Bool // false = simple list, true = plan with order/hierarchy
     var createdAt: Date
     var isStarred: Bool
+    var position: Int? // Optional position for custom ordering (nil = use createdAt)
 
     // Relationship to items through CollectionItem
     @Relationship(deleteRule: .cascade, inverse: \CollectionItem.collection)
@@ -28,6 +29,7 @@ final class Collection {
         isStructured: Bool = false,
         createdAt: Date = Date(),
         isStarred: Bool = false,
+        position: Int? = nil,
         tags: [Tag] = []
     ) {
         self.id = id
@@ -35,6 +37,7 @@ final class Collection {
         self.isStructured = isStructured
         self.createdAt = createdAt
         self.isStarred = isStarred
+        self.position = position
         self.tags = tags
     }
 

@@ -112,6 +112,16 @@ struct CollectionDetailView: View {
                                     ProgressView()
                                         .padding(.vertical, Theme.Spacing.sm)
                                 }
+
+                                if !viewModel.items.isEmpty {
+                                    BottomDropZone(
+                                        colorScheme: colorScheme,
+                                        style: style,
+                                        onDrop: { droppedId in
+                                            handlePlanDropAtEnd(droppedId: droppedId)
+                                        }
+                                    )
+                                }
                             }
                             .padding(.horizontal, Theme.Spacing.md)
                             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: visiblePlanItems.map(\.id))
@@ -152,14 +162,20 @@ struct CollectionDetailView: View {
                                     ProgressView()
                                         .padding(.vertical, Theme.Spacing.sm)
                                 }
+
+                                if !viewModel.items.isEmpty {
+                                    BottomDropZone(
+                                        colorScheme: colorScheme,
+                                        style: style,
+                                        onDrop: { droppedId in
+                                            handleListDropAtEnd(droppedId: droppedId)
+                                        }
+                                    )
+                                }
                             }
                             .padding(.horizontal, Theme.Spacing.md)
                             .animation(.spring(response: 0.3, dampingFraction: 0.8), value: viewModel.items.map(\.id))
                         }
-
-                        quickAddButton
-                            .padding(.top, Theme.Spacing.sm)
-                            .padding(.bottom, Theme.Spacing.sm)
                     }
                     .padding(.top, Theme.Spacing.sm)
                     .padding(.bottom, Theme.Spacing.lg)
@@ -187,10 +203,26 @@ struct CollectionDetailView: View {
                     }
                 }
             }
-            ToolbarItem(placement: .primaryAction) {
-                Button { showingEdit = true } label: {
-                    Text("Edit")
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button { showingAddItem = true } label: {
+                    IconTile(
+                        iconName: Icons.addCircleFilled,
+                        iconSize: 18,
+                        tileSize: 32,
+                        style: .secondaryOutlined(Theme.Colors.accentPrimary(colorScheme, style: style))
+                    )
                 }
+                .accessibilityLabel("Add item")
+
+                Button { showingEdit = true } label: {
+                    IconTile(
+                        iconName: Icons.write,
+                        iconSize: 18,
+                        tileSize: 32,
+                        style: .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                    )
+                }
+                .accessibilityLabel("Edit collection")
             }
         }
         .sheet(isPresented: $showingAddItem) {
@@ -229,14 +261,6 @@ struct CollectionDetailView: View {
             loadCollection()
         }
         .errorToasts(errorPresenter)
-    }
-
-    // MARK: - Quick Add Button
-
-    private var quickAddButton: some View {
-        FloatingActionButton(title: "Add Item", iconName: Icons.addCircleFilled) {
-            showingAddItem = true
-        }
     }
 
     // MARK: - Data Loading
@@ -335,6 +359,42 @@ struct CollectionDetailView: View {
         }
     }
 
+    private func handleListDropAtEnd(droppedId: UUID) {
+        guard let collection, !collection.isStructured else {
+            AppLogger.general.warning("Attempted list drop at end on structured collection, ignoring")
+            return
+        }
+
+        AppLogger.general.info("List drop at end: \(droppedId)")
+
+        do {
+            guard let droppedItem = viewModel.items.first(where: { $0.id == droppedId }) else {
+                AppLogger.general.error("Could not find dropped item in list")
+                return
+            }
+
+            // Remove from current position
+            var newItems = viewModel.items.filter { $0.id != droppedId }
+            // Add to end
+            newItems.append(droppedItem)
+
+            // Update all positions and clear parent relationships (flat hierarchy)
+            for (index, item) in newItems.enumerated() {
+                item.position = index
+                item.parentId = nil
+            }
+
+            try collectionItemRepository.modelContext.save()
+            AppLogger.general.info("List item moved to end successfully")
+
+            // Refresh to show new order
+            refreshItems()
+        } catch {
+            AppLogger.general.error("Failed to handle list drop at end: \(error.localizedDescription)")
+            errorPresenter.present(error)
+        }
+    }
+
     private func handlePlanDrop(droppedId: UUID, targetId: UUID, isNesting: Bool) {
         guard let collection, collection.isStructured else {
             AppLogger.general.warning("Attempted plan drop on unstructured collection, ignoring")
@@ -412,6 +472,47 @@ struct CollectionDetailView: View {
             refreshItems()
         } catch {
             AppLogger.general.error("Failed to handle plan drop: \(error.localizedDescription)")
+            errorPresenter.present(error)
+        }
+    }
+
+    private func handlePlanDropAtEnd(droppedId: UUID) {
+        guard let collection, collection.isStructured else {
+            AppLogger.general.warning("Attempted plan drop at end on unstructured collection, ignoring")
+            return
+        }
+
+        AppLogger.general.info("Plan drop at end: \(droppedId)")
+
+        do {
+            guard let droppedItem = viewModel.items.first(where: { $0.id == droppedId }) else {
+                AppLogger.general.error("Could not find dropped item")
+                return
+            }
+
+            // Move to root level at the end
+            droppedItem.parentId = nil
+
+            // Get all root-level siblings
+            let rootItems = viewModel.items.filter { $0.parentId == nil }
+                .sorted { ($0.position ?? 0) < ($1.position ?? 0) }
+
+            // Remove dropped item from list if already at root
+            let reordered = rootItems.filter { $0.id != droppedId }
+
+            // Update positions for all root items, placing dropped at end
+            for (index, item) in reordered.enumerated() {
+                item.position = index
+            }
+            droppedItem.position = reordered.count
+
+            try collectionItemRepository.modelContext.save()
+            AppLogger.general.info("Plan item moved to end at root level")
+
+            // Refresh to show new order
+            refreshItems()
+        } catch {
+            AppLogger.general.error("Failed to handle plan drop at end: \(error.localizedDescription)")
             errorPresenter.present(error)
         }
     }
@@ -520,52 +621,52 @@ private struct HierarchicalItemRow: View {
                 onOpenLink: onOpenLink,
                 onError: onError
             )
-        }
-        .draggable(collectionItem.id.uuidString) {
-            // Preview while dragging - simple view without environment objects
-            Text(item.content)
-                .font(Theme.Typography.caption)
-                .lineLimit(2)
-                .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
-                .padding(Theme.Spacing.sm)
-                .frame(width: 200)
-                .background(
-                    RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
-                        .fill(Theme.Colors.cardColor(index: item.stableColorIndex, colorScheme, style: style))
-                )
-        }
-        .dropDestination(for: String.self) { droppedIds, _ in
-            guard let droppedIdString = droppedIds.first,
-                  let droppedId = UUID(uuidString: droppedIdString)
-            else {
-                return false
+            .draggable(collectionItem.id.uuidString) {
+                // Preview while dragging - simple view without environment objects
+                Text(item.content)
+                    .font(Theme.Typography.caption)
+                    .lineLimit(2)
+                    .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+                    .padding(Theme.Spacing.sm)
+                    .frame(width: 200)
+                    .background(
+                        RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                            .fill(Theme.Colors.cardColor(index: item.stableColorIndex, colorScheme, style: style))
+                    )
             }
+            .dropDestination(for: String.self) { droppedIds, _ in
+                guard let droppedIdString = droppedIds.first,
+                      let droppedId = UUID(uuidString: droppedIdString)
+                else {
+                    return false
+                }
 
-            // Prevent dropping on self
-            if droppedId == collectionItem.id {
-                return false
-            }
+                // Prevent dropping on self
+                if droppedId == collectionItem.id {
+                    return false
+                }
 
-            // Determine if this is a nesting drop (center) or reorder drop (edge)
-            // For now, always reorder (nesting can be added with long-press in future)
-            onDrop(droppedId, collectionItem.id, false)
-            return true
-        } isTargeted: { isTargeted in
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isDropTarget = isTargeted
+                // Determine if this is a nesting drop (center) or reorder drop (edge)
+                // For now, always reorder (nesting can be added with long-press in future)
+                onDrop(droppedId, collectionItem.id, false)
+                return true
+            } isTargeted: { isTargeted in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isDropTarget = isTargeted
+                }
             }
-        }
-        .overlay(alignment: .top) {
-            // Show insertion line between cards when dropping
-            if isDropTarget {
-                Rectangle()
-                    .fill(Theme.Colors.primary(colorScheme, style: style))
-                    .frame(height: 3)
-                    .offset(y: -(Theme.Spacing.md / 2 + 1.5)) // Center in the gap between cards
-                    .transition(.opacity)
+            .overlay(alignment: .top) {
+                // Show insertion line between cards when dropping
+                if isDropTarget {
+                    Rectangle()
+                        .fill(Theme.Colors.primary(colorScheme, style: style))
+                        .frame(height: 3)
+                        .offset(y: -(Theme.Spacing.md / 2 + 1.5)) // Center in the gap between cards
+                        .transition(.opacity)
+                }
             }
+            .animation(.easeInOut(duration: 0.2), value: isDropTarget)
         }
-        .animation(.easeInOut(duration: 0.2), value: isDropTarget)
         .onAppear {
             calculateNestingLevel()
         }
@@ -600,6 +701,48 @@ private struct HierarchicalItemRow: View {
             AppLogger.general.debug("Item \(collectionItem.id) calculated nesting level: \(level)")
         }
         nestingLevel = level
+    }
+}
+
+// MARK: - Bottom Drop Zone
+
+private struct BottomDropZone: View {
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let onDrop: (UUID) -> Void
+
+    @State private var isDropTarget = false
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+            .fill(isDropTarget
+                ? Theme.Colors.primary(colorScheme, style: style).opacity(0.08)
+                : Color.white.opacity(0.001) // Nearly invisible but receives hit tests
+            )
+            .frame(height: isDropTarget ? 60 : 44)
+            .overlay {
+                if isDropTarget {
+                    RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                        .strokeBorder(
+                            Theme.Colors.primary(colorScheme, style: style),
+                            style: StrokeStyle(lineWidth: 2, dash: [6, 3])
+                        )
+                }
+            }
+            .dropDestination(for: String.self) { droppedIds, _ in
+                guard let droppedIdString = droppedIds.first,
+                      let droppedId = UUID(uuidString: droppedIdString)
+                else {
+                    return false
+                }
+
+                onDrop(droppedId)
+                return true
+            } isTargeted: { isTargeted in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isDropTarget = isTargeted
+                }
+            }
     }
 }
 

@@ -5,6 +5,7 @@
 
 //  Simplified design for Plans and Lists tabs using Collections
 
+import OSLog
 import SwiftData
 import SwiftUI
 
@@ -78,6 +79,16 @@ struct OrganizeView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button { showingCreate = true } label: {
+                        IconTile(
+                            iconName: Icons.addCircleFilled,
+                            iconSize: 18,
+                            tileSize: 32,
+                            style: .secondaryOutlined(Theme.Colors.accentPrimary(colorScheme, style: style))
+                        )
+                    }
+                    .accessibilityLabel("Add \(selectedScope == .plans ? "Plan" : "List")")
+
                     Button {
                         showingSearch = true
                     } label: {
@@ -146,18 +157,17 @@ struct OrganizeView: View {
             }
         } else {
             ForEach(Array(viewModel.collections.enumerated()), id: \.element.id) { index, collection in
-                Button {
-                    selectedCollection = collection
-                } label: {
-                    CollectionCard(
-                        collection: collection,
-                        colorScheme: colorScheme,
-                        style: style,
-                        onAddTag: { tagPickerCollection = collection },
-                        onToggleStar: { toggleStar(collection) }
-                    )
-                }
-                .buttonStyle(.plain)
+                DraggableCollectionCard(
+                    collection: collection,
+                    colorScheme: colorScheme,
+                    style: style,
+                    onTap: { selectedCollection = collection },
+                    onAddTag: { tagPickerCollection = collection },
+                    onToggleStar: { toggleStar(collection) },
+                    onDrop: { droppedId, targetId in
+                        handleCollectionReorder(droppedId: droppedId, targetId: targetId)
+                    }
+                )
                 .onAppear {
                     if index == viewModel.collections.count - 1 {
                         loadNextPage()
@@ -170,8 +180,15 @@ struct OrganizeView: View {
                     .padding(.vertical, Theme.Spacing.sm)
             }
 
-            addCollectionButton
-                .padding(.top, Theme.Spacing.sm)
+            if !viewModel.collections.isEmpty {
+                BottomCollectionDropZone(
+                    colorScheme: colorScheme,
+                    style: style,
+                    onDrop: { droppedId in
+                        handleCollectionDropAtEnd(droppedId: droppedId)
+                    }
+                )
+            }
         }
     }
 
@@ -184,16 +201,6 @@ struct OrganizeView: View {
             actionTitle: "Add \(selectedScope == .plans ? "Plan" : "List")",
             action: { showingCreate = true }
         )
-    }
-
-    private var addCollectionButton: some View {
-        FloatingActionButton(
-            title: "Add \(selectedScope == .plans ? "Plan" : "List")",
-            iconName: Icons.addCircleFilled
-        ) {
-            showingCreate = true
-        }
-        .accessibilityLabel("Add \(selectedScope.title)")
     }
 
     // MARK: - Scope Picker
@@ -279,11 +286,19 @@ struct OrganizeView: View {
 
     private func loadScopeIfNeeded() {
         guard !viewModel.hasLoaded else { return }
+        // Backfill positions for existing collections
+        do {
+            try collectionRepository.backfillCollectionPositions(isStructured: selectedScope.isStructured)
+        } catch {
+            AppLogger.general.error("Failed to backfill collection positions: \(error.localizedDescription)")
+        }
         updateScope()
     }
 
     private func updateScope() {
         do {
+            // Backfill positions when switching scopes
+            try collectionRepository.backfillCollectionPositions(isStructured: selectedScope.isStructured)
             try viewModel.setScope(isStructured: selectedScope.isStructured, using: collectionRepository)
         } catch {
             errorPresenter.present(error)
@@ -304,6 +319,187 @@ struct OrganizeView: View {
         } catch {
             errorPresenter.present(error)
         }
+    }
+
+    private func handleCollectionReorder(droppedId: UUID, targetId: UUID) {
+        AppLogger.general.info("Collection reorder: \(droppedId) to position of \(targetId)")
+
+        do {
+            // Find the dropped and target collections
+            guard let droppedIndex = viewModel.collections.firstIndex(where: { $0.id == droppedId }),
+                  let targetIndex = viewModel.collections.firstIndex(where: { $0.id == targetId })
+            else {
+                AppLogger.general.error("Could not find dropped or target collection")
+                return
+            }
+
+            // Reorder in view model
+            let droppedCollection = viewModel.collections[droppedIndex]
+            var newCollections = viewModel.collections
+            newCollections.remove(at: droppedIndex)
+
+            // Adjust target index if item was removed before target position
+            let adjustedTargetIndex = droppedIndex < targetIndex ? targetIndex - 1 : targetIndex
+            newCollections.insert(droppedCollection, at: adjustedTargetIndex)
+
+            // Update all positions
+            for (index, collection) in newCollections.enumerated() {
+                collection.position = index
+            }
+
+            try collectionRepository.reorderCollections(newCollections)
+            AppLogger.general.info("Collections reordered successfully")
+
+            // Refresh to show new order
+            refreshCollections()
+        } catch {
+            AppLogger.general.error("Failed to handle collection reorder: \(error.localizedDescription)")
+            errorPresenter.present(error)
+        }
+    }
+
+    private func handleCollectionDropAtEnd(droppedId: UUID) {
+        AppLogger.general.info("Collection drop at end: \(droppedId)")
+
+        do {
+            guard let droppedCollection = viewModel.collections.first(where: { $0.id == droppedId }) else {
+                AppLogger.general.error("Could not find dropped collection")
+                return
+            }
+
+            // Remove from current position
+            var newCollections = viewModel.collections.filter { $0.id != droppedId }
+            // Add to end
+            newCollections.append(droppedCollection)
+
+            // Update all positions
+            for (index, collection) in newCollections.enumerated() {
+                collection.position = index
+            }
+
+            try collectionRepository.reorderCollections(newCollections)
+            AppLogger.general.info("Collection moved to end successfully")
+
+            // Refresh to show new order
+            refreshCollections()
+        } catch {
+            AppLogger.general.error("Failed to handle collection drop at end: \(error.localizedDescription)")
+            errorPresenter.present(error)
+        }
+    }
+}
+
+// MARK: - Draggable Collection Card
+
+private struct DraggableCollectionCard: View {
+    let collection: Collection
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let onTap: () -> Void
+    let onAddTag: () -> Void
+    let onToggleStar: () -> Void
+    let onDrop: (UUID, UUID) -> Void
+
+    @State private var isDropTarget = false
+
+    var body: some View {
+        Button {
+            onTap()
+        } label: {
+            CollectionCard(
+                collection: collection,
+                colorScheme: colorScheme,
+                style: style,
+                onAddTag: onAddTag,
+                onToggleStar: onToggleStar
+            )
+        }
+        .buttonStyle(.plain)
+        .draggable(collection.id.uuidString) {
+            // Preview while dragging
+            Text(collection.name)
+                .font(Theme.Typography.caption)
+                .lineLimit(2)
+                .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+                .padding(Theme.Spacing.sm)
+                .frame(width: 200)
+                .background(
+                    RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                        .fill(Theme.Colors.cardColor(index: collection.stableColorIndex, colorScheme, style: style))
+                )
+        }
+        .dropDestination(for: String.self) { droppedIds, _ in
+            guard let droppedIdString = droppedIds.first,
+                  let droppedId = UUID(uuidString: droppedIdString)
+            else {
+                return false
+            }
+
+            // Prevent dropping on self
+            if droppedId == collection.id {
+                return false
+            }
+
+            onDrop(droppedId, collection.id)
+            return true
+        } isTargeted: { isTargeted in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isDropTarget = isTargeted
+            }
+        }
+        .overlay(alignment: .top) {
+            // Show insertion line when dropping
+            if isDropTarget {
+                Rectangle()
+                    .fill(Theme.Colors.primary(colorScheme, style: style))
+                    .frame(height: 3)
+                    .offset(y: -(Theme.Spacing.md / 2 + 1.5))
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isDropTarget)
+    }
+}
+
+// MARK: - Bottom Collection Drop Zone
+
+private struct BottomCollectionDropZone: View {
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let onDrop: (UUID) -> Void
+
+    @State private var isDropTarget = false
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+            .fill(isDropTarget
+                ? Theme.Colors.primary(colorScheme, style: style).opacity(0.08)
+                : Color.white.opacity(0.001)
+            )
+            .frame(height: isDropTarget ? 60 : 44)
+            .overlay {
+                if isDropTarget {
+                    RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                        .strokeBorder(
+                            Theme.Colors.primary(colorScheme, style: style),
+                            style: StrokeStyle(lineWidth: 2, dash: [6, 3])
+                        )
+                }
+            }
+            .dropDestination(for: String.self) { droppedIds, _ in
+                guard let droppedIdString = droppedIds.first,
+                      let droppedId = UUID(uuidString: droppedIdString)
+                else {
+                    return false
+                }
+
+                onDrop(droppedId)
+                return true
+            } isTargeted: { isTargeted in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isDropTarget = isTargeted
+                }
+            }
     }
 }
 
