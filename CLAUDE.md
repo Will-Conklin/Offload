@@ -44,6 +44,8 @@ just xcode-open         # Open project in Xcode
 - `@Environment(\.accessibilityReduceMotion)` only works in Views; use `UIAccessibility.isReduceMotionEnabled` in classes (e.g., ThemeManager)
 - OSLog `privacy:` only works inside string interpolation `\(value, privacy: .public)`, not as a standalone log argument
 - xcodebuild requires `-project ios/Offload.xcodeproj`; repo root has no `.xcodeproj`
+- `just test` may fail if multiple simulators share the same name; run directly with OS: `xcodebuild test -project ios/Offload.xcodeproj -scheme Offload -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2'`
+- `OffloadUITestsLaunchTests.testLaunch()` is flaky (screenshot comparison); failures don't indicate real regressions
 
 ## Design System Rules
 
