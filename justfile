@@ -19,3 +19,11 @@ lint-yaml:
     yamllint .
 
 lint: lint-docs lint-yaml
+
+security-deps:
+    snyk test --all-projects
+
+security-code:
+    snyk code test
+
+security: security-deps security-code
