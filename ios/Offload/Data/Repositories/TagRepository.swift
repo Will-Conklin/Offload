@@ -40,10 +40,14 @@ final class TagRepository {
     }
 
     func fetchByName(_ name: String) throws -> Tag? {
+        let normalizedQuery = Self.normalizedName(name)
+        guard !normalizedQuery.isEmpty else { return nil }
+
         let descriptor = FetchDescriptor<Tag>(
-            predicate: #Predicate { $0.name == name }
+            sortBy: [SortDescriptor(\.createdAt)]
         )
-        return try modelContext.fetch(descriptor).first
+        let allTags = try modelContext.fetch(descriptor)
+        return allTags.first { Self.normalizedName($0.name) == normalizedQuery }
     }
 
     func search(query: String) throws -> [Tag] {
@@ -63,11 +67,12 @@ final class TagRepository {
 
     /// Find or create a tag by name
     func findOrCreate(name: String, color: String? = nil) throws -> Tag {
-        if let existing = try fetchByName(name) {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let existing = try fetchByName(trimmedName) {
             return existing
         }
 
-        let newTag = Tag(name: name, color: color)
+        let newTag = Tag(name: trimmedName, color: color)
         try create(tag: newTag)
         return newTag
     }
@@ -115,5 +120,9 @@ final class TagRepository {
     /// Check if tag is used by any items
     func isTagInUse(tag: Tag) -> Bool {
         getTaskCount(tag: tag) > 0
+    }
+
+    private static func normalizedName(_ name: String) -> String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 }
