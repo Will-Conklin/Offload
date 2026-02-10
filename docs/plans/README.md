@@ -64,9 +64,6 @@ proposed → accepted → in-progress → completed/archived
 
 - [Plan: Testing & Polish](./plan-testing-polish.md)
 - [Plan: Release Prep](./plan-release-prep.md)
-
-### Complete (Awaiting User Verification)
-
 - [Plan: Convert Plans and Lists](./plan-convert-plans-lists.md)
 - [Plan: Drag and Drop Ordering](./plan-drag-drop-ordering.md)
 - [Plan: Item Search by Text or Tag](./plan-item-search-tags.md)

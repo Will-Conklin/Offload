@@ -1,7 +1,7 @@
 ---
 id: plan-ux-accessibility-audit-fixes
 type: plan
-status: complete
+status: in-progress
 owners:
   - Will-Conklin
 applies_to:
@@ -203,4 +203,4 @@ all feature views with animations
 | --- | --- |
 | 2026-02-08 | Plan created from UX/accessibility audit results |
 | 2026-02-08 | All 5 phases implemented — build passes |
-| 2026-02-09 | Plan marked complete; issue #134 closed |
+| 2026-02-09 | All 5 phases implemented and tested; issue #134 closed. Awaiting user verification. |

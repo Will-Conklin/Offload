@@ -1,7 +1,7 @@
 ---
 id: plan-view-decomposition
 type: plan
-status: complete
+status: in-progress
 owners:
   - Will-Conklin
 applies_to:
@@ -75,4 +75,4 @@ GitHub issue #117 and Linear PER-21 are both marked Done.
 | Date | Update |
 | --- | --- |
 | 2026-01-20 | Plan created from roadmap split. |
-| 2026-02-09 | All phases completed. PR #137 (d9515d1) merged to main. Issue #117 and Linear PER-21 closed as Done. |
+| 2026-02-09 | All phases completed. PR #137 (d9515d1) merged to main. Issue #117 and Linear PER-21 closed as Done. Awaiting user verification. |
