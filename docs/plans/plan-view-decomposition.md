@@ -5,7 +5,7 @@ status: in-progress
 owners:
   - Will-Conklin
 applies_to:
-  - pending-confirmation
+  - ios
 last_updated: 2026-02-09
 related:
   - plan-roadmap
@@ -19,13 +19,13 @@ structure_notes:
   - "Section order: Overview; Goals; Phases; Dependencies; Risks; User Verification; Progress."
 ---
 
-# Plan: View Decomposition (Pending Confirmation)
+# Plan: View Decomposition
 
 ## Overview
 
-Execution plan for decomposing large SwiftUI views listed as optional proposed
-scope in the roadmap. Work should begin only after scope is confirmed via
-PRD/ADR updates.
+Decomposed oversized SwiftUI view files into focused, single-responsibility
+modules. Completed via PR #137 (commit d9515d1), merged to main on 2026-02-09.
+GitHub issue #117 and Linear PER-21 are both marked Done.
 
 ## Goals
 
@@ -36,29 +36,28 @@ PRD/ADR updates.
 
 ### Phase 1: Scope Confirmation
 
-**Status:** Not Started
+**Status:** Complete
 
-- [ ] Confirm scope approval in PRD/ADR updates.
-- [ ] Prioritize views based on size and complexity.
+- [x] Confirm scope approval in PRD/ADR updates.
+- [x] Prioritize views based on size and complexity.
 
 ### Phase 2: Decomposition Plan
 
-**Status:** Not Started
+**Status:** Complete
 
-- [ ] Identify subviews and shared components.
-- [ ] Document sequencing and ownership boundaries.
+- [x] Identify subviews and shared components.
+- [x] Document sequencing and ownership boundaries.
 
 ### Phase 3: Refactor & Verification
 
-**Status:** Not Started
+**Status:** Complete
 
-- [ ] Implement view splits.
-- [ ] Verify navigation, bindings, and state flows.
+- [x] Implement view splits.
+- [x] Verify navigation, bindings, and state flows.
 
 ## Dependencies
 
-- Scope confirmation for proposed work.
-- Updated design system guidance for shared components.
+- Design system guidance for shared components (available in `DesignSystem/`).
 
 ## Risks
 
@@ -76,3 +75,4 @@ PRD/ADR updates.
 | Date | Update |
 | --- | --- |
 | 2026-01-20 | Plan created from roadmap split. |
+| 2026-02-09 | All phases completed. PR #137 (d9515d1) merged to main. Issue #117 and Linear PER-21 closed as Done. Awaiting user verification. |

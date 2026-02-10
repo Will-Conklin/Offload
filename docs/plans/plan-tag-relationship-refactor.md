@@ -9,6 +9,7 @@ applies_to:
 last_updated: 2026-02-10
 related:
   - plan-roadmap
+  - adr-0001-technology-stack-and-architecture
 depends_on: []
 supersedes: []
 accepted_by: null
@@ -24,8 +25,10 @@ structure_notes:
 ## Overview
 
 Execution plan for the optional tag relationship refactor listed as additional
-proposed scope in the roadmap. Work should begin only after scope is confirmed
-via PRD/ADR updates.
+proposed scope in the roadmap. Refactors tag storage from denormalized string
+arrays to proper SwiftData relationships. Technical design is documented in
+[archived plan](./_archived/plan-archived-tag-relationship-refactor.md). Work
+should begin only after scope is confirmed via PRD/ADR updates.
 
 ## Goals
 
@@ -57,7 +60,10 @@ via PRD/ADR updates.
 
 ## Dependencies
 
-- Approved PRD/ADR updates for proposed scope.
+- Technology stack and SwiftData architecture:
+  [adr-0001](../adrs/adr-0001-technology-stack-and-architecture.md)
+- Archived technical design:
+  [plan-archived-tag-relationship-refactor](./_archived/plan-archived-tag-relationship-refactor.md)
 - SwiftData migration guidance and test coverage.
 
 ## Risks
@@ -77,3 +83,4 @@ via PRD/ADR updates.
 | --- | --- |
 | 2026-02-10 | Implementation started in [PR #138](https://github.com/Will-Conklin/Offload/pull/138). |
 | 2026-01-20 | Plan created from roadmap split. |
+| 2026-02-09 | Plan refined with cross-references to ADR-0001 and archived technical design. |

@@ -1,7 +1,7 @@
 ---
 id: plan-ux-accessibility-audit-fixes
 type: plan
-status: complete
+status: in-progress
 owners:
   - Will-Conklin
 applies_to:
@@ -9,6 +9,8 @@ applies_to:
 last_updated: 2026-02-09
 related:
   - plan-advanced-accessibility
+  - adr-0003-adhd-focused-ux-ui-guardrails
+  - plan-testing-polish
 depends_on: []
 supersedes: []
 accepted_by: null
@@ -25,7 +27,9 @@ structure_notes:
 
 Fixes for issues found in the 2026-02-08 UX/accessibility audit covering touch
 targets, loading states, color contrast, reduced motion, and VoiceOver support.
-Organized into 5 phases by priority and blast radius.
+Organized into 5 phases by priority and blast radius. Aligned with
+[adr-0003](../adrs/adr-0003-adhd-focused-ux-ui-guardrails.md) accessibility-first
+guardrail.
 
 ## Goals
 
@@ -199,4 +203,4 @@ all feature views with animations
 | --- | --- |
 | 2026-02-08 | Plan created from UX/accessibility audit results |
 | 2026-02-08 | All 5 phases implemented — build passes |
-| 2026-02-09 | Plan marked complete; issue #134 closed |
+| 2026-02-09 | All 5 phases implemented and tested; issue #134 closed. Awaiting user verification. |
