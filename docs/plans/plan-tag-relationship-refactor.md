@@ -1,12 +1,12 @@
 ---
 id: plan-tag-relationship-refactor
 type: plan
-status: proposed
+status: in-progress
 owners:
   - Will-Conklin
 applies_to:
   - pending-confirmation
-last_updated: 2026-02-09
+last_updated: 2026-02-10
 related:
   - plan-roadmap
   - adr-0001-technology-stack-and-architecture
@@ -81,5 +81,6 @@ should begin only after scope is confirmed via PRD/ADR updates.
 
 | Date | Update |
 | --- | --- |
+| 2026-02-10 | Implementation started in [PR #138](https://github.com/Will-Conklin/Offload/pull/138). |
 | 2026-01-20 | Plan created from roadmap split. |
 | 2026-02-09 | Plan refined with cross-references to ADR-0001 and archived technical design. |
