@@ -9,6 +9,7 @@ applies_to:
 last_updated: 2026-02-09
 related:
   - plan-advanced-accessibility
+  - adr-0003-adhd-focused-ux-ui-guardrails
 depends_on: []
 supersedes: []
 accepted_by: null
@@ -25,7 +26,9 @@ structure_notes:
 
 Fixes for issues found in the 2026-02-08 UX/accessibility audit covering touch
 targets, loading states, color contrast, reduced motion, and VoiceOver support.
-Organized into 5 phases by priority and blast radius.
+Organized into 5 phases by priority and blast radius. Aligned with
+[adr-0003](../adrs/adr-0003-adhd-focused-ux-ui-guardrails.md) accessibility-first
+guardrail.
 
 ## Goals
 
