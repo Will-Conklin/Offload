@@ -54,6 +54,9 @@ Define execution sequencing, milestones, and task breakdown (WHEN).
 - Status: proposed -> accepted -> in-progress -> completed/archived
 - Updated as implementation progresses
 - Plans can only move to completed/archived when every item in the User Verification section is checked
+- Implementation PRs can be merged/closed when implementation tasks are complete, even if User Verification remains
+- If implementation is merged but User Verification is pending, create a follow-up GitHub issue labeled `uat`, add it to the Offload project, and link the plan and merged PR
+- Keep the plan in `in-progress` until User Verification is complete and the `uat` issue is closed
 - Active plans tracked in `docs/plans/`
 - Completed plans moved to `docs/plans/_archived/`
 
@@ -66,6 +69,7 @@ Define execution sequencing, milestones, and task breakdown (WHEN).
   - Use `gh issue create --project "Offload"` or add via GitHub web UI
   - **Always add a comment to related issues when a plan is created**, linking to the plan document and summarizing the approach
   - Include plan status, key phases, and next steps in the issue comment
+  - When work is merged but User Verification remains, create and link a `uat`-labeled issue for verification follow-up
 - References to design docs and PRDs
 - A User Verification section with a checklist; agents must not update or check items in this section
 

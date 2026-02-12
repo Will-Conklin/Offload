@@ -60,6 +60,10 @@ just lint                     # Run markdownlint/yamllint
   move to In Progress when work starts; move to In Review when a PR is open and
   all plan items are complete except User Verification; move to Done after the
   PR merges
+- If an implementation PR merges while plan User Verification tasks remain:
+  open a new GitHub issue labeled `uat`, add it to the Offload project, and
+  link the plan + merged PR; keep the plan `in-progress` until verification is
+  complete
 - For all new GitHub issues (not only plan issues): always add them to the
   Offload project during creation or immediately after creation
 - When creating plans that resolve existing issues: always add an issue comment

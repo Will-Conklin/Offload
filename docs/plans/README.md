@@ -37,13 +37,21 @@ introduce requirements, decisions, or architecture changes.
 proposed → accepted → in-progress → completed/archived
 ```
 
-| Status         | Meaning                                      |
-| -------------- | -------------------------------------------- |
-| `proposed`     | Plan drafted, not yet approved               |
-| `accepted`     | Approved and ready to start                  |
-| `in-progress`  | Work underway                                |
-| `completed`    | All work finished successfully               |
-| `archived`     | Superseded, abandoned, or no longer relevant |
+| Status        | Meaning                                             |
+| ------------- | --------------------------------------------------- |
+| `proposed`    | Plan drafted, not yet approved                      |
+| `accepted`    | Approved and ready to start                         |
+| `in-progress` | Work underway or merged code awaiting verification  |
+| `completed`   | All work finished successfully                      |
+| `archived`    | Superseded, abandoned, or no longer relevant        |
+
+### Post-Merge User Verification Workflow
+
+- Merge and close implementation PRs when implementation work is complete.
+- If User Verification checklist items remain, open a follow-up GitHub issue labeled `uat`.
+- Add the `uat` issue to the Offload project and link it to the plan and merged PR.
+- Keep the plan status as `in-progress` until User Verification is complete.
+- Move the plan to `completed` (or `archived`) only after User Verification is fully checked and the `uat` issue is closed.
 
 ## What belongs here
 
