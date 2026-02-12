@@ -723,7 +723,7 @@ struct MCMCardContent: View {
                 }
 
                 // Tags - smaller for compact cards
-                if !tags.isEmpty {
+                if !tags.isEmpty || onAddTag != nil {
                     FlowLayout(spacing: size == .compact ? 6 : 8) {
                         ForEach(tags) { tag in
                             let tagColor = tag.color
