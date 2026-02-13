@@ -9,9 +9,14 @@ import SwiftUI
 
 struct CollectionFormSheet: View {
     let isStructured: Bool
-    let onSave: (String) -> Void
+    let onSave: (String) throws -> Void
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
     @State private var name = ""
+    @State private var errorPresenter = ErrorPresenter()
+
+    private var style: ThemeStyle { themeManager.currentStyle }
 
     var body: some View {
         NavigationStack {
@@ -20,19 +25,26 @@ struct CollectionFormSheet: View {
             }
             .navigationTitle(isStructured ? "New Plan" : "New List")
             .navigationBarTitleDisplayMode(.large)
+            .scrollContentBackground(.hidden)
+            .background(Theme.Colors.background(colorScheme, style: style))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        onSave(name)
-                        dismiss()
+                        do {
+                            try onSave(name)
+                            dismiss()
+                        } catch {
+                            errorPresenter.present(error)
+                        }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
         }
+        .errorToasts(errorPresenter)
     }
 }
 
