@@ -286,18 +286,14 @@ struct OrganizeView: View {
         CollectionFormSheet(isStructured: selectedScope.isStructured) { name in
             let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmedName.isEmpty else {
-                errorPresenter.present(ValidationError("Collection name cannot be empty."))
-                return
+                throw ValidationError("Collection name cannot be empty.")
             }
-            do {
-                _ = try collectionRepository.create(
-                    name: trimmedName,
-                    isStructured: selectedScope.isStructured
-                )
-            } catch {
-                errorPresenter.present(error)
-            }
+            _ = try collectionRepository.create(
+                name: trimmedName,
+                isStructured: selectedScope.isStructured
+            )
         }
+        .environmentObject(themeManager)
     }
 
     private func toggleStar(_ collection: Collection) {
