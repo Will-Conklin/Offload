@@ -1,7 +1,7 @@
 ---
 id: plan-fix-collection-form-dismissal
 type: plan
-status: proposed
+status: in-progress
 owners:
   - Will-Conklin
 applies_to:
@@ -9,16 +9,19 @@ applies_to:
   - organize
   - bug-fix
   - forms
-last_updated: 2026-02-12
+last_updated: 2026-02-13
 related: []
 depends_on: []
 supersedes: []
-accepted_by: null
-accepted_at: null
+accepted_by: Will-Conklin
+accepted_at: 2026-02-13
 related_issues:
   - https://github.com/Will-Conklin/offload/issues/146
+  - https://github.com/Will-Conklin/offload/issues/159
+implementation_pr: https://github.com/Will-Conklin/offload/pull/154
 structure_notes:
   - "Section order: Overview; Root Cause; Goals; Phases; Dependencies; Risks; User Verification; Progress."
+  - "Implementation merged 2026-02-13; UAT pending in issue #159"
 ---
 
 # Plan: Fix Collection Form Sheet Dismissing on Save Failure

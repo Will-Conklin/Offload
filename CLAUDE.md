@@ -10,12 +10,23 @@ iOS app built with SwiftUI and SwiftData (iPhone + iPad).
 - **Models**: Item, Collection, CollectionItem, Tag (SwiftData)
 - **Design system**: `DesignSystem/Theme.swift`, theme `midCenturyModern`
 
+## Quick Start
+
+```bash
+# First time setup
+git clone <repo>
+cd offload
+just build          # Builds for iOS Simulator
+just test           # Runs all tests
+just xcode-open     # Opens in Xcode for development
+```
+
 ## Commands
 
 ```bash
 just                    # List all commands
 just build              # Build (Debug, iOS Simulator)
-just test               # Run tests (uses CI_SIM_DEVICE from readiness-env.sh)
+just test               # Run tests; for direct run: xcodebuild test -project ios/Offload.xcodeproj -scheme Offload -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2'
 just lint               # Run markdownlint + yamllint
 just lint-docs          # Markdownlint only
 just lint-yaml          # Yamllint only
@@ -34,12 +45,16 @@ just xcode-open         # Open project in Xcode
 
 ## Gotchas
 
+- **NEVER commit directly to main branch** - always use feature branches for all work (see AGENTS.md for full git workflow)
 - CI markdownlint runs strict (no `--fix`); table column alignment (MD060) must be manually correct
 - Markdownlint MD036: Don't use bold text for section headers (`**Section:**`) - use proper headings (`### Section`)
 - PRs for plan work must include `Closes #<issue-number>` in the body (see plan's `related_issues` for the issue number)
 - Plan frontmatter uses `status: completed` (NOT `complete`) — see `docs/reference/reference-frontmatter-schema.md` line 101
 - Plans can only move to completed/archived when User Verification is fully checked; if implementation is merged first, open a follow-up issue labeled `uat` and keep the plan `in-progress`
 - Worktree git operations require `cd` to worktree path; `gh pr create` fails if PR already exists (push updates existing PR)
+- **Worktree workflow**: Standard pattern is `git worktree add .worktrees/<name> -b <branch>` → implement → test → commit → `git worktree remove .worktrees/<name>`
+- Use Conventional Commits format: `type(scope): description` (e.g., `fix(ux): restore swipe-to-delete`, `feat(voice): add @MainActor isolation`)
+- Use conventional branch prefixes: `feat/`, `fix/`, `docs/`, `chore/` (e.g., `feat/swipe-delete`, `fix/gesture-conflict`)
 - **When creating new GitHub issues, always add them to the Offload project** using `gh issue create --project "Offload"` during creation, or `gh issue edit <number> --add-project "Offload"` after creation
 - **When creating plans that resolve issues, always add a comment to the issue** linking to the plan document with summary of approach, phases, and next steps
 - SwiftData predicates require explicit type references for enum cases
@@ -52,6 +67,8 @@ just xcode-open         # Open project in Xcode
 - xcodebuild requires `-project ios/Offload.xcodeproj`; repo root has no `.xcodeproj`
 - `just test` may fail if multiple simulators share the same name; run directly with OS: `xcodebuild test -project ios/Offload.xcodeproj -scheme Offload -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2'`
 - `OffloadUITestsLaunchTests.testLaunch()` is flaky (screenshot comparison); failures don't indicate real regressions
+- To find SF Symbol icon names, grep Icons.swift: `grep -i "trash" ios/Offload/DesignSystem/Icons.swift`
+- SwiftUI gesture composition: use `.simultaneousGesture()` for multiple gestures; `abs(dx) > abs(dy)` differentiates horizontal from vertical
 
 ## Design System Rules
 
@@ -171,4 +188,11 @@ All animations MUST respect reduced motion. Use `Theme.Animations.motion(animati
 6. Use SF Symbols from `Icons.swift` — do NOT add icon packages
 7. Validate final UI against Figma screenshot for 1:1 parity
 
-## Full project directives: [AGENTS.md](AGENTS.md)
+## Full Project Directives
+
+See [AGENTS.md](AGENTS.md) for:
+
+- Critical git workflow and PR requirements
+- Documentation governance (`docs/AGENTS.md` is authoritative for docs/ behavior)
+- Feature work requirements (PRD → design → plan → implementation)
+- Agent handoff summary and data model details

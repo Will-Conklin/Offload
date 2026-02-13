@@ -8,7 +8,7 @@ applies_to:
   - data-integrity
   - repositories
   - bug-fix
-last_updated: 2026-02-12
+last_updated: 2026-02-13
 related: []
 depends_on: []
 supersedes: []
@@ -16,8 +16,11 @@ accepted_by: Will-Conklin
 accepted_at: 2026-02-12
 related_issues:
   - https://github.com/Will-Conklin/offload/issues/147
+  - https://github.com/Will-Conklin/offload/issues/157
+implementation_pr: https://github.com/Will-Conklin/offload/pull/151
 structure_notes:
   - "Section order: Overview; Root Cause; Goals; Phases; Dependencies; Risks; User Verification; Progress."
+  - "Implementation merged 2026-02-13; UAT pending in issue #157"
 ---
 
 # Plan: Fix Orphaned Collection Links in CollectionItemRepository

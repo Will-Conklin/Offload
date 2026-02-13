@@ -1,24 +1,27 @@
 ---
 id: plan-fix-swipe-to-delete
 type: plan
-status: proposed
+status: in-progress
 owners:
   - Will-Conklin
 applies_to:
   - organize
-last_updated: 2026-02-10
+last_updated: 2026-02-13
 related:
   - plan-resolve-gesture-conflict
   - plan-drag-drop-ordering
 depends_on:
   - plan-drag-drop-ordering
 supersedes: []
-accepted_by: null
-accepted_at: null
+accepted_by: Will-Conklin
+accepted_at: 2026-02-13
 related_issues:
   - https://github.com/Will-Conklin/offload/issues/140
+  - https://github.com/Will-Conklin/offload/issues/160
+implementation_pr: https://github.com/Will-Conklin/offload/pull/156
 structure_notes:
   - "Section order: Overview; Context; Goals; Phases; Dependencies; Risks; User Verification; Progress."
+  - "Implementation merged 2026-02-13; UAT pending in issue #160 (CRITICAL: verify gesture conflicts)"
 ---
 
 # Plan: Fix Swipe-to-Delete in Organize View
