@@ -96,6 +96,7 @@ proposed → accepted → in-progress → completed/archived
 - [Plan: Fix Collection Position Backfill](./plan-fix-collection-position-backfill.md)
 - [Plan: Fix Structured Item Position Collisions](./plan-fix-structured-item-position-collisions.md)
 - [Plan: Fix Tag Usage Semantics](./plan-fix-tag-usage-semantics.md)
+- [Plan: Diagnose Idle Memory Pressure](./plan-diagnose-idle-memory-pressure.md)
 
 ### Completed
 

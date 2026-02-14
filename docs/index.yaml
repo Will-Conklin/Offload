@@ -176,6 +176,9 @@ sections:
       - id: plans-readme
         title: Plans
         path: plans/README.md
+      - id: plan-diagnose-idle-memory-pressure
+        title: "Plan: Diagnose Idle Memory Pressure"
+        path: plans/plan-diagnose-idle-memory-pressure.md
       - id: plan-logging-implementation
         title: "Plan: Comprehensive Logging Implementation (Proposed)"
         path: plans/plan-logging-implementation.md
