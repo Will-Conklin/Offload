@@ -17,7 +17,7 @@ AI assistance.
 
 [badge-ios]: https://img.shields.io/badge/iOS-17.0+-blue.svg
 [link-ios]: https://www.apple.com/ios/
-[badge-swift]: https://img.shields.io/badge/Swift-5.9-orange.svg
+[badge-swift]: https://img.shields.io/badge/Swift-5.x-orange.svg
 [link-swift]: https://swift.org
 [badge-swiftui]: https://img.shields.io/badge/SwiftUI-5.0-green.svg
 [link-swiftui]: https://developer.apple.com/xcode/swiftui/
@@ -71,10 +71,12 @@ Active development. For current plans and milestones, see
 
 ## Getting Started
 
-Open the Xcode project and run the app:
+Use the project `just` commands:
 
 ```bash
-open ios/Offload.xcodeproj
+just xcode-open
+just build
+just test
 ```
 
 See `ios/README.md` for setup details.

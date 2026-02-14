@@ -4,7 +4,7 @@
 SwiftUI iOS application for Offload — a friction-free thought capture and organization tool.
 
 [![iOS](https://img.shields.io/badge/iOS-17.0+-blue.svg)](https://www.apple.com/ios/)
-[![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
+[![Swift](https://img.shields.io/badge/Swift-5.x-orange.svg)](https://swift.org)
 [![SwiftUI](https://img.shields.io/badge/SwiftUI-5.0-green.svg)](https://developer.apple.com/xcode/swiftui/)
 
 ## Table of Contents
@@ -71,14 +71,17 @@ See [../docs/adrs/adr-0001-technology-stack-and-architecture.md](../docs/adrs/ad
 
 ## Building & Running
 
-1. Open `Offload.xcodeproj` in Xcode
-2. Select a simulator or device
+1. Run `just xcode-open` from the repository root
+2. Select a simulator or device in Xcode
 3. Press Cmd+R to build and run
 
 ## Testing
 
 ### Running Tests
 
-Run tests with ⌘U in Xcode.
+Run tests with either:
+
+- `just test` from the repository root
+- ⌘U in Xcode
 
 See `docs/design/testing/README.md` for testing guides and checklists.
