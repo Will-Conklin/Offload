@@ -86,31 +86,38 @@ main() {
       ;;
   esac
 
-  local enable_code_coverage="NO"
-  local test_selection_args=()
   if [[ "${full_run}" == "true" ]]; then
-    enable_code_coverage="YES"
     info "Full CI test mode enabled: running complete scheme tests with coverage."
   else
     info "Fast CI test mode enabled: running unit tests only and skipping performance benchmarks."
-    test_selection_args=(
-      -only-testing:OffloadTests
-      -skip-testing:OffloadTests/PerformanceBenchmarkTests
-    )
   fi
 
   set +e
-  xcodebuild \
-    -project "${PROJECT_PATH}" \
-    -scheme "${SCHEME}" \
-    -configuration "${CONFIGURATION}" \
-    -destination "${DESTINATION}" \
-    -derivedDataPath "${DERIVED_DATA_PATH}" \
-    -resultBundlePath "${RESULT_BUNDLE_PATH}" \
-    -enableCodeCoverage "${enable_code_coverage}" \
-    "${test_selection_args[@]}" \
-    COMPILER_INDEX_STORE_ENABLE=NO \
-    test
+  if [[ "${full_run}" == "true" ]]; then
+    xcodebuild \
+      -project "${PROJECT_PATH}" \
+      -scheme "${SCHEME}" \
+      -configuration "${CONFIGURATION}" \
+      -destination "${DESTINATION}" \
+      -derivedDataPath "${DERIVED_DATA_PATH}" \
+      -resultBundlePath "${RESULT_BUNDLE_PATH}" \
+      -enableCodeCoverage YES \
+      COMPILER_INDEX_STORE_ENABLE=NO \
+      test
+  else
+    xcodebuild \
+      -project "${PROJECT_PATH}" \
+      -scheme "${SCHEME}" \
+      -configuration "${CONFIGURATION}" \
+      -destination "${DESTINATION}" \
+      -derivedDataPath "${DERIVED_DATA_PATH}" \
+      -resultBundlePath "${RESULT_BUNDLE_PATH}" \
+      -enableCodeCoverage NO \
+      -only-testing:OffloadTests \
+      -skip-testing:OffloadTests/PerformanceBenchmarkTests \
+      COMPILER_INDEX_STORE_ENABLE=NO \
+      test
+  fi
   status=$?
   set -e
 
