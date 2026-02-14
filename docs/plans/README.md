@@ -6,7 +6,7 @@ owners:
   - Will-Conklin
 applies_to:
   - plans
-last_updated: 2026-02-09
+last_updated: 2026-02-14
 related: []
 depends_on: []
 supersedes: []
@@ -77,16 +77,29 @@ proposed → accepted → in-progress → completed/archived
 - [Plan: Item Search by Text or Tag](./plan-item-search-tags.md)
 - [Plan: UX & Accessibility Audit Fixes](./plan-ux-accessibility-audit-fixes.md)
 - [Plan: View Decomposition](./plan-view-decomposition.md)
+- [Plan: Fix Swipe-to-Delete in Organize View](./plan-fix-swipe-to-delete.md)
+- [Plan: Resolve Gesture Conflict on Collection Cards](./plan-resolve-gesture-conflict.md)
+- [Plan: Atomic Move to Collection](./plan-fix-atomic-move-to-collection.md)
+- [Plan: Fix Orphaned Collection Links in CollectionItemRepository](./plan-fix-orphaned-collection-links.md)
+- [Plan: Fix Voice Recording Service Off-Main-Actor Mutations](./plan-fix-voice-recording-threading.md)
+- [Plan: Fix Collection Form Sheet Dismissing on Save Failure](./plan-fix-collection-form-dismissal.md)
+- [Plan: Tag Relationship Refactor (Pending Confirmation)](./plan-tag-relationship-refactor.md)
 
-### Proposed (Pending Confirmations)
+### Proposed
 
-- [Plan: Tag Relationship Refactor](./plan-tag-relationship-refactor.md)
-- [Plan: Visual Timeline](./plan-visual-timeline.md)
-- [Plan: Celebration Animations](./plan-celebration-animations.md)
-- [Plan: Advanced Accessibility Features](./plan-advanced-accessibility.md)
-- [Plan: AI Organization Flows & Review Screen](./plan-ai-organization-flows.md)
-- [Plan: AI Pricing & Limits](./plan-ai-pricing-limits.md)
-- [Plan: Backend API + Privacy Constraints](./plan-backend-api-privacy.md)
+- [Plan: Visual Timeline (Pending Confirmation)](./plan-visual-timeline.md)
+- [Plan: Celebration Animations (Pending Confirmation)](./plan-celebration-animations.md)
+- [Plan: Advanced Accessibility Features (Pending Confirmation)](./plan-advanced-accessibility.md)
+- [Plan: AI Organization Flows & Review Screen (Pending Confirmation)](./plan-ai-organization-flows.md)
+- [Plan: AI Pricing & Limits (Pending Confirmation)](./plan-ai-pricing-limits.md)
+- [Plan: Backend API + Privacy Constraints (Pending Confirmation)](./plan-backend-api-privacy.md)
+- [Plan: Fix Collection Position Backfill](./plan-fix-collection-position-backfill.md)
+- [Plan: Fix Structured Item Position Collisions](./plan-fix-structured-item-position-collisions.md)
+- [Plan: Fix Tag Usage Semantics](./plan-fix-tag-usage-semantics.md)
+
+### Completed
+
+- [Plan: Fix Tag Assignment Persistence](./plan-fix-tag-assignment.md)
 
 ### Archived
 
