@@ -219,16 +219,26 @@ final class ItemRepository {
     }
 
     func moveToCollection(_ item: Item, collection: Collection, position: Int?) throws {
-        let collectionItem = CollectionItem(
-            collectionId: collection.id,
-            itemId: item.id,
-            position: position,
-            parentId: nil
-        )
-        collectionItem.collection = collection
-        collectionItem.item = item
-        modelContext.insert(collectionItem)
+        _ = try upsertCollectionItem(item: item, collection: collection, position: position)
         try modelContext.save()
+    }
+
+    /// Updates the item type and collection link in a single save boundary.
+    /// If save fails, all in-memory changes are rolled back.
+    func moveToCollectionAtomically(_ item: Item, collection: Collection, targetType: String?, position: Int?) throws {
+        guard try fetchCollection(by: collection.id) != nil else {
+            throw ValidationError("Collection not found")
+        }
+
+        item.type = targetType
+        _ = try upsertCollectionItem(item: item, collection: collection, position: position)
+
+        do {
+            try modelContext.save()
+        } catch {
+            modelContext.rollback()
+            throw error
+        }
     }
 
     // MARK: - Bulk Operations
@@ -281,5 +291,44 @@ final class ItemRepository {
 
     func deleteMultiple(_ items: [Item]) throws {
         try deleteAll(items)
+    }
+
+    // MARK: - Private helpers
+
+    private func fetchCollection(by id: UUID) throws -> Collection? {
+        let descriptor = FetchDescriptor<Collection>(
+            predicate: #Predicate { $0.id == id }
+        )
+        return try modelContext.fetch(descriptor).first
+    }
+
+    /// Inserts a new collection link or updates an existing one for the same item/collection pair.
+    private func upsertCollectionItem(item: Item, collection: Collection, position: Int?) throws -> CollectionItem {
+        let itemId = item.id
+        let collectionId = collection.id
+        let descriptor = FetchDescriptor<CollectionItem>(
+            predicate: #Predicate {
+                $0.itemId == itemId && $0.collectionId == collectionId
+            }
+        )
+
+        if let existing = try modelContext.fetch(descriptor).first {
+            existing.position = position
+            existing.parentId = nil
+            existing.collection = collection
+            existing.item = item
+            return existing
+        }
+
+        let collectionItem = CollectionItem(
+            collectionId: collectionId,
+            itemId: itemId,
+            position: position,
+            parentId: nil
+        )
+        collectionItem.collection = collection
+        collectionItem.item = item
+        modelContext.insert(collectionItem)
+        return collectionItem
     }
 }
