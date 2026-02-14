@@ -84,7 +84,9 @@ Define execution sequencing, milestones, and task breakdown (WHEN).
     mismatches before finishing (project membership, required labels, and lane
     alignment such as `In review` only with an open PR)
 - References to design docs and PRDs
+- Include related design/testing artifacts in plan frontmatter (`related`) when they inform or validate plan execution
 - A User Verification section with a checklist; agents must not update or check items in this section
+- When plans are added, moved, or archived, update `docs/index.yaml` paths in the same change
 
 ## Boundaries
 
