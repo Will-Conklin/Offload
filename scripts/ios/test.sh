@@ -16,6 +16,7 @@ OS_VERSION="${OS_VERSION:-${CI_SIM_OS}}"
 DESTINATION="${DESTINATION:-}"
 DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-${REPO_ROOT}/.ci/DerivedData}"
 RESULT_BUNDLE_PATH="${RESULT_BUNDLE_PATH:-${REPO_ROOT}/.ci/TestResults.xcresult}"
+CI_FULL_RUN="${CI_FULL_RUN:-false}"
 
 info() {
   echo "[INFO] $*"
@@ -78,6 +79,26 @@ main() {
   info "Result bundle: ${RESULT_BUNDLE_PATH}"
   info "DerivedData: ${DERIVED_DATA_PATH}"
 
+  local full_run=false
+  case "${CI_FULL_RUN}" in
+    true|TRUE|True|1|yes|YES|Yes)
+      full_run=true
+      ;;
+  esac
+
+  local enable_code_coverage="NO"
+  local test_selection_args=()
+  if [[ "${full_run}" == "true" ]]; then
+    enable_code_coverage="YES"
+    info "Full CI test mode enabled: running complete scheme tests with coverage."
+  else
+    info "Fast CI test mode enabled: running unit tests only and skipping performance benchmarks."
+    test_selection_args=(
+      -only-testing:OffloadTests
+      -skip-testing:OffloadTests/PerformanceBenchmarkTests
+    )
+  fi
+
   set +e
   xcodebuild \
     -project "${PROJECT_PATH}" \
@@ -86,7 +107,8 @@ main() {
     -destination "${DESTINATION}" \
     -derivedDataPath "${DERIVED_DATA_PATH}" \
     -resultBundlePath "${RESULT_BUNDLE_PATH}" \
-    -enableCodeCoverage YES \
+    -enableCodeCoverage "${enable_code_coverage}" \
+    "${test_selection_args[@]}" \
     COMPILER_INDEX_STORE_ENABLE=NO \
     test
   status=$?
