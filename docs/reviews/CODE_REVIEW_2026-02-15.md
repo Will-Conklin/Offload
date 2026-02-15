@@ -43,46 +43,46 @@ Highest-priority improvements should focus on security hardening for session/aut
 
 ### P1 — Data Integrity / Reliability
 
-4. **Usage reconciliation store is in-memory only**
+1. **Usage reconciliation store is in-memory only**
    - `InMemoryUsageStore` will reset on restart and diverge across workers.
    - Recommendation: move to durable shared storage (SQLite/Postgres/Redis) with atomic upsert semantics.
 
-5. **Position management can become expensive at scale**
+2. **Position management can become expensive at scale**
    - Collection item reorder/compaction logic performs repeated fetch/sort/save workflows.
    - Recommendation: use batched updates and O(n) remap strategy for reorders.
 
 ### P1 — Performance
 
-6. **`reorderItems` is O(n²)**
+1. **`reorderItems` is O(n²)**
    - Current implementation iterates IDs and searches linearly in fetched items.
    - Recommendation: pre-index by `itemId` (`Dictionary<UUID, CollectionItem>`) and update in O(n).
 
-7. **Large binary blobs in SwiftData entity**
+2. **Large binary blobs in SwiftData entity**
    - `Item.attachmentData` stores attachments inline in model records.
    - Recommendation: move to file-backed storage + lightweight metadata pointer for memory and I/O control.
 
-8. **Repeated JSON encode/decode via raw string metadata**
+3. **Repeated JSON encode/decode via raw string metadata**
    - `Item.metadata` as raw JSON string incurs repeated conversion and weak typing.
    - Recommendation: move to typed Codable structs (or constrained key schema) and decode once per lifecycle.
 
 ### P1 — UX / Accessibility
 
-9. **Custom tab bar uses many hardcoded dimensions and visual constants**
+1. **Custom tab bar uses many hardcoded dimensions and visual constants**
    - Hardcoded corner radii, heights, offsets, and divider dimensions can reduce adaptability across dynamic type and device classes.
    - Recommendation: route sizing and spacing through design tokens and accessibility size categories.
 
-10. **Potentially inconsistent accessibility affordances in floating CTA interactions**
-   - With custom tab shell and overlay CTA, ensure explicit accessibility labels/traits/hit targets and keyboard/VoiceOver order.
+2. **Potentially inconsistent accessibility affordances in floating CTA interactions**
+   With custom tab shell and overlay CTA, ensure explicit accessibility labels/traits/hit targets and keyboard/VoiceOver order.
 
 ### P2 — API / Contract Governance
 
-11. **Input guardrails are present but still broad**
-   - Max input chars are enforced, but individual list field sizes (`context_hints`, `template_ids`) should also be bounded.
-   - Recommendation: add Pydantic length constraints and reject pathological payloads early.
+1. **Input guardrails are present but still broad**
+   Max input chars are enforced, but individual list field sizes (`context_hints`, `template_ids`) should also be bounded.
+   Recommendation: add Pydantic length constraints and reject pathological payloads early.
 
-12. **Provider reliability can be improved**
-   - OpenAI adapter currently has no retry/backoff/idempotency strategy.
-   - Recommendation: add bounded retries with jitter for transient failures and stronger telemetry tags.
+2. **Provider reliability can be improved**
+   OpenAI adapter currently has no retry/backoff/idempotency strategy.
+   Recommendation: add bounded retries with jitter for transient failures and stronger telemetry tags.
 
 ## Planned Features Review (Docs)
 
@@ -112,20 +112,24 @@ Planned feature docs are strong in intent and decomposition, especially around p
 ## Suggested 30-Day Action Plan
 
 ### Week 1 — Security Baseline
+
 - Enforce production-safe secret policy.
 - Add session endpoint rate limiting.
 - Add token version + key ID support.
 
 ### Week 2 — Reliability & Quotas
+
 - Replace in-memory usage store with durable shared store.
 - Add reconciliation conflict tests and multi-worker behavior validation.
 
 ### Week 3 — iOS Performance
+
 - Refactor reorder path to O(n).
 - Move attachment payloads to file-backed storage.
 - Introduce typed metadata model.
 
 ### Week 4 — UX & Hardening
+
 - Tokenize custom tab bar sizing/spacing.
 - Complete accessibility audit for CTA/tab interactions.
 - Add end-to-end test coverage for AI fallback + consent transitions.
