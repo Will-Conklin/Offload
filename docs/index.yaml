@@ -309,6 +309,9 @@ sections:
       - id: plan-tab-shell-accessibility-hardening
         title: "Plan: Tab Shell Accessibility Hardening"
         path: plans/plan-tab-shell-accessibility-hardening.md
+      - id: plan-trailing-gutter-swipe-delete
+        title: "Plan: Trailing-Gutter Swipe Delete Affordance"
+        path: plans/plan-trailing-gutter-swipe-delete-affordance.md
       - id: plan-archived-error-handling-improvements
         title: Error Handling Improvements Plan
         path: plans/_archived/plan-archived-error-handling-improvements.md

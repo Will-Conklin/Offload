@@ -101,6 +101,7 @@ proposed → accepted → in-progress → completed/archived
 - [Plan: Advanced Accessibility Features (Pending Confirmation)](./plan-advanced-accessibility.md)
 - [Plan: AI Organization Flows & Review Screen (Pending Confirmation)](./plan-ai-organization-flows.md)
 - [Plan: AI Pricing & Limits (Pending Confirmation)](./plan-ai-pricing-limits.md)
+- [Plan: Trailing-Gutter Swipe Delete Affordance](./plan-trailing-gutter-swipe-delete-affordance.md)
 
 ### Completed
 

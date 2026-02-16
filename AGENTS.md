@@ -79,6 +79,9 @@ just ci-local                 # Run lint + backend checks + iOS tests
   Offload project during creation or immediately after creation
 - For all new GitHub issues: apply labels at creation time and never leave an
   issue unlabeled
+- For GitHub issue/PR descriptions created via `gh`: use `--body-file` (or a
+  heredoc with real line breaks) and never pass escaped `\n` sequences as body
+  text
 - Use `bug` for defects/regressions, `enhancement` for feature or implementation
   work, and `documentation` for docs-only work
 - Use `uat` only for post-merge user verification follow-up issues
