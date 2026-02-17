@@ -145,9 +145,6 @@ struct CaptureSearchView: View {
                                         )
                                     }
                                     .contentShape(Rectangle())
-                                    .onAppear {
-                                        itemRepository.migrateLegacyAttachmentOnAccess(item)
-                                    }
                                     .onTapGesture {
                                         dismiss()
                                     }

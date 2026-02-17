@@ -37,21 +37,25 @@ struct AttachmentStorageService: AttachmentStorage {
         let filename = "\(itemId.uuidString)-\(UUID().uuidString).attachment"
         let fileURL = attachmentsDirectoryURL.appendingPathComponent(filename, isDirectory: false)
         try data.write(to: fileURL, options: .atomic)
-        return fileURL.path
+        return fileURL.standardizedFileURL.path
     }
 
     func loadAttachment(at path: String) throws -> Data {
-        try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+        let fileURL = try validatedAttachmentURL(for: path)
+        return try Data(contentsOf: fileURL, options: .mappedIfSafe)
     }
 
     func removeAttachment(at path: String) throws {
-        let fileURL = URL(fileURLWithPath: path)
+        let fileURL = try validatedAttachmentURL(for: path)
         guard fileManager.fileExists(atPath: fileURL.path) else { return }
         try fileManager.removeItem(at: fileURL)
     }
 
     func attachmentExists(at path: String) -> Bool {
-        fileManager.fileExists(atPath: path)
+        guard let fileURL = try? validatedAttachmentURL(for: path) else {
+            return false
+        }
+        return fileManager.fileExists(atPath: fileURL.path)
     }
 
     private func ensureAttachmentsDirectory() throws {
@@ -63,5 +67,20 @@ struct AttachmentStorageService: AttachmentStorage {
             at: attachmentsDirectoryURL,
             withIntermediateDirectories: true
         )
+    }
+
+    private func validatedAttachmentURL(for path: String) throws -> URL {
+        let candidateURL = URL(fileURLWithPath: path)
+            .standardizedFileURL
+            .resolvingSymlinksInPath()
+        let rootURL = attachmentsDirectoryURL
+            .standardizedFileURL
+            .resolvingSymlinksInPath()
+
+        let rootPath = rootURL.path.hasSuffix("/") ? rootURL.path : rootURL.path + "/"
+        guard candidateURL.path.hasPrefix(rootPath) else {
+            throw ValidationError("Attachment path is outside app-managed storage.")
+        }
+        return candidateURL
     }
 }

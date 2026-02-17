@@ -415,7 +415,6 @@ struct ItemRow: View {
             onDelete()
         }
         .onAppear {
-            itemRepository.migrateLegacyAttachmentOnAccess(item)
             loadLinkedCollectionName()
         }
         .onChange(of: item.linkedCollectionId) { _, _ in

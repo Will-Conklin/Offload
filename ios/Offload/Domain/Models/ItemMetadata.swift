@@ -81,17 +81,22 @@ enum ItemMetadataValue: Codable, Equatable {
         if value is NSNull {
             return .null
         }
+        if let numberValue = value as? NSNumber {
+            if CFGetTypeID(numberValue) == CFBooleanGetTypeID() {
+                return .bool(numberValue.boolValue)
+            }
+            let doubleValue = numberValue.doubleValue
+            if doubleValue.isFinite,
+               floor(doubleValue) == doubleValue,
+               doubleValue >= Double(Int.min),
+               doubleValue <= Double(Int.max)
+            {
+                return .int(Int(doubleValue))
+            }
+            return .double(doubleValue)
+        }
         if let stringValue = value as? String {
             return .string(stringValue)
-        }
-        if let boolValue = value as? Bool {
-            return .bool(boolValue)
-        }
-        if let intValue = value as? Int {
-            return .int(intValue)
-        }
-        if let doubleValue = value as? Double {
-            return .double(doubleValue)
         }
         if let objectValue = value as? [String: Any] {
             var parsedObject: [String: ItemMetadataValue] = [:]
@@ -114,19 +119,6 @@ enum ItemMetadataValue: Codable, Equatable {
                 parsedArray.append(parsedElement)
             }
             return .array(parsedArray)
-        }
-        if let numberValue = value as? NSNumber {
-            if CFGetTypeID(numberValue) == CFBooleanGetTypeID() {
-                return .bool(numberValue.boolValue)
-            }
-            let doubleValue = numberValue.doubleValue
-            if floor(doubleValue) == doubleValue,
-               doubleValue >= Double(Int.min),
-               doubleValue <= Double(Int.max)
-            {
-                return .int(numberValue.intValue)
-            }
-            return .double(doubleValue)
         }
         return nil
     }

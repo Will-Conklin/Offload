@@ -167,12 +167,6 @@ final class ItemRepository {
         if let cachedData = item.cachedAttachmentData {
             return cachedData
         }
-
-        if let inlineData = item.attachmentData {
-            item.cachedAttachmentData = inlineData
-            return inlineData
-        }
-
         guard let attachmentFilePath = item.attachmentFilePath else {
             return nil
         }
@@ -197,16 +191,7 @@ final class ItemRepository {
 
     func updateMetadata(_ item: Item, metadata: ItemMetadata) throws {
         item.typedMetadata = metadata
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
-    }
-
-    func migrateLegacyAttachmentOnAccess(_ item: Item) {
-        do {
-            try migrateLegacyAttachmentIfNeeded(for: item)
-        } catch {
-            AppLogger.persistence.error("Legacy attachment migration failed - item: \(item.id, privacy: .public), error: \(error.localizedDescription, privacy: .public)")
-        }
     }
 
     // MARK: - Update
@@ -215,7 +200,6 @@ final class ItemRepository {
         let itemId = item.id
         AppLogger.persistence.debug("Updating item - id: \(itemId, privacy: .public)")
         do {
-            try migrateLegacyAttachmentIfNeeded(for: item)
             try modelContext.save()
             AppLogger.persistence.info("Item updated - id: \(itemId, privacy: .public)")
         } catch {
@@ -226,13 +210,11 @@ final class ItemRepository {
 
     func updateType(_ item: Item, type: String?) throws {
         item.type = type
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
     }
 
     func updateContent(_ item: Item, content: String) throws {
         item.content = content
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
     }
 
@@ -264,39 +246,33 @@ final class ItemRepository {
 
     func toggleStar(_ item: Item) throws {
         item.isStarred.toggle()
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
     }
 
     func addTag(_ item: Item, tag: Tag) throws {
         if !item.tags.contains(where: { $0.id == tag.id }) {
             item.tags.append(tag)
-            try migrateLegacyAttachmentIfNeeded(for: item)
             try modelContext.save()
         }
     }
 
     func removeTag(_ item: Item, tag: Tag) throws {
         item.tags.removeAll { $0.id == tag.id }
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
     }
 
     func updateFollowUpDate(_ item: Item, date: Date?) throws {
         item.followUpDate = date
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
     }
 
     func complete(_ item: Item) throws {
         item.completedAt = Date()
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
     }
 
     func uncomplete(_ item: Item) throws {
         item.completedAt = nil
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
     }
 
@@ -306,7 +282,6 @@ final class ItemRepository {
         } else {
             item.completedAt = Date()
         }
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
     }
 
@@ -314,13 +289,11 @@ final class ItemRepository {
         if item.completedAt == nil {
             item.completedAt = Date()
         }
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
     }
 
     func moveToCollection(_ item: Item, collection: Collection, position: Int?) throws {
         _ = try upsertCollectionItem(item: item, collection: collection, position: position)
-        try migrateLegacyAttachmentIfNeeded(for: item)
         try modelContext.save()
     }
 
@@ -431,7 +404,6 @@ final class ItemRepository {
         let now = Date()
         for item in items where item.completedAt == nil {
             item.completedAt = now
-            try migrateLegacyAttachmentIfNeeded(for: item)
         }
         try modelContext.save()
     }
@@ -477,35 +449,6 @@ final class ItemRepository {
     private func prepareAttachmentPath(for attachmentData: Data?, itemId: UUID) throws -> String? {
         guard let attachmentData else { return nil }
         return try attachmentStorage.storeAttachment(attachmentData, for: itemId)
-    }
-
-    private func migrateLegacyAttachmentIfNeeded(for item: Item) throws {
-        guard let inlineData = item.attachmentData else {
-            return
-        }
-
-        if let existingPath = item.attachmentFilePath {
-            item.cachedAttachmentData = inlineData
-            item.attachmentData = nil
-            try modelContext.save()
-            if attachmentStorage.attachmentExists(at: existingPath) {
-                return
-            }
-        }
-
-        let migratedPath = try attachmentStorage.storeAttachment(inlineData, for: item.id)
-        item.attachmentFilePath = migratedPath
-        item.attachmentData = nil
-        item.cachedAttachmentData = inlineData
-        do {
-            try modelContext.save()
-        } catch {
-            item.attachmentData = inlineData
-            item.attachmentFilePath = nil
-            item.cachedAttachmentData = nil
-            try? attachmentStorage.removeAttachment(at: migratedPath)
-            throw error
-        }
     }
 
     /// Inserts a new collection link or updates an existing one for the same item/collection pair.

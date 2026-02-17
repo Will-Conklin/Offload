@@ -62,9 +62,6 @@ struct ItemEditSheet: View {
                 }
             }
         }
-        .onAppear {
-            itemRepository.migrateLegacyAttachmentOnAccess(item)
-        }
         .errorToasts(errorPresenter)
     }
 }

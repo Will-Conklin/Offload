@@ -40,9 +40,6 @@ struct ItemCard: View {
             StarButton(isStarred: item.isStarred, action: onToggleStar)
         }
         .contentShape(Rectangle())
-        .onAppear {
-            itemRepository.migrateLegacyAttachmentOnAccess(item)
-        }
         .onTapGesture {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             onTap()

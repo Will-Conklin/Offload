@@ -111,34 +111,30 @@ final class ItemRepositoryTests: XCTestCase {
         XCTAssertEqual(try repository.attachmentData(for: item), attachmentData)
     }
 
-    func testMigrateLegacyAttachmentOnAccess_MovesInlineBlobToFileStorage() throws {
-        let attachmentData = Data([0x0A, 0x0B, 0x0C])
-        let item = try repository.create(content: "Legacy attachment")
-        item.attachmentData = attachmentData
-        item.attachmentFilePath = nil
-        try modelContext.save()
-
-        repository.migrateLegacyAttachmentOnAccess(item)
-
-        XCTAssertNil(item.attachmentData)
-        let attachmentPath = try XCTUnwrap(item.attachmentFilePath)
-        XCTAssertTrue(attachmentStorage.attachmentExists(at: attachmentPath))
-        XCTAssertEqual(try repository.attachmentData(for: item), attachmentData)
-    }
-
-    func testUpdateContent_MigratesLegacyAttachmentOnSave() throws {
+    func testUpdateContent_PreservesFileBackedAttachment() throws {
         let attachmentData = Data([0x10, 0x20, 0x30])
-        let item = try repository.create(content: "Legacy attachment save path")
-        item.attachmentData = attachmentData
-        item.attachmentFilePath = nil
-        try modelContext.save()
+        let item = try repository.create(content: "Attachment save path", attachmentData: attachmentData)
+        let attachmentPath = try XCTUnwrap(item.attachmentFilePath)
 
         try repository.updateContent(item, content: "Updated content")
 
         XCTAssertEqual(item.content, "Updated content")
-        XCTAssertNil(item.attachmentData)
-        let attachmentPath = try XCTUnwrap(item.attachmentFilePath)
+        XCTAssertEqual(item.attachmentFilePath, attachmentPath)
         XCTAssertTrue(attachmentStorage.attachmentExists(at: attachmentPath))
+        XCTAssertEqual(try repository.attachmentData(for: item), attachmentData)
+    }
+
+    func testAttachmentData_RejectsOutsideManagedStorage() throws {
+        let item = try repository.create(content: "Invalid path")
+        item.attachmentFilePath = "/tmp/offload-outside-managed-storage.attachment"
+        try modelContext.save()
+
+        XCTAssertThrowsError(try repository.attachmentData(for: item)) { error in
+            guard let validationError = error as? ValidationError else {
+                return XCTFail("Expected ValidationError, got \(error)")
+            }
+            XCTAssertEqual(validationError.message, "Attachment path is outside app-managed storage.")
+        }
     }
 
     func testUpdateAttachment_ReplacesFileAndRemovesOldFile() throws {
@@ -219,6 +215,18 @@ final class ItemRepositoryTests: XCTestCase {
             roundTripped.extensions["legacy_nested"],
             .object(["ok": .bool(true)])
         )
+    }
+
+    func testTypedMetadata_DictionaryBridgePreservesNSNumberNumericSemantics() {
+        let metadata = ItemMetadata(dictionary: [
+            "count": NSNumber(value: 1),
+            "enabled": NSNumber(value: true),
+            "ratio": NSNumber(value: 1.5),
+        ])
+
+        XCTAssertEqual(metadata.extensions["count"], .int(1))
+        XCTAssertEqual(metadata.extensions["enabled"], .bool(true))
+        XCTAssertEqual(metadata.extensions["ratio"], .double(1.5))
     }
 
     // MARK: - Fetch Tests
