@@ -172,6 +172,55 @@ final class ItemRepositoryTests: XCTestCase {
         XCTAssertFalse(attachmentStorage.attachmentExists(at: attachmentPath))
     }
 
+    func testTypedMetadata_RoundTripsUnknownKeys() throws {
+        let item = try repository.create(content: "Metadata test")
+        let metadata = ItemMetadata(
+            attachmentFilePath: "/tmp/attachment.dat",
+            extensions: [
+                "priority": .string("high"),
+                "retry_count": .int(3),
+                "score": .double(9.5),
+                "flags": .array([.string("urgent"), .bool(true)]),
+                "nested": .object([
+                    "enabled": .bool(true),
+                    "channel": .string("beta"),
+                ]),
+            ]
+        )
+
+        try repository.updateMetadata(item, metadata: metadata)
+
+        let reloaded = repository.metadata(for: item)
+        XCTAssertEqual(reloaded, metadata)
+    }
+
+    func testTypedMetadata_BackwardCompatibleWithLegacyJSONString() throws {
+        let item = try repository.create(content: "Legacy metadata")
+        item.metadata = #"{"legacy_text":"hello","legacy_count":4,"legacy_nested":{"ok":true}}"#
+        try modelContext.save()
+
+        var decodedMetadata = repository.metadata(for: item)
+        XCTAssertNil(decodedMetadata.attachmentFilePath)
+        XCTAssertEqual(decodedMetadata.extensions["legacy_text"], .string("hello"))
+        XCTAssertEqual(decodedMetadata.extensions["legacy_count"], .int(4))
+        XCTAssertEqual(
+            decodedMetadata.extensions["legacy_nested"],
+            .object(["ok": .bool(true)])
+        )
+
+        decodedMetadata.attachmentFilePath = "/tmp/new-path.png"
+        try repository.updateMetadata(item, metadata: decodedMetadata)
+
+        let roundTripped = repository.metadata(for: item)
+        XCTAssertEqual(roundTripped.attachmentFilePath, "/tmp/new-path.png")
+        XCTAssertEqual(roundTripped.extensions["legacy_text"], .string("hello"))
+        XCTAssertEqual(roundTripped.extensions["legacy_count"], .int(4))
+        XCTAssertEqual(
+            roundTripped.extensions["legacy_nested"],
+            .object(["ok": .bool(true)])
+        )
+    }
+
     // MARK: - Fetch Tests
 
     func testFetchAll() throws {

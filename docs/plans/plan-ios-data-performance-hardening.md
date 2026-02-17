@@ -75,18 +75,18 @@ lazy migration, and typed metadata access with backward compatibility.
 
 ### Phase 3: Typed Metadata Model (Typed Core + Extension Map)
 
-**Status:** Not Started
+**Status:** Completed
 
-- [ ] Red:
-  - [ ] Add tests for typed metadata encode/decode and unknown key
+- [x] Red:
+  - [x] Add tests for typed metadata encode/decode and unknown key
         round-tripping.
-  - [ ] Add backward compatibility tests for existing JSON string payloads.
-- [ ] Green:
-  - [ ] Define Codable metadata type with core fields plus extension map.
-  - [ ] Add model/repository accessors that decode once per lifecycle.
-- [ ] Refactor:
-  - [ ] Remove duplicated JSONSerialization call sites.
-  - [ ] Keep compatibility bridge for older metadata values.
+  - [x] Add backward compatibility tests for existing JSON string payloads.
+- [x] Green:
+  - [x] Define Codable metadata type with core fields plus extension map.
+  - [x] Add model/repository accessors that decode once per lifecycle.
+- [x] Refactor:
+  - [x] Remove duplicated JSONSerialization call sites.
+  - [x] Keep compatibility bridge for older metadata values.
 
 ## Dependencies
 
@@ -116,3 +116,4 @@ lazy migration, and typed metadata access with backward compatibility.
 | 2026-02-16 | Plan created from CODE_REVIEW_2026-02-15 iOS performance/data integrity findings. |
 | 2026-02-17 | Phase 1 complete: added large-set reorder regression tests, preserved structured/unstructured ordering semantics, and replaced O(n^2) `first(where:)` reorder lookups with shared dictionary-based mapping helpers. |
 | 2026-02-17 | Phase 2 complete: added file-backed attachment storage, legacy lazy migration paths on access/save, repository cleanup on update/delete, and attachment compatibility rendering in item card/detail/search views. |
+| 2026-02-17 | Phase 3 complete: introduced typed `ItemMetadata` with extension-map round-tripping, replaced ad-hoc JSON metadata handling with cached typed accessors, added repository metadata accessors, and preserved backward compatibility for legacy JSON payloads. |

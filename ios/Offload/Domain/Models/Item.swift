@@ -24,6 +24,10 @@ final class Item {
     var createdAt: Date
     @Transient
     var cachedAttachmentData: Data?
+    @Transient
+    var cachedMetadataModel: ItemMetadata?
+    @Transient
+    var cachedMetadataSource: String?
 
     // Relationship to collections through CollectionItem
     @Relationship(deleteRule: .cascade, inverse: \CollectionItem.item)
@@ -55,6 +59,8 @@ final class Item {
         self.completedAt = completedAt
         self.createdAt = createdAt
         cachedAttachmentData = nil
+        cachedMetadataModel = nil
+        cachedMetadataSource = nil
     }
 
     // Computed properties for type-safe access
@@ -72,23 +78,14 @@ final class Item {
         completedAt != nil
     }
 
-    // Computed property to decode metadata
+    // Compatibility bridge for legacy call sites.
     var metadataDict: [String: Any] {
-        guard let data = metadata.data(using: .utf8),
-              let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-        else {
-            return [:]
-        }
-        return dict
+        typedMetadata.dictionaryRepresentation
     }
 
-    // Helper to update metadata
+    // Compatibility bridge for legacy call sites.
     func updateMetadata(_ dict: [String: Any]) {
-        if let data = try? JSONSerialization.data(withJSONObject: dict),
-           let jsonString = String(data: data, encoding: .utf8)
-        {
-            metadata = jsonString
-        }
+        typedMetadata = ItemMetadata(dictionary: dict)
     }
 }
 
@@ -112,24 +109,38 @@ enum ItemType: String, Codable, CaseIterable {
 }
 
 extension Item {
-    private static let attachmentFilePathMetadataKey = "attachment_file_path"
-
     // Keep a stable API name while the stored relationship is tagLinks.
     var tags: [Tag] {
         get { tagLinks }
         set { tagLinks = newValue }
     }
 
-    var attachmentFilePath: String? {
-        get { metadataDict[Self.attachmentFilePathMetadataKey] as? String }
-        set {
-            var dict = metadataDict
-            if let newValue {
-                dict[Self.attachmentFilePathMetadataKey] = newValue
-            } else {
-                dict.removeValue(forKey: Self.attachmentFilePathMetadataKey)
+    var typedMetadata: ItemMetadata {
+        get {
+            if let cachedMetadataModel,
+               cachedMetadataSource == metadata
+            {
+                return cachedMetadataModel
             }
-            updateMetadata(dict)
+            let decodedMetadata = ItemMetadata.decode(from: metadata)
+            cachedMetadataModel = decodedMetadata
+            cachedMetadataSource = metadata
+            return decodedMetadata
+        }
+        set {
+            let encodedMetadata = newValue.encodeToJSONString()
+            metadata = encodedMetadata
+            cachedMetadataModel = newValue
+            cachedMetadataSource = encodedMetadata
+        }
+    }
+
+    var attachmentFilePath: String? {
+        get { typedMetadata.attachmentFilePath }
+        set {
+            var metadataValue = typedMetadata
+            metadataValue.attachmentFilePath = newValue
+            typedMetadata = metadataValue
         }
     }
 

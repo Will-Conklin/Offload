@@ -191,6 +191,16 @@ final class ItemRepository {
         }
     }
 
+    func metadata(for item: Item) -> ItemMetadata {
+        item.typedMetadata
+    }
+
+    func updateMetadata(_ item: Item, metadata: ItemMetadata) throws {
+        item.typedMetadata = metadata
+        try migrateLegacyAttachmentIfNeeded(for: item)
+        try modelContext.save()
+    }
+
     func migrateLegacyAttachmentOnAccess(_ item: Item) {
         do {
             try migrateLegacyAttachmentIfNeeded(for: item)
