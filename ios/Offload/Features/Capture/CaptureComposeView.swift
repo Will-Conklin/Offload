@@ -366,7 +366,7 @@ struct CaptureComposeView: View {
             AppLogger.workflow.info("CaptureCompose save completed - id: \(item.id, privacy: .public)")
 
             // Trigger typewriter ding animation
-            withAnimation(reduceMotion ? .default : Theme.Animations.typewriterDing) {
+            withAnimation(Theme.Animations.motion(Theme.Animations.typewriterDing, reduceMotion: reduceMotion)) {
                 captureConfirmed = true
             }
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()

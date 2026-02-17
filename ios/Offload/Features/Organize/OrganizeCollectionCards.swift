@@ -61,7 +61,7 @@ struct DraggableCollectionCard: View {
             onDrop(droppedId, collection.id)
             return true
         } isTargeted: { isTargeted in
-            withAnimation(reduceMotion ? .default : .easeInOut(duration: 0.2)) {
+            withAnimation(Theme.Animations.motion(.easeInOut(duration: 0.2), reduceMotion: reduceMotion)) {
                 isDropTarget = isTargeted
             }
         }
@@ -75,7 +75,7 @@ struct DraggableCollectionCard: View {
                     .transition(.opacity)
             }
         }
-        .animation(reduceMotion ? .default : .easeInOut(duration: 0.2), value: isDropTarget)
+        .animation(Theme.Animations.motion(.easeInOut(duration: 0.2), reduceMotion: reduceMotion), value: isDropTarget)
         .accessibilityElement(children: .combine)
         .accessibilityAction(named: "Move up") {
             onMoveUp?()
@@ -138,7 +138,7 @@ struct BottomCollectionDropZone: View {
                 onDrop(droppedId)
                 return true
             } isTargeted: { isTargeted in
-                withAnimation(reduceMotion ? .default : .easeInOut(duration: 0.2)) {
+                withAnimation(Theme.Animations.motion(.easeInOut(duration: 0.2), reduceMotion: reduceMotion)) {
                     isDropTarget = isTargeted
                 }
             }
