@@ -118,6 +118,8 @@ just ci-local                 # Run lint + backend checks + iOS tests
 - For UI work: use `Theme.*` tokens (no hardcoded colors/spacing/radii/fonts)
   and reuse `ios/Offload/DesignSystem/Components.swift` before creating new
   UI primitives
+- For new or modified production functions/methods: add concise doc comments
+  documenting purpose, key parameters, and return behavior when not `Void`
 
 ## Documentation Authority
 
