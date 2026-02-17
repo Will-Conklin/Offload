@@ -1,14 +1,14 @@
 ---
 id: plan-tab-shell-accessibility-hardening
 type: plan
-status: proposed
+status: in-progress
 owners:
   - Will-Conklin
 applies_to:
   - ios
   - ux
   - accessibility
-last_updated: 2026-02-16
+last_updated: 2026-02-17
 related:
   - prd-0002-persistent-bottom-tab-bar
   - adr-0003-adhd-focused-ux-ui-guardrails
@@ -47,42 +47,42 @@ theme tokens and adding explicit VoiceOver and Dynamic Type validation.
 
 ### Phase 1: Tokenize Tab Shell Metrics
 
-**Status:** Not Started
+**Status:** Completed
 
-- [ ] Red:
-  - [ ] Add layout snapshot/assertion tests across key device classes and
+- [x] Red:
+  - [x] Add layout snapshot/assertion tests across key device classes and
         dynamic type sizes.
-  - [ ] Add tests locking tap-target minimum sizes for tab and CTA actions.
-- [ ] Green:
-  - [ ] Replace hardcoded tab shell constants (heights, divider sizes, spacers,
+  - [x] Add tests locking tap-target minimum sizes for tab and CTA actions.
+- [x] Green:
+  - [x] Replace hardcoded tab shell constants (heights, divider sizes, spacers,
         offsets) with `Theme.*` tokens.
-  - [ ] Keep current visual hierarchy and interaction affordances.
-- [ ] Refactor: group tab-shell-specific tokens under a dedicated theme namespace.
+  - [x] Keep current visual hierarchy and interaction affordances.
+- [x] Refactor: group tab-shell-specific tokens under a dedicated theme namespace.
 
 ### Phase 2: VoiceOver and Focus Order Hardening
 
-**Status:** Not Started
+**Status:** Completed
 
-- [ ] Red:
-  - [ ] Add UI/accessibility tests for VoiceOver labels/hints/values on tab and
+- [x] Red:
+  - [x] Add UI/accessibility tests for VoiceOver labels/hints/values on tab and
         CTA actions.
-  - [ ] Add traversal-order tests for expanded quick action tray.
-- [ ] Green:
-  - [ ] Ensure explicit labels/hints/traits for all tab and CTA controls.
-  - [ ] Ensure predictable focus order for expanded and collapsed CTA states.
-- [ ] Refactor: extract reusable accessibility modifiers for tab-shell controls.
+  - [x] Add traversal-order tests for expanded quick action tray.
+- [x] Green:
+  - [x] Ensure explicit labels/hints/traits for all tab and CTA controls.
+  - [x] Ensure predictable focus order for expanded and collapsed CTA states.
+- [x] Refactor: extract reusable accessibility modifiers for tab-shell controls.
 
 ### Phase 3: Dynamic Type and Reduced Motion Validation
 
-**Status:** Not Started
+**Status:** Completed
 
-- [ ] Red:
-  - [ ] Add validation tests for no clipping/overlap at larger content sizes.
-  - [ ] Add tests for reduced-motion animation/transition behavior.
-- [ ] Green:
-  - [ ] Adjust tab/CTA layout and transitions to maintain readability and
+- [x] Red:
+  - [x] Add validation tests for no clipping/overlap at larger content sizes.
+  - [x] Add tests for reduced-motion animation/transition behavior.
+- [x] Green:
+  - [x] Adjust tab/CTA layout and transitions to maintain readability and
         stability under accessibility settings.
-- [ ] Refactor: remove duplicated animation guards and keep a single motion
+- [x] Refactor: remove duplicated animation guards and keep a single motion
       policy path.
 
 ## Dependencies
@@ -112,3 +112,4 @@ theme tokens and adding explicit VoiceOver and Dynamic Type validation.
 | Date | Update |
 | --- | --- |
 | 2026-02-16 | Plan created from CODE_REVIEW_2026-02-15 UX/accessibility consistency findings. |
+| 2026-02-17 | Implemented tab-shell tokenization, accessibility metadata/focus order hardening, and dynamic-type/reduced-motion policy wiring with passing iOS tests. |
