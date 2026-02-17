@@ -155,6 +155,34 @@ final class ItemRepositoryTests: XCTestCase {
         XCTAssertEqual(try repository.attachmentData(for: item), replacementData)
     }
 
+    func testUpdateAttachment_DoesNotRollbackWhenOldCleanupFails() throws {
+        let isolatedDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("offload-item-repository-cleanup-fail-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: isolatedDirectory) }
+
+        let cleanupStorage = ThrowingCleanupAttachmentStorage(baseDirectoryURL: isolatedDirectory)
+        let cleanupRepository = ItemRepository(
+            modelContext: modelContext,
+            attachmentStorage: cleanupStorage
+        )
+
+        let item = try cleanupRepository.create(
+            content: "Cleanup failure",
+            attachmentData: Data([0x01, 0x02])
+        )
+        let oldAttachmentPath = try XCTUnwrap(item.attachmentFilePath)
+
+        cleanupStorage.shouldThrowOnRemove = true
+        let replacementData = Data([0x03, 0x04, 0x05])
+        XCTAssertNoThrow(try cleanupRepository.updateAttachment(item, attachmentData: replacementData))
+
+        let newAttachmentPath = try XCTUnwrap(item.attachmentFilePath)
+        XCTAssertNotEqual(oldAttachmentPath, newAttachmentPath)
+        XCTAssertTrue(cleanupStorage.attachmentExists(at: oldAttachmentPath))
+        XCTAssertTrue(cleanupStorage.attachmentExists(at: newAttachmentPath))
+        XCTAssertEqual(try cleanupRepository.attachmentData(for: item), replacementData)
+    }
+
     func testDelete_RemovesAttachmentFile() throws {
         let item = try repository.create(
             content: "Delete attachment",
@@ -748,5 +776,33 @@ final class ItemRepositoryTests: XCTestCase {
         try repository.deleteAll([item1, item2])
 
         XCTAssertEqual(try repository.fetchAll().count, 0)
+    }
+}
+
+private final class ThrowingCleanupAttachmentStorage: AttachmentStorage {
+    private let backingStorage: AttachmentStorageService
+    var shouldThrowOnRemove = false
+
+    init(baseDirectoryURL: URL) {
+        backingStorage = AttachmentStorageService(baseDirectoryURL: baseDirectoryURL)
+    }
+
+    func storeAttachment(_ data: Data, for itemId: UUID) throws -> String {
+        try backingStorage.storeAttachment(data, for: itemId)
+    }
+
+    func loadAttachment(at path: String) throws -> Data {
+        try backingStorage.loadAttachment(at: path)
+    }
+
+    func removeAttachment(at path: String) throws {
+        if shouldThrowOnRemove {
+            throw NSError(domain: "OffloadTests.ThrowingCleanupAttachmentStorage", code: 1)
+        }
+        try backingStorage.removeAttachment(at: path)
+    }
+
+    func attachmentExists(at path: String) -> Bool {
+        backingStorage.attachmentExists(at: path)
     }
 }

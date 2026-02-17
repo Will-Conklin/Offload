@@ -230,9 +230,6 @@ final class ItemRepository {
 
         do {
             try modelContext.save()
-            if let previousPath, previousPath != newAttachmentPath {
-                try attachmentStorage.removeAttachment(at: previousPath)
-            }
         } catch {
             item.attachmentFilePath = previousPath
             item.attachmentData = previousInlineData
@@ -241,6 +238,14 @@ final class ItemRepository {
                 try? attachmentStorage.removeAttachment(at: newAttachmentPath)
             }
             throw error
+        }
+
+        if let previousPath, previousPath != newAttachmentPath {
+            do {
+                try attachmentStorage.removeAttachment(at: previousPath)
+            } catch {
+                AppLogger.persistence.warning("Attachment cleanup failed after successful update - item: \(item.id, privacy: .public), path: \(previousPath, privacy: .public), error: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
