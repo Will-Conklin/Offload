@@ -556,6 +556,51 @@ enum Theme {
         static let minimum = CGSize(width: 44, height: 44)
     }
 
+    // MARK: - Tab Shell
+
+    enum TabShell {
+        static let barHeight: CGFloat = 60
+        static let barHeightAccessibility: CGFloat = 76
+        static let barHorizontalPadding: CGFloat = Spacing.sm
+
+        static let dividerWidth: CGFloat = 1
+        static let dividerHeight: CGFloat = 24
+        static let dividerOpacityLight: Double = 0.3
+
+        static let barTopCornerRadius: CGFloat = CornerRadius.lg
+        static let barShadowOpacity: Double = 0.1
+        static let barShadowRadius: CGFloat = Shadows.elevationMd
+        static let barShadowOffsetY: CGFloat = -2
+
+        static let mainButtonSize: CGFloat = 64
+        static let mainButtonControlSize: CGFloat = HitTarget.minimum.width
+        static let mainButtonGlowDelta: CGFloat = 8
+        static let mainButtonIconSize: CGFloat = 24
+        static let mainButtonSlotPadding: CGFloat = 12
+        static var mainButtonSlotWidth: CGFloat { mainButtonSize + mainButtonSlotPadding }
+        static let mainButtonVerticalOffset: CGFloat = -Spacing.xl
+
+        static let quickActionLift: CGFloat = 64
+        static let quickActionButtonSize: CGFloat = 56
+        static let quickActionCornerRadius: CGFloat = 16
+        static let quickActionTrayHorizontalPadding: CGFloat = 12
+        static let quickActionTrayVerticalPadding: CGFloat = 8
+        static let quickActionTraySpacing: CGFloat = 20
+        static let quickActionTrayAccessibilitySpacing: CGFloat = 24
+        static let quickActionBounceInitial: CGFloat = 12
+        static let quickActionBounceOvershoot: CGFloat = -6
+        static let quickActionBounceSettleDelay: TimeInterval = 0.16
+
+        static let tabButtonControlSize: CGFloat = HitTarget.minimum.width
+        static let tabIconCircleSize: CGFloat = 44
+        static let tabIconFrameSize: CGFloat = 24
+        static let tabIconFontSize: CGFloat = 22
+        static let tabLabelFontSize: CGFloat = 10
+        static let tabLabelAccessibilityFontSize: CGFloat = 12
+        static let tabTopInset: CGFloat = Spacing.sm
+        static let tabBottomInset: CGFloat = 6
+    }
+
     // MARK: - Materials (kept but simplified)
 
     enum Materials {

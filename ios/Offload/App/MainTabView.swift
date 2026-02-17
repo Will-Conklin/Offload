@@ -91,6 +91,8 @@ private struct FloatingTabBar: View {
     let onQuickVoice: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    private var barHeight: CGFloat { TabShellLayoutPolicy.barHeight(for: dynamicTypeSize) }
 
     var body: some View {
         ZStack {
@@ -107,8 +109,8 @@ private struct FloatingTabBar: View {
                 ) { selectedTab = .home }
 
                 Rectangle()
-                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.3))
-                    .frame(width: 1, height: 24)
+                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(Theme.TabShell.dividerOpacityLight))
+                    .frame(width: Theme.TabShell.dividerWidth, height: Theme.TabShell.dividerHeight)
 
                 TabButton(
                     tab: .review,
@@ -118,14 +120,14 @@ private struct FloatingTabBar: View {
                 ) { selectedTab = .review }
 
                 Rectangle()
-                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.3))
-                    .frame(width: 1, height: 24)
+                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(Theme.TabShell.dividerOpacityLight))
+                    .frame(width: Theme.TabShell.dividerWidth, height: Theme.TabShell.dividerHeight)
 
-                Spacer().frame(width: 80) // CTA space
+                Spacer().frame(width: Theme.TabShell.mainButtonSlotWidth)
 
                 Rectangle()
-                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.3))
-                    .frame(width: 1, height: 24)
+                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(Theme.TabShell.dividerOpacityLight))
+                    .frame(width: Theme.TabShell.dividerWidth, height: Theme.TabShell.dividerHeight)
 
                 TabButton(
                     tab: .organize,
@@ -135,8 +137,8 @@ private struct FloatingTabBar: View {
                 ) { selectedTab = .organize }
 
                 Rectangle()
-                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.3))
-                    .frame(width: 1, height: 24)
+                    .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(Theme.TabShell.dividerOpacityLight))
+                    .frame(width: Theme.TabShell.dividerWidth, height: Theme.TabShell.dividerHeight)
 
                 TabButton(
                     tab: .account,
@@ -145,8 +147,8 @@ private struct FloatingTabBar: View {
                     style: style
                 ) { selectedTab = .account }
             }
-            .frame(height: 60)
-            .padding(.horizontal, 8)
+            .frame(height: barHeight)
+            .padding(.horizontal, Theme.TabShell.barHorizontalPadding)
 
             // CTA integrated into bar (halfway overlap)
             OffloadCTA(
@@ -157,8 +159,9 @@ private struct FloatingTabBar: View {
             )
             .offset(y: 0)
         }
-        .frame(height: 60)
-        .animation(Theme.Animations.motion(.easeInOut(duration: 0.4), reduceMotion: reduceMotion), value: selectedTab)
+        .frame(height: barHeight)
+        .accessibilityIdentifier(TabShellAccessibility.tabBarIdentifier)
+        .animation(TabShellMotionPolicy.animation(.easeInOut(duration: 0.4), reduceMotion: reduceMotion), value: selectedTab)
     }
 }
 
@@ -171,15 +174,19 @@ private struct AtomicBarBackground: View {
     var body: some View {
         UnevenRoundedRectangle(
             cornerRadii: RectangleCornerRadii(
-                topLeading: 24,
+                topLeading: Theme.TabShell.barTopCornerRadius,
                 bottomLeading: 0,
                 bottomTrailing: 0,
-                topTrailing: 24
+                topTrailing: Theme.TabShell.barTopCornerRadius
             ),
             style: .continuous
         )
         .fill(Theme.Colors.surface(colorScheme, style: style))
-        .shadow(color: Color.black.opacity(0.1), radius: 12, y: -2)
+        .shadow(
+            color: Color.black.opacity(Theme.TabShell.barShadowOpacity),
+            radius: Theme.TabShell.barShadowRadius,
+            y: Theme.TabShell.barShadowOffsetY
+        )
     }
 }
 
@@ -193,15 +200,16 @@ private struct OffloadCTA: View {
     @State private var isExpanded = false
     @State private var quickActionBounce: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .body) private var scaledMainButtonSize = Theme.TabShell.mainButtonSize
+    @ScaledMetric(relativeTo: .body) private var scaledQuickActionLift = Theme.TabShell.quickActionLift
 
-    private let mainButtonSize: CGFloat = 64
-    private let quickActionLift: CGFloat = 64
-    private var slotWidth: CGFloat { mainButtonSize + 12 }
-    private var mainButtonYOffset: CGFloat { -Theme.Spacing.xl }
+    private var slotWidth: CGFloat { scaledMainButtonSize + Theme.TabShell.mainButtonSlotPadding }
+    private var mainButtonYOffset: CGFloat { Theme.TabShell.mainButtonVerticalOffset }
     private var quickActionYOffset: CGFloat { mainButtonYOffset - quickActionLift }
+    private var quickActionLift: CGFloat { scaledQuickActionLift }
 
-    private var expansionAnimation: Animation {
-        reduceMotion ? .default : .spring(response: 0.4, dampingFraction: 0.6)
+    private var expansionAnimation: Animation? {
+        TabShellMotionPolicy.animation(.spring(response: 0.4, dampingFraction: 0.6), reduceMotion: reduceMotion)
     }
 
     var body: some View {
@@ -209,14 +217,14 @@ private struct OffloadCTA: View {
             OffloadMainButton(
                 colorScheme: colorScheme,
                 style: style,
-                size: mainButtonSize,
+                size: scaledMainButtonSize,
                 isExpanded: isExpanded
             ) {
                 toggleExpanded()
             }
             .offset(y: mainButtonYOffset)
         }
-        .frame(width: slotWidth, height: mainButtonSize)
+        .frame(width: slotWidth, height: scaledMainButtonSize)
         .overlay(alignment: .top) {
             OffloadQuickActionTray(
                 colorScheme: colorScheme,
@@ -228,10 +236,12 @@ private struct OffloadCTA: View {
             .offset(y: quickActionYOffset + quickActionBounce)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Offload")
+        .accessibilityLabel(TabShellAccessibility.offloadGroupLabel)
+        .accessibilityIdentifier(TabShellAccessibility.offloadGroupIdentifier)
         .zIndex(1)
     }
 
+    /// Toggles quick-action expansion and applies motion policy compliant bounce behavior.
     private func toggleExpanded() {
         if isExpanded {
             withAnimation(expansionAnimation) {
@@ -241,22 +251,23 @@ private struct OffloadCTA: View {
             return
         }
 
-        quickActionBounce = reduceMotion ? 0 : 12
+        quickActionBounce = TabShellMotionPolicy.initialQuickActionBounce(reduceMotion: reduceMotion)
         withAnimation(expansionAnimation) {
             isExpanded = true
         }
-        guard !reduceMotion else { return }
-        withAnimation(.spring(response: 0.28, dampingFraction: 0.5)) {
-            quickActionBounce = -6
+        guard TabShellMotionPolicy.shouldAnimateBounce(reduceMotion: reduceMotion) else { return }
+        withAnimation(TabShellMotionPolicy.animation(.spring(response: 0.28, dampingFraction: 0.5), reduceMotion: reduceMotion)) {
+            quickActionBounce = TabShellMotionPolicy.overshootQuickActionBounce(reduceMotion: reduceMotion)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + Theme.TabShell.quickActionBounceSettleDelay) {
             guard isExpanded else { return }
-            withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+            withAnimation(TabShellMotionPolicy.animation(.spring(response: 0.25, dampingFraction: 0.75), reduceMotion: reduceMotion)) {
                 quickActionBounce = 0
             }
         }
     }
 
+    /// Collapses the quick-action tray before executing the selected capture action.
     private func triggerQuickAction(_ action: () -> Void) {
         withAnimation(expansionAnimation) {
             isExpanded = false
@@ -281,7 +292,7 @@ private struct OffloadMainButton: View {
                 // Subtle outer glow
                 Circle()
                     .fill(Theme.Colors.primary(colorScheme, style: style).opacity(0.15))
-                    .frame(width: size + 8, height: size + 8)
+                    .frame(width: size + Theme.TabShell.mainButtonGlowDelta, height: size + Theme.TabShell.mainButtonGlowDelta)
 
                 // Main circle with gradient
                 Circle()
@@ -298,15 +309,22 @@ private struct OffloadMainButton: View {
                     .frame(width: size, height: size)
 
                 // Plus icon
-                AppIcon(name: Icons.add, size: 24)
+                AppIcon(name: Icons.add, size: Theme.TabShell.mainButtonIconSize)
                     .foregroundStyle(Theme.Colors.accentButtonText(colorScheme, style: style))
                     .rotationEffect(.degrees(isExpanded ? 45 : 0))
             }
         }
         .buttonStyle(.plain)
-        .animation(Theme.Animations.motion(.spring(response: 0.4, dampingFraction: 0.7), reduceMotion: reduceMotion), value: isExpanded)
-        .accessibilityLabel(isExpanded ? "Close Offload actions" : "Offload")
-        .accessibilityHint("Shows quick capture actions")
+        .frame(
+            minWidth: Theme.TabShell.mainButtonControlSize,
+            minHeight: Theme.TabShell.mainButtonControlSize
+        )
+        .animation(TabShellMotionPolicy.animation(.spring(response: 0.4, dampingFraction: 0.7), reduceMotion: reduceMotion), value: isExpanded)
+        .accessibilityLabel(isExpanded ? TabShellAccessibility.offloadMainExpandedLabel : TabShellAccessibility.offloadMainCollapsedLabel)
+        .accessibilityHint(TabShellAccessibility.offloadMainHint)
+        .accessibilityIdentifier(TabShellAccessibility.mainButtonIdentifier)
+        .accessibilitySortPriority(TabShellAccessibility.mainButtonSortPriority)
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -314,17 +332,20 @@ private struct OffloadQuickActionButton: View {
     let title: String
     let iconName: String
     let gradient: [Color]
+    let accessibilityIdentifier: String
+    let accessibilitySortPriority: Double
     let action: () -> Void
 
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
+    @ScaledMetric(relativeTo: .body) private var scaledButtonSize = Theme.TabShell.quickActionButtonSize
     private var style: ThemeStyle { themeManager.currentStyle }
 
     var body: some View {
         Button(action: action) {
             // Kidney-shaped button with solid color
             ZStack {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: Theme.TabShell.quickActionCornerRadius, style: .continuous)
                     .fill(
                         LinearGradient(
                             colors: gradient,
@@ -332,18 +353,25 @@ private struct OffloadQuickActionButton: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 56, height: 56)
+                    .frame(width: scaledButtonSize, height: scaledButtonSize)
 
                 ZStack {
-                    AppIcon(name: iconName, size: 24)
+                    AppIcon(name: iconName, size: Theme.TabShell.mainButtonIconSize)
                         .foregroundStyle(Theme.Colors.accentButtonText(colorScheme, style: style))
                 }
-                .frame(width: 56, height: 56)
+                .frame(width: scaledButtonSize, height: scaledButtonSize)
             }
         }
         .buttonStyle(.plain)
+        .frame(
+            minWidth: Theme.HitTarget.minimum.width,
+            minHeight: Theme.HitTarget.minimum.height
+        )
         .accessibilityLabel(title)
-        .accessibilityHint("Opens \(title) capture")
+        .accessibilityHint("Opens \(title) \(TabShellAccessibility.quickActionHintSuffix)")
+        .accessibilityIdentifier(accessibilityIdentifier)
+        .accessibilitySortPriority(accessibilitySortPriority)
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -355,36 +383,42 @@ private struct OffloadQuickActionTray: View {
     let onQuickVoice: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        HStack(alignment: .top, spacing: 20) {
+        HStack(alignment: .top, spacing: TabShellLayoutPolicy.quickActionTraySpacing(for: dynamicTypeSize)) {
             OffloadQuickActionButton(
-                title: "Write",
+                title: TabShellAccessibility.quickWriteLabel,
                 iconName: Icons.write,
                 gradient: [
                     Theme.Colors.primary(colorScheme, style: style),
                     Theme.Colors.primary(colorScheme, style: style),
                 ],
+                accessibilityIdentifier: TabShellAccessibility.quickWriteIdentifier,
+                accessibilitySortPriority: TabShellAccessibility.quickWriteSortPriority,
                 action: onQuickWrite
             )
 
             OffloadQuickActionButton(
-                title: "Voice",
+                title: TabShellAccessibility.quickVoiceLabel,
                 iconName: Icons.microphone,
                 gradient: [
                     Theme.Colors.secondary(colorScheme, style: style),
                     Theme.Colors.secondary(colorScheme, style: style),
                 ],
+                accessibilityIdentifier: TabShellAccessibility.quickVoiceIdentifier,
+                accessibilitySortPriority: TabShellAccessibility.quickVoiceSortPriority,
                 action: onQuickVoice
             )
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, Theme.TabShell.quickActionTrayHorizontalPadding)
+        .padding(.vertical, Theme.TabShell.quickActionTrayVerticalPadding)
         .opacity(isExpanded ? 1 : 0)
         .scaleEffect(isExpanded ? 1 : 0.6, anchor: .bottom)
         .allowsHitTesting(isExpanded)
         .accessibilityHidden(!isExpanded)
-        .animation(Theme.Animations.motion(.spring(response: 0.4, dampingFraction: 0.7), reduceMotion: reduceMotion), value: isExpanded)
+        .accessibilityIdentifier(TabShellAccessibility.offloadQuickTrayIdentifier)
+        .animation(TabShellMotionPolicy.animation(.spring(response: 0.4, dampingFraction: 0.7), reduceMotion: reduceMotion), value: isExpanded)
     }
 }
 
@@ -398,12 +432,13 @@ private struct TabButton: View {
     let action: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         Button(action: action) {
             VStack(spacing: 4) {
                 Spacer()
-                    .frame(height: 8)
+                    .frame(height: Theme.TabShell.tabTopInset)
 
                 ZStack {
                     // Circular background with gradient for active
@@ -419,46 +454,64 @@ private struct TabButton: View {
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .frame(width: 44, height: 44)
+                            .frame(width: Theme.TabShell.tabIconCircleSize, height: Theme.TabShell.tabIconCircleSize)
                             .transition(reduceMotion ? .opacity : .scale.combined(with: .opacity))
                     } else {
                         Circle()
                             .fill(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.08))
-                            .frame(width: 44, height: 44)
+                            .frame(width: Theme.TabShell.tabIconCircleSize, height: Theme.TabShell.tabIconCircleSize)
                     }
 
                     // Thin SF Symbol icon
                     Image(systemName: tab.iconName)
-                        .font(.system(size: 22, weight: isSelected ? .regular : .light))
+                        .font(.system(size: Theme.TabShell.tabIconFontSize, weight: isSelected ? .regular : .light))
                         .imageScale(.medium)
                         .foregroundStyle(
                             isSelected
                                 ? Theme.Colors.primary(colorScheme, style: style)
                                 : Theme.Colors.textSecondary(colorScheme, style: style)
                         )
-                        .frame(width: 24, height: 24, alignment: .center)
+                        .frame(width: Theme.TabShell.tabIconFrameSize, height: Theme.TabShell.tabIconFrameSize, alignment: .center)
                         .scaleEffect(isSelected ? 1.05 : 1.0)
                 }
+                .frame(
+                    minWidth: Theme.TabShell.tabButtonControlSize,
+                    minHeight: Theme.TabShell.tabButtonControlSize
+                )
 
                 // Label
                 Text(tab.label)
-                    .font(.system(size: 10, weight: .medium, design: .default))
+                    .font(
+                        .system(
+                            size: dynamicTypeSize.isAccessibilitySize
+                                ? Theme.TabShell.tabLabelAccessibilityFontSize
+                                : Theme.TabShell.tabLabelFontSize,
+                            weight: .medium,
+                            design: .default
+                        )
+                    )
                     .foregroundStyle(
                         isSelected
                             ? Theme.Colors.primary(colorScheme, style: style)
                             : Theme.Colors.textSecondary(colorScheme, style: style)
                     )
+                    .lineLimit(TabShellLayoutPolicy.tabLabelLineLimit(for: dynamicTypeSize))
+                    .minimumScaleFactor(TabShellLayoutPolicy.tabLabelMinimumScaleFactor(for: dynamicTypeSize))
+                    .multilineTextAlignment(.center)
 
                 Spacer()
-                    .frame(height: 6)
+                    .frame(height: Theme.TabShell.tabBottomInset)
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .animation(Theme.Animations.motion(.spring(response: 0.3, dampingFraction: 0.7), reduceMotion: reduceMotion), value: isSelected)
+        .animation(TabShellMotionPolicy.animation(.spring(response: 0.3, dampingFraction: 0.7), reduceMotion: reduceMotion), value: isSelected)
         .accessibilityLabel(tab.label)
-        .accessibilityValue(isSelected ? "selected" : "")
+        .accessibilityValue(isSelected ? TabShellAccessibility.tabSelectionSelectedValue : TabShellAccessibility.tabSelectionNotSelectedValue)
+        .accessibilityHint("Switches to \(tab.label)")
+        .accessibilityIdentifier(TabShellAccessibility.identifier(for: tab))
+        .accessibilityAddTraits(.isButton)
     }
 }
 
