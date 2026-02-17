@@ -186,7 +186,7 @@ struct CollectionCard: View {
                 // Right column (wide - main content)
                 VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                     Text(collection.name)
-                        .font(.system(.title2, design: .default).weight(.bold))
+                        .font(Theme.Typography.cardTitle)
                         .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
                         .lineLimit(3)
 
@@ -205,7 +205,7 @@ struct CollectionCard: View {
                             HStack(spacing: Theme.Spacing.xs) {
                                 AppIcon(name: Icons.add, size: 8)
                                 Text("TAG")
-                                    .font(.system(size: 8, weight: .bold, design: .default))
+                                    .font(Theme.Typography.badge)
                                     .tracking(0.5)
                             }
                             .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
