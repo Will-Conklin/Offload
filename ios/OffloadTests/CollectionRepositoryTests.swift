@@ -140,6 +140,60 @@ final class CollectionRepositoryTests: XCTestCase {
         XCTAssertEqual(positions?[item1.id], 2)
     }
 
+    func testReorderItems_LargeStructuredDataset_AssignsContiguousPositions() throws {
+        let collection = try collectionRepository.create(name: "Large Plan", isStructured: true)
+        var items: [Item] = []
+        for index in 0 ..< 500 {
+            let item = try itemRepository.create(content: "Item \(index)")
+            try collectionRepository.addItem(item, to: collection, position: index)
+            items.append(item)
+        }
+
+        let reordered = Array(items.reversed())
+        try collectionRepository.reorderItems(reordered, in: collection)
+
+        let fetched = try collectionRepository.fetchById(collection.id)
+        let positions = fetched?.collectionItems?.reduce(into: [UUID: Int]()) { result, collectionItem in
+            if let position = collectionItem.position {
+                result[collectionItem.itemId] = position
+            }
+        }
+
+        XCTAssertEqual(positions?.count, reordered.count)
+        for (expectedPosition, item) in reordered.enumerated() {
+            XCTAssertEqual(positions?[item.id], expectedPosition)
+        }
+    }
+
+    func testReorderItems_UnstructuredCollection_PreservesCreatedAtSortBehavior() throws {
+        let collection = try collectionRepository.create(name: "List", isStructured: false)
+        let base = Date()
+        let item1 = try itemRepository.create(content: "Oldest")
+        let item2 = try itemRepository.create(content: "Middle")
+        let item3 = try itemRepository.create(content: "Newest")
+        item1.createdAt = base.addingTimeInterval(-30)
+        item2.createdAt = base.addingTimeInterval(-10)
+        item3.createdAt = base
+        try modelContext.save()
+
+        try collectionRepository.addItem(item1, to: collection)
+        try collectionRepository.addItem(item2, to: collection)
+        try collectionRepository.addItem(item3, to: collection)
+        try collectionRepository.reorderItems([item3, item1, item2], in: collection)
+
+        let positions = collection.collectionItems?.reduce(into: [UUID: Int]()) { result, collectionItem in
+            if let position = collectionItem.position {
+                result[collectionItem.itemId] = position
+            }
+        }
+        XCTAssertEqual(positions?[item3.id], 0)
+        XCTAssertEqual(positions?[item1.id], 1)
+        XCTAssertEqual(positions?[item2.id], 2)
+
+        let sortedUnstructured = collection.sortedItems.map(\.itemId)
+        XCTAssertEqual(sortedUnstructured, [item1.id, item2.id, item3.id])
+    }
+
     // MARK: - Conversion Tests
 
     func testConvertPlanToListPreservesItems() throws {

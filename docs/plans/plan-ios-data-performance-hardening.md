@@ -1,14 +1,14 @@
 ---
 id: plan-ios-data-performance-hardening
 type: plan
-status: proposed
+status: in-progress
 owners:
   - Will-Conklin
 applies_to:
   - ios
   - performance
   - persistence
-last_updated: 2026-02-16
+last_updated: 2026-02-17
 related:
   - prd-0001-product-requirements
   - prd-0007-smart-task-breakdown
@@ -44,18 +44,18 @@ lazy migration, and typed metadata access with backward compatibility.
 
 ### Phase 1: Reorder Complexity Refactor
 
-**Status:** Not Started
+**Status:** Completed
 
-- [ ] Red:
-  - [ ] Add repository tests for large reorder sets in `CollectionRepository`
+- [x] Red:
+  - [x] Add repository tests for large reorder sets in `CollectionRepository`
         and `CollectionItemRepository`.
-  - [ ] Add tests confirming structured/unstructured ordering behavior remains
+  - [x] Add tests confirming structured/unstructured ordering behavior remains
         unchanged.
-- [ ] Green:
-  - [ ] Replace repeated linear `first(where:)` lookups with dictionary indexes
+- [x] Green:
+  - [x] Replace repeated linear `first(where:)` lookups with dictionary indexes
         keyed by `itemId`.
-  - [ ] Keep persisted position semantics unchanged.
-- [ ] Refactor: centralize reorder mapping helpers to avoid duplicated logic.
+  - [x] Keep persisted position semantics unchanged.
+- [x] Refactor: centralize reorder mapping helpers to avoid duplicated logic.
 
 ### Phase 2: File-Backed Attachments with Lazy Migration
 
@@ -114,3 +114,4 @@ lazy migration, and typed metadata access with backward compatibility.
 | Date | Update |
 | --- | --- |
 | 2026-02-16 | Plan created from CODE_REVIEW_2026-02-15 iOS performance/data integrity findings. |
+| 2026-02-17 | Phase 1 complete: added large-set reorder regression tests, preserved structured/unstructured ordering semantics, and replaced O(n^2) `first(where:)` reorder lookups with shared dictionary-based mapping helpers. |
