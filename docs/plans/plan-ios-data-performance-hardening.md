@@ -1,7 +1,7 @@
 ---
 id: plan-ios-data-performance-hardening
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
@@ -43,7 +43,7 @@ lazy migration, and typed metadata access with backward compatibility.
 ## Phases
 
 Phase completion below reflects implementation status. Plan status remains
-`in-progress` until User Verification is complete.
+`uat` until User Verification is complete.
 
 ### Phase 1: Reorder Complexity Refactor
 

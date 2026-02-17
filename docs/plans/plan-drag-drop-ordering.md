@@ -1,12 +1,12 @@
 ---
 id: plan-drag-drop-ordering
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - organize
-last_updated: 2026-02-04
+last_updated: 2026-02-17
 related:
   - prd-0004-drag-drop-ordering
   - adr-0005-collection-ordering-and-hierarchy-persistence

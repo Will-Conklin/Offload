@@ -7,7 +7,7 @@ owners:
 applies_to:
   - agents
   - plans
-last_updated: 2026-02-14
+last_updated: 2026-02-17
 related:
   - docs-agents
 depends_on: []
@@ -51,12 +51,13 @@ Define execution sequencing, milestones, and task breakdown (WHEN).
 ## Lifecycle
 
 - Created after design docs, before implementation
-- Status: proposed -> accepted -> in-progress -> completed/archived
+- Status: proposed -> accepted -> in-progress -> uat -> completed/archived
 - Updated as implementation progresses
 - Plans can only move to completed/archived when every item in the User Verification section is checked
 - Implementation PRs can be merged/closed when implementation tasks are complete, even if User Verification remains
 - If implementation is merged but User Verification is pending, create a follow-up GitHub issue labeled `uat`, add it to the Offload project, and link the plan and merged PR
-- Keep the plan in `in-progress` until User Verification is complete and the `uat` issue is closed
+- Move the plan to `uat` when implementation is merged and only User Verification remains
+- Keep the plan in `uat` until User Verification is complete and the `uat` issue is closed
 - Active plans tracked in `docs/plans/`
 - Completed plans moved to `docs/plans/_archived/`
 

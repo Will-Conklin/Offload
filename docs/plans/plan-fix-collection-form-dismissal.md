@@ -1,7 +1,7 @@
 ---
 id: plan-fix-collection-form-dismissal
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
@@ -9,7 +9,7 @@ applies_to:
   - organize
   - bug-fix
   - forms
-last_updated: 2026-02-13
+last_updated: 2026-02-17
 related: []
 depends_on: []
 supersedes: []

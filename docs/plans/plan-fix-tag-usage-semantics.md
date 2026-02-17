@@ -1,14 +1,14 @@
 ---
 id: plan-fix-tag-usage-semantics
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - tags
   - capture
   - organize
-last_updated: 2026-02-15
+last_updated: 2026-02-17
 related:
   - plan-fix-tag-assignment
   - plan-tag-relationship-refactor

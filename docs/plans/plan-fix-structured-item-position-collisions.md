@@ -1,14 +1,14 @@
 ---
 id: plan-fix-structured-item-position-collisions
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - organize
   - capture
   - ordering
-last_updated: 2026-02-15
+last_updated: 2026-02-17
 related:
   - plan-drag-drop-ordering
 depends_on: []

@@ -1,14 +1,14 @@
 ---
 id: plan-fix-atomic-move-to-collection
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - capture
   - organize
   - data-model
-last_updated: 2026-02-14
+last_updated: 2026-02-17
 related: []
 depends_on: []
 supersedes: []

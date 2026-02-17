@@ -1,7 +1,7 @@
 ---
 id: plan-fix-voice-recording-threading
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
@@ -9,7 +9,7 @@ applies_to:
   - voice
   - capture
   - bug-fix
-last_updated: 2026-02-14
+last_updated: 2026-02-17
 related:
   - design-voice-capture-testing-guide
   - design-voice-capture-test-results

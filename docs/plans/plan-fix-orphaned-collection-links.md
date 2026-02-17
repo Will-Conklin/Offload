@@ -1,14 +1,14 @@
 ---
 id: plan-fix-orphaned-collection-links
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - data-integrity
   - repositories
   - bug-fix
-last_updated: 2026-02-13
+last_updated: 2026-02-17
 related: []
 depends_on: []
 supersedes: []
