@@ -1,14 +1,14 @@
 ---
 id: plan-ios-data-performance-hardening
 type: plan
-status: proposed
+status: in-progress
 owners:
   - Will-Conklin
 applies_to:
   - ios
   - performance
   - persistence
-last_updated: 2026-02-16
+last_updated: 2026-02-17
 related:
   - prd-0001-product-requirements
   - prd-0007-smart-task-breakdown
@@ -42,51 +42,54 @@ lazy migration, and typed metadata access with backward compatibility.
 
 ## Phases
 
+Phase completion below reflects implementation status. Plan status remains
+`in-progress` until User Verification is complete.
+
 ### Phase 1: Reorder Complexity Refactor
 
-**Status:** Not Started
+**Status:** Completed
 
-- [ ] Red:
-  - [ ] Add repository tests for large reorder sets in `CollectionRepository`
+- [x] Red:
+  - [x] Add repository tests for large reorder sets in `CollectionRepository`
         and `CollectionItemRepository`.
-  - [ ] Add tests confirming structured/unstructured ordering behavior remains
+  - [x] Add tests confirming structured/unstructured ordering behavior remains
         unchanged.
-- [ ] Green:
-  - [ ] Replace repeated linear `first(where:)` lookups with dictionary indexes
+- [x] Green:
+  - [x] Replace repeated linear `first(where:)` lookups with dictionary indexes
         keyed by `itemId`.
-  - [ ] Keep persisted position semantics unchanged.
-- [ ] Refactor: centralize reorder mapping helpers to avoid duplicated logic.
+  - [x] Keep persisted position semantics unchanged.
+- [x] Refactor: centralize reorder mapping helpers to avoid duplicated logic.
 
-### Phase 2: File-Backed Attachments with Lazy Migration
+### Phase 2: File-Backed Attachments (Pre-v1 Hard Cut)
 
-**Status:** Not Started
+**Status:** Completed
 
-- [ ] Red:
-  - [ ] Add tests for reading legacy `attachmentData` and migrating on first
-        access/save.
-  - [ ] Add tests for attachment delete/update cleanup.
-- [ ] Green:
-  - [ ] Introduce attachment storage service with file path pointer metadata.
-  - [ ] Persist new attachments as files and update model references.
-  - [ ] Perform lazy migration from inline blobs to file storage.
-- [ ] Refactor:
-  - [ ] Consolidate image decode and storage utilities.
-  - [ ] Ensure errors map cleanly to existing user-facing error flows.
+- [x] Red:
+  - [x] Add tests for attachment file lifecycle on create/update/delete.
+  - [x] Add tests enforcing app-managed attachment path boundaries.
+  - [x] Add tests for attachment delete/update cleanup.
+- [x] Green:
+  - [x] Introduce attachment storage service with file path pointer metadata.
+  - [x] Persist attachments as file-backed data and keep references in metadata.
+  - [x] Enforce attachment read/delete operations within app-owned storage.
+- [x] Refactor:
+  - [x] Remove legacy lazy-migration paths and migration-on-appear hooks.
+  - [x] Keep display/read paths centralized through repository helpers.
 
 ### Phase 3: Typed Metadata Model (Typed Core + Extension Map)
 
-**Status:** Not Started
+**Status:** Completed
 
-- [ ] Red:
-  - [ ] Add tests for typed metadata encode/decode and unknown key
+- [x] Red:
+  - [x] Add tests for typed metadata encode/decode and unknown key
         round-tripping.
-  - [ ] Add backward compatibility tests for existing JSON string payloads.
-- [ ] Green:
-  - [ ] Define Codable metadata type with core fields plus extension map.
-  - [ ] Add model/repository accessors that decode once per lifecycle.
-- [ ] Refactor:
-  - [ ] Remove duplicated JSONSerialization call sites.
-  - [ ] Keep compatibility bridge for older metadata values.
+  - [x] Add backward compatibility tests for existing JSON string payloads.
+- [x] Green:
+  - [x] Define Codable metadata type with core fields plus extension map.
+  - [x] Add model/repository accessors that decode once per lifecycle.
+- [x] Refactor:
+  - [x] Remove duplicated JSONSerialization call sites.
+  - [x] Keep compatibility bridge for older metadata values.
 
 ## Dependencies
 
@@ -98,7 +101,7 @@ lazy migration, and typed metadata access with backward compatibility.
 
 | Risk | Impact | Mitigation |
 | --- | --- | --- |
-| Data migration bug causes attachment loss | H | Use lazy migration with rollback-safe legacy fallback and backup verification tests. |
+| Attachment cleanup failure leaves stale files | M | Treat cleanup as best-effort after successful save and log failures for follow-up cleanup. |
 | Reorder refactor changes ordering semantics | M | Lock behavior with pre/post regression tests before optimization. |
 | Metadata typing breaks unknown future fields | M | Preserve extension map and round-trip unknown keys in tests. |
 
@@ -114,3 +117,7 @@ lazy migration, and typed metadata access with backward compatibility.
 | Date | Update |
 | --- | --- |
 | 2026-02-16 | Plan created from CODE_REVIEW_2026-02-15 iOS performance/data integrity findings. |
+| 2026-02-17 | Phase 1 complete: added large-set reorder regression tests, preserved structured/unstructured ordering semantics, and replaced O(n^2) `first(where:)` reorder lookups with shared dictionary-based mapping helpers. |
+| 2026-02-17 | Phase 2 complete: switched to pre-v1 hard-cut file-backed attachments, enforced attachment path boundaries, removed lazy migration paths/hooks, and kept repository/UI attachment rendering behavior stable. |
+| 2026-02-17 | Follow-up hardening: fixed `updateAttachment` so old-file cleanup failures no longer roll back in-memory state after successful persistence; added regression coverage for cleanup-failure behavior. |
+| 2026-02-17 | Phase 3 complete: introduced typed `ItemMetadata` with extension-map round-tripping, replaced ad-hoc JSON metadata handling with cached typed accessors, added repository metadata accessors, and preserved backward compatibility for legacy JSON payloads. |

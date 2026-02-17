@@ -198,13 +198,8 @@ final class CollectionRepository {
     }
 
     func reorderItems(_ items: [Item], in collection: Collection) throws {
-        let collectionItems = collection.collectionItems ?? []
-        let orderedItemIds = items.map(\.id)
-        for (index, itemId) in orderedItemIds.enumerated() {
-            if let collectionItem = collectionItems.first(where: { $0.itemId == itemId }) {
-                collectionItem.position = index
-            }
-        }
+        let indexedByItemId = ReorderPositionMapper.indexByItemId(collection.collectionItems ?? [])
+        ReorderPositionMapper.applyPositions(for: items.map(\.id), using: indexedByItemId)
         try modelContext.save()
     }
 

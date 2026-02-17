@@ -131,12 +131,8 @@ final class CollectionItemRepository {
     }
 
     func reorderItems(_ collectionId: UUID, itemIds: [UUID]) throws {
-        let items = try fetchByCollection(collectionId)
-        for (index, itemId) in itemIds.enumerated() {
-            if let item = items.first(where: { $0.itemId == itemId }) {
-                item.position = index
-            }
-        }
+        let indexedByItemId = ReorderPositionMapper.indexByItemId(try fetchByCollection(collectionId))
+        ReorderPositionMapper.applyPositions(for: itemIds, using: indexedByItemId)
         try modelContext.save()
     }
 

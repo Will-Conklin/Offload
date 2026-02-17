@@ -10,9 +10,18 @@ import SwiftData
 @MainActor
 final class ItemRepository {
     private let modelContext: ModelContext
+    private let attachmentStorage: AttachmentStorage
 
-    init(modelContext: ModelContext) {
+    /// Creates a repository backed by a SwiftData context and attachment storage provider.
+    /// - Parameters:
+    ///   - modelContext: SwiftData context used for item persistence.
+    ///   - attachmentStorage: Optional attachment storage implementation; defaults to `AttachmentStorageService`.
+    init(
+        modelContext: ModelContext,
+        attachmentStorage: AttachmentStorage? = nil
+    ) {
         self.modelContext = modelContext
+        self.attachmentStorage = attachmentStorage ?? AttachmentStorageService()
     }
 
     // MARK: - Create
@@ -28,16 +37,25 @@ final class ItemRepository {
         followUpDate: Date? = nil
     ) throws -> Item {
         AppLogger.persistence.debug("Creating item - type: \(type ?? "nil", privacy: .public)")
+        let itemId = UUID()
+        let preparedAttachmentPath = try prepareAttachmentPath(for: attachmentData, itemId: itemId)
         let item = Item(
+            id: itemId,
             type: type,
             content: content,
             metadata: metadata,
-            attachmentData: attachmentData,
+            attachmentData: nil,
             linkedCollectionId: linkedCollectionId,
             tags: [],
             isStarred: isStarred,
             followUpDate: followUpDate
         )
+        if let preparedAttachmentPath {
+            item.attachmentFilePath = preparedAttachmentPath
+            item.cachedAttachmentData = attachmentData
+        } else {
+            item.attachmentData = attachmentData
+        }
         item.tags = tags
         modelContext.insert(item)
         do {
@@ -45,6 +63,9 @@ final class ItemRepository {
             AppLogger.persistence.info("Item created - id: \(item.id, privacy: .public), type: \(type ?? "nil", privacy: .public)")
             return item
         } catch {
+            if let preparedAttachmentPath {
+                try? attachmentStorage.removeAttachment(at: preparedAttachmentPath)
+            }
             AppLogger.persistence.error("Item create failed - error: \(error.localizedDescription, privacy: .public)")
             throw error
         }
@@ -146,6 +167,50 @@ final class ItemRepository {
         return try modelContext.fetch(descriptor)
     }
 
+    /// Loads attachment data for an item from in-memory cache or file-backed storage.
+    /// - Parameter item: Item whose attachment data should be read.
+    /// - Returns: Attachment bytes when present; otherwise `nil`.
+    func attachmentData(for item: Item) throws -> Data? {
+        if let cachedData = item.cachedAttachmentData {
+            return cachedData
+        }
+        guard let attachmentFilePath = item.attachmentFilePath else {
+            return nil
+        }
+
+        let storedData = try attachmentStorage.loadAttachment(at: attachmentFilePath)
+        item.cachedAttachmentData = storedData
+        return storedData
+    }
+
+    /// Returns attachment data for UI display and suppresses read errors with logging.
+    /// - Parameter item: Item whose attachment data should be loaded for rendering.
+    /// - Returns: Attachment bytes when available and readable; otherwise `nil`.
+    func attachmentDataForDisplay(_ item: Item) -> Data? {
+        do {
+            return try attachmentData(for: item)
+        } catch {
+            AppLogger.persistence.error("Attachment load failed - item: \(item.id, privacy: .public), error: \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+    }
+
+    /// Returns typed metadata decoded from an item's persisted metadata JSON string.
+    /// - Parameter item: Item whose metadata should be decoded.
+    /// - Returns: Typed metadata value with known fields and extension data.
+    func metadata(for item: Item) -> ItemMetadata {
+        item.typedMetadata
+    }
+
+    /// Persists typed metadata for an item.
+    /// - Parameters:
+    ///   - item: Item to update.
+    ///   - metadata: Typed metadata payload to encode and store.
+    func updateMetadata(_ item: Item, metadata: ItemMetadata) throws {
+        item.typedMetadata = metadata
+        try modelContext.save()
+    }
+
     // MARK: - Update
 
     func update(_ item: Item) throws {
@@ -168,6 +233,41 @@ final class ItemRepository {
     func updateContent(_ item: Item, content: String) throws {
         item.content = content
         try modelContext.save()
+    }
+
+    /// Replaces an item's attachment and persists the new file reference.
+    /// - Parameters:
+    ///   - item: Item whose attachment should be replaced.
+    ///   - attachmentData: New attachment bytes, or `nil` to remove attachment.
+    func updateAttachment(_ item: Item, attachmentData: Data?) throws {
+        let previousPath = item.attachmentFilePath
+        let previousInlineData = item.attachmentData
+        let previousCachedData = item.cachedAttachmentData
+        let newAttachmentPath = try prepareAttachmentPath(for: attachmentData, itemId: item.id)
+
+        item.attachmentData = nil
+        item.attachmentFilePath = newAttachmentPath
+        item.cachedAttachmentData = attachmentData
+
+        do {
+            try modelContext.save()
+        } catch {
+            item.attachmentFilePath = previousPath
+            item.attachmentData = previousInlineData
+            item.cachedAttachmentData = previousCachedData
+            if let newAttachmentPath, newAttachmentPath != previousPath {
+                try? attachmentStorage.removeAttachment(at: newAttachmentPath)
+            }
+            throw error
+        }
+
+        if let previousPath, previousPath != newAttachmentPath {
+            do {
+                try attachmentStorage.removeAttachment(at: previousPath)
+            } catch {
+                AppLogger.persistence.warning("Attachment cleanup failed after successful update - item: \(item.id, privacy: .public), path: \(previousPath, privacy: .public), error: \(error.localizedDescription, privacy: .public)")
+            }
+        }
     }
 
     func toggleStar(_ item: Item) throws {
@@ -309,11 +409,15 @@ final class ItemRepository {
         guard !items.isEmpty else { return }
         let count = items.count
         AppLogger.persistence.debug("Deleting multiple items - count: \(count, privacy: .public)")
+        let attachmentPaths = items.compactMap(\.attachmentFilePath)
         for item in items {
             modelContext.delete(item)
         }
         do {
             try modelContext.save()
+            for attachmentPath in attachmentPaths {
+                try? attachmentStorage.removeAttachment(at: attachmentPath)
+            }
             AppLogger.persistence.info("Items deleted - count: \(count, privacy: .public)")
         } catch {
             AppLogger.persistence.error("Bulk delete failed - count: \(count, privacy: .public), error: \(error.localizedDescription, privacy: .public)")
@@ -341,9 +445,13 @@ final class ItemRepository {
     func delete(_ item: Item) throws {
         let itemId = item.id
         AppLogger.persistence.debug("Deleting item - id: \(itemId, privacy: .public)")
+        let attachmentPath = item.attachmentFilePath
         modelContext.delete(item)
         do {
             try modelContext.save()
+            if let attachmentPath {
+                try? attachmentStorage.removeAttachment(at: attachmentPath)
+            }
             AppLogger.persistence.info("Item deleted - id: \(itemId, privacy: .public)")
         } catch {
             AppLogger.persistence.error("Item delete failed - id: \(itemId, privacy: .public), error: \(error.localizedDescription, privacy: .public)")
@@ -362,6 +470,16 @@ final class ItemRepository {
             predicate: #Predicate { $0.id == id }
         )
         return try modelContext.fetch(descriptor).first
+    }
+
+    /// Stores attachment bytes and returns the persisted file path.
+    /// - Parameters:
+    ///   - attachmentData: Attachment data to persist.
+    ///   - itemId: Item identifier used to namespace file naming.
+    /// - Returns: Stored attachment file path, or `nil` when `attachmentData` is `nil`.
+    private func prepareAttachmentPath(for attachmentData: Data?, itemId: UUID) throws -> String? {
+        guard let attachmentData else { return nil }
+        return try attachmentStorage.storeAttachment(attachmentData, for: itemId)
     }
 
     /// Inserts a new collection link or updates an existing one for the same item/collection pair.

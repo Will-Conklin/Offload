@@ -14,6 +14,8 @@ final class ItemRepositoryTests: XCTestCase {
     var modelContainer: ModelContainer!
     var modelContext: ModelContext!
     var repository: ItemRepository!
+    var attachmentStorage: AttachmentStorageService!
+    var attachmentStorageDirectory: URL!
 
     override func setUp() async throws {
         let schema = Schema([
@@ -25,10 +27,21 @@ final class ItemRepositoryTests: XCTestCase {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
         modelContainer = try ModelContainer(for: schema, configurations: [configuration])
         modelContext = modelContainer.mainContext
-        repository = ItemRepository(modelContext: modelContext)
+        attachmentStorageDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("offload-item-repository-tests-\(UUID().uuidString)", isDirectory: true)
+        attachmentStorage = AttachmentStorageService(baseDirectoryURL: attachmentStorageDirectory)
+        repository = ItemRepository(
+            modelContext: modelContext,
+            attachmentStorage: attachmentStorage
+        )
     }
 
     override func tearDown() {
+        if let attachmentStorageDirectory {
+            try? FileManager.default.removeItem(at: attachmentStorageDirectory)
+        }
+        attachmentStorage = nil
+        attachmentStorageDirectory = nil
         modelContainer = nil
         modelContext = nil
         repository = nil
@@ -85,6 +98,163 @@ final class ItemRepositoryTests: XCTestCase {
         } else {
             XCTFail("Expected followUpDate to be set")
         }
+    }
+
+    func testCreateItemWithAttachment_StoresFilePathAndClearsInlineData() throws {
+        let attachmentData = Data([0x01, 0x02, 0x03, 0x04])
+
+        let item = try repository.create(content: "Has attachment", attachmentData: attachmentData)
+
+        XCTAssertNil(item.attachmentData)
+        let attachmentPath = try XCTUnwrap(item.attachmentFilePath)
+        XCTAssertTrue(attachmentStorage.attachmentExists(at: attachmentPath))
+        XCTAssertEqual(try repository.attachmentData(for: item), attachmentData)
+    }
+
+    func testUpdateContent_PreservesFileBackedAttachment() throws {
+        let attachmentData = Data([0x10, 0x20, 0x30])
+        let item = try repository.create(content: "Attachment save path", attachmentData: attachmentData)
+        let attachmentPath = try XCTUnwrap(item.attachmentFilePath)
+
+        try repository.updateContent(item, content: "Updated content")
+
+        XCTAssertEqual(item.content, "Updated content")
+        XCTAssertEqual(item.attachmentFilePath, attachmentPath)
+        XCTAssertTrue(attachmentStorage.attachmentExists(at: attachmentPath))
+        XCTAssertEqual(try repository.attachmentData(for: item), attachmentData)
+    }
+
+    func testAttachmentData_RejectsOutsideManagedStorage() throws {
+        let item = try repository.create(content: "Invalid path")
+        item.attachmentFilePath = "/tmp/offload-outside-managed-storage.attachment"
+        try modelContext.save()
+
+        XCTAssertThrowsError(try repository.attachmentData(for: item)) { error in
+            guard let validationError = error as? ValidationError else {
+                return XCTFail("Expected ValidationError, got \(error)")
+            }
+            XCTAssertEqual(validationError.message, "Attachment path is outside app-managed storage.")
+        }
+    }
+
+    func testUpdateAttachment_ReplacesFileAndRemovesOldFile() throws {
+        let item = try repository.create(
+            content: "Replace attachment",
+            attachmentData: Data([0xAA, 0xBB])
+        )
+        let oldAttachmentPath = try XCTUnwrap(item.attachmentFilePath)
+        XCTAssertTrue(attachmentStorage.attachmentExists(at: oldAttachmentPath))
+
+        let replacementData = Data([0xCC, 0xDD, 0xEE])
+        try repository.updateAttachment(item, attachmentData: replacementData)
+
+        let newAttachmentPath = try XCTUnwrap(item.attachmentFilePath)
+        XCTAssertNotEqual(oldAttachmentPath, newAttachmentPath)
+        XCTAssertFalse(attachmentStorage.attachmentExists(at: oldAttachmentPath))
+        XCTAssertTrue(attachmentStorage.attachmentExists(at: newAttachmentPath))
+        XCTAssertEqual(try repository.attachmentData(for: item), replacementData)
+    }
+
+    func testUpdateAttachment_DoesNotRollbackWhenOldCleanupFails() throws {
+        let isolatedDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("offload-item-repository-cleanup-fail-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: isolatedDirectory) }
+
+        let cleanupStorage = ThrowingCleanupAttachmentStorage(baseDirectoryURL: isolatedDirectory)
+        let cleanupRepository = ItemRepository(
+            modelContext: modelContext,
+            attachmentStorage: cleanupStorage
+        )
+
+        let item = try cleanupRepository.create(
+            content: "Cleanup failure",
+            attachmentData: Data([0x01, 0x02])
+        )
+        let oldAttachmentPath = try XCTUnwrap(item.attachmentFilePath)
+
+        cleanupStorage.shouldThrowOnRemove = true
+        let replacementData = Data([0x03, 0x04, 0x05])
+        XCTAssertNoThrow(try cleanupRepository.updateAttachment(item, attachmentData: replacementData))
+
+        let newAttachmentPath = try XCTUnwrap(item.attachmentFilePath)
+        XCTAssertNotEqual(oldAttachmentPath, newAttachmentPath)
+        XCTAssertTrue(cleanupStorage.attachmentExists(at: oldAttachmentPath))
+        XCTAssertTrue(cleanupStorage.attachmentExists(at: newAttachmentPath))
+        XCTAssertEqual(try cleanupRepository.attachmentData(for: item), replacementData)
+    }
+
+    func testDelete_RemovesAttachmentFile() throws {
+        let item = try repository.create(
+            content: "Delete attachment",
+            attachmentData: Data([0x42, 0x43])
+        )
+        let attachmentPath = try XCTUnwrap(item.attachmentFilePath)
+        XCTAssertTrue(attachmentStorage.attachmentExists(at: attachmentPath))
+
+        try repository.delete(item)
+
+        XCTAssertFalse(attachmentStorage.attachmentExists(at: attachmentPath))
+    }
+
+    func testTypedMetadata_RoundTripsUnknownKeys() throws {
+        let item = try repository.create(content: "Metadata test")
+        let metadata = ItemMetadata(
+            attachmentFilePath: "/tmp/attachment.dat",
+            extensions: [
+                "priority": .string("high"),
+                "retry_count": .int(3),
+                "score": .double(9.5),
+                "flags": .array([.string("urgent"), .bool(true)]),
+                "nested": .object([
+                    "enabled": .bool(true),
+                    "channel": .string("beta"),
+                ]),
+            ]
+        )
+
+        try repository.updateMetadata(item, metadata: metadata)
+
+        let reloaded = repository.metadata(for: item)
+        XCTAssertEqual(reloaded, metadata)
+    }
+
+    func testTypedMetadata_BackwardCompatibleWithLegacyJSONString() throws {
+        let item = try repository.create(content: "Legacy metadata")
+        item.metadata = #"{"legacy_text":"hello","legacy_count":4,"legacy_nested":{"ok":true}}"#
+        try modelContext.save()
+
+        var decodedMetadata = repository.metadata(for: item)
+        XCTAssertNil(decodedMetadata.attachmentFilePath)
+        XCTAssertEqual(decodedMetadata.extensions["legacy_text"], .string("hello"))
+        XCTAssertEqual(decodedMetadata.extensions["legacy_count"], .int(4))
+        XCTAssertEqual(
+            decodedMetadata.extensions["legacy_nested"],
+            .object(["ok": .bool(true)])
+        )
+
+        decodedMetadata.attachmentFilePath = "/tmp/new-path.png"
+        try repository.updateMetadata(item, metadata: decodedMetadata)
+
+        let roundTripped = repository.metadata(for: item)
+        XCTAssertEqual(roundTripped.attachmentFilePath, "/tmp/new-path.png")
+        XCTAssertEqual(roundTripped.extensions["legacy_text"], .string("hello"))
+        XCTAssertEqual(roundTripped.extensions["legacy_count"], .int(4))
+        XCTAssertEqual(
+            roundTripped.extensions["legacy_nested"],
+            .object(["ok": .bool(true)])
+        )
+    }
+
+    func testTypedMetadata_DictionaryBridgePreservesNSNumberNumericSemantics() {
+        let metadata = ItemMetadata(dictionary: [
+            "count": NSNumber(value: 1),
+            "enabled": NSNumber(value: true),
+            "ratio": NSNumber(value: 1.5),
+        ])
+
+        XCTAssertEqual(metadata.extensions["count"], .int(1))
+        XCTAssertEqual(metadata.extensions["enabled"], .bool(true))
+        XCTAssertEqual(metadata.extensions["ratio"], .double(1.5))
     }
 
     // MARK: - Fetch Tests
@@ -606,5 +776,33 @@ final class ItemRepositoryTests: XCTestCase {
         try repository.deleteAll([item1, item2])
 
         XCTAssertEqual(try repository.fetchAll().count, 0)
+    }
+}
+
+private final class ThrowingCleanupAttachmentStorage: AttachmentStorage {
+    private let backingStorage: AttachmentStorageService
+    var shouldThrowOnRemove = false
+
+    init(baseDirectoryURL: URL) {
+        backingStorage = AttachmentStorageService(baseDirectoryURL: baseDirectoryURL)
+    }
+
+    func storeAttachment(_ data: Data, for itemId: UUID) throws -> String {
+        try backingStorage.storeAttachment(data, for: itemId)
+    }
+
+    func loadAttachment(at path: String) throws -> Data {
+        try backingStorage.loadAttachment(at: path)
+    }
+
+    func removeAttachment(at path: String) throws {
+        if shouldThrowOnRemove {
+            throw NSError(domain: "OffloadTests.ThrowingCleanupAttachmentStorage", code: 1)
+        }
+        try backingStorage.removeAttachment(at: path)
+    }
+
+    func attachmentExists(at path: String) -> Bool {
+        backingStorage.attachmentExists(at: path)
     }
 }

@@ -345,7 +345,7 @@ struct ItemRow: View {
                     title: displayTitle,
                     typeLabel: item.type?.uppercased(),
                     timestamp: item.relativeTimestamp,
-                    image: item.attachmentData.flatMap { UIImage(data: $0) },
+                    image: itemRepository.attachmentDataForDisplay(item).flatMap { UIImage(data: $0) },
                     tags: item.tags,
                     onAddTag: onAddTag,
                     size: .compact // Compact size for item cards

@@ -146,6 +146,7 @@ Local testing: `just test` sources these values automatically.
 - `OffloadUITestsLaunchTests.testLaunch()` is flaky (screenshot comparison); failures don't indicate real regressions
 - To find SF Symbol icon names, grep Icons.swift: `grep -i "trash" ios/Offload/DesignSystem/Icons.swift`
 - SwiftUI gesture composition: use `.simultaneousGesture()` for multiple gestures; `abs(dx) > abs(dy)` differentiates horizontal from vertical
+- New or modified production functions/methods should include concise doc comments covering purpose, key parameters, and return behavior when not `Void`
 
 ## Design System Rules
 

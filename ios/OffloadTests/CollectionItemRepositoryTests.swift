@@ -112,6 +112,74 @@ final class CollectionItemRepositoryTests: XCTestCase {
         XCTAssertEqual(positions?[item1.id], 2)
     }
 
+    func testReorderItems_LargeStructuredDataset_AssignsContiguousPositions() throws {
+        let collection = try collectionRepository.create(name: "Plan", isStructured: true)
+        var itemIDs: [UUID] = []
+        for index in 0 ..< 500 {
+            let item = try itemRepository.create(content: "Item \(index)")
+            _ = try collectionItemRepository.addItemToCollection(
+                itemId: item.id,
+                collectionId: collection.id,
+                position: index
+            )
+            itemIDs.append(item.id)
+        }
+
+        let reordered = Array(itemIDs.reversed())
+        try collectionItemRepository.reorderItems(collection.id, itemIds: reordered)
+
+        let fetched = try collectionRepository.fetchById(collection.id)
+        let positions = fetched?.collectionItems?.reduce(into: [UUID: Int]()) { result, collectionItem in
+            if let position = collectionItem.position {
+                result[collectionItem.itemId] = position
+            }
+        }
+        XCTAssertEqual(positions?.count, reordered.count)
+        for (expectedPosition, itemId) in reordered.enumerated() {
+            XCTAssertEqual(positions?[itemId], expectedPosition)
+        }
+    }
+
+    func testReorderForCollection_UnstructuredUsesItemCreatedAtOrder() throws {
+        let collection = try collectionRepository.create(name: "List", isStructured: false)
+        let base = Date()
+        let item1 = try itemRepository.create(content: "Oldest")
+        let item2 = try itemRepository.create(content: "Middle")
+        let item3 = try itemRepository.create(content: "Newest")
+        item1.createdAt = base.addingTimeInterval(-30)
+        item2.createdAt = base.addingTimeInterval(-10)
+        item3.createdAt = base
+        try modelContext.save()
+
+        _ = try collectionItemRepository.addItemToCollection(
+            itemId: item1.id,
+            collectionId: collection.id,
+            position: 8
+        )
+        _ = try collectionItemRepository.addItemToCollection(
+            itemId: item2.id,
+            collectionId: collection.id,
+            position: 3
+        )
+        _ = try collectionItemRepository.addItemToCollection(
+            itemId: item3.id,
+            collectionId: collection.id,
+            position: 0
+        )
+
+        try collectionItemRepository.reorder(for: collection)
+
+        let fetched = try collectionRepository.fetchById(collection.id)
+        let positions = fetched?.collectionItems?.reduce(into: [UUID: Int]()) { result, collectionItem in
+            if let position = collectionItem.position {
+                result[collectionItem.itemId] = position
+            }
+        }
+        XCTAssertEqual(positions?[item1.id], 0)
+        XCTAssertEqual(positions?[item2.id], 1)
+        XCTAssertEqual(positions?[item3.id], 2)
+    }
+
     func testRemoveItemFromCollection_CompactsStructuredSiblingPositions() throws {
         let collection = try collectionRepository.create(name: "Plan", isStructured: true)
         let item1 = try itemRepository.create(content: "Item 1")
