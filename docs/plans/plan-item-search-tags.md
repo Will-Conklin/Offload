@@ -1,13 +1,13 @@
 ---
 id: plan-item-search-tags
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - capture
   - organize
-last_updated: 2026-02-03
+last_updated: 2026-02-17
 related:
   - prd-0005-item-search-tags
   - adr-0003-adhd-focused-ux-ui-guardrails

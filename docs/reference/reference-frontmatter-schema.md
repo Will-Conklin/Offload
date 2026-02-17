@@ -8,7 +8,7 @@ applies_to:
   - reference
   - documentation
   - agents
-last_updated: 2026-01-25
+last_updated: 2026-02-17
 related:
   - docs-agents
 depends_on: []
@@ -98,6 +98,7 @@ decision-makers: array[string]# Names of decision makers
   - `accepted` — Formally accepted, authoritative
   - `active` — Currently in use (reference docs)
   - `in-progress` — Implementation underway (plans)
+  - `uat` — Implementation complete; pending user verification (plans)
   - `completed` — Finished (plans, research)
   - `archived` — No longer active, preserved for history
   - `deprecated` — Superseded, should not be used
@@ -106,7 +107,7 @@ decision-makers: array[string]# Names of decision makers
   - ADRs: proposed → accepted → (superseded/deprecated)
   - PRDs: proposed → draft → accepted → archived
   - Design: proposed → accepted → archived
-  - Plans: proposed → accepted → in-progress → completed/archived
+  - Plans: proposed → accepted → in-progress → uat → completed/archived
   - Research: active → completed
   - Reference: draft → active → deprecated
 

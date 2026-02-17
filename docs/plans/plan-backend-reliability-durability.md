@@ -1,14 +1,14 @@
 ---
 id: plan-backend-reliability-durability
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - backend
   - ai
   - reliability
-last_updated: 2026-02-16
+last_updated: 2026-02-17
 related:
   - plan-backend-api-privacy
   - adr-0008-backend-api-privacy-mvp

@@ -1,12 +1,12 @@
 ---
 id: plan-convert-plans-lists
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - organize
-last_updated: 2026-02-08
+last_updated: 2026-02-17
 related:
   - prd-0003-convert-plans-lists
   - adr-0005-collection-ordering-and-hierarchy-persistence

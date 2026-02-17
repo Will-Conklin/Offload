@@ -1,7 +1,7 @@
 ---
 id: plan-tab-shell-accessibility-hardening
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:

@@ -1,12 +1,12 @@
 ---
 id: plan-view-decomposition
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - ios
-last_updated: 2026-02-09
+last_updated: 2026-02-17
 related:
   - plan-roadmap
 depends_on: []

@@ -34,14 +34,15 @@ introduce requirements, decisions, or architecture changes.
 ## Lifecycle
 
 ```text
-proposed → accepted → in-progress → completed/archived
+proposed → accepted → in-progress → uat → completed/archived
 ```
 
 | Status        | Meaning                                             |
 | ------------- | --------------------------------------------------- |
 | `proposed`    | Plan drafted, not yet approved                      |
 | `accepted`    | Approved and ready to start                         |
-| `in-progress` | Work underway or merged code awaiting verification  |
+| `in-progress` | Work underway                                       |
+| `uat`         | Implementation merged; pending User Verification    |
 | `completed`   | All work finished successfully                      |
 | `archived`    | Superseded, abandoned, or no longer relevant        |
 
@@ -50,7 +51,8 @@ proposed → accepted → in-progress → completed/archived
 - Merge and close implementation PRs when implementation work is complete.
 - If User Verification checklist items remain, open a follow-up GitHub issue labeled `uat`.
 - Add the `uat` issue to the Offload project and link it to the plan and merged PR.
-- Keep the plan status as `in-progress` until User Verification is complete.
+- Move the plan status to `uat` when implementation is merged and only User Verification remains.
+- Keep the plan status as `uat` until User Verification is complete.
 - Move the plan to `completed` (or `archived`) only after User Verification is fully checked and the `uat` issue is closed.
 
 ## What belongs here
@@ -72,27 +74,30 @@ proposed → accepted → in-progress → completed/archived
 
 - [Plan: Testing & Polish](./plan-testing-polish.md)
 - [Plan: Release Prep](./plan-release-prep.md)
+- [Plan: Diagnose Idle Memory Pressure](./plan-diagnose-idle-memory-pressure.md)
+- [Plan: Resolve Gesture Conflict on Collection Cards](./plan-resolve-gesture-conflict.md)
+- [Plan: Tag Relationship Refactor (Pending Confirmation)](./plan-tag-relationship-refactor.md)
+
+### UAT
+
+- [Plan: Backend API + Privacy Constraints MVP (Breakdown-First)](./plan-backend-api-privacy.md)
+- [Plan: Backend Session Security Hardening](./plan-backend-session-security-hardening.md)
+- [Plan: Backend Reliability and Durability Hardening](./plan-backend-reliability-durability.md)
 - [Plan: Convert Plans and Lists](./plan-convert-plans-lists.md)
 - [Plan: Drag and Drop Ordering](./plan-drag-drop-ordering.md)
 - [Plan: Item Search by Text or Tag](./plan-item-search-tags.md)
+- [Plan: iOS Data and Performance Hardening](./plan-ios-data-performance-hardening.md)
 - [Plan: UX & Accessibility Audit Fixes](./plan-ux-accessibility-audit-fixes.md)
+- [Plan: Tab Shell Accessibility Hardening](./plan-tab-shell-accessibility-hardening.md)
 - [Plan: View Decomposition](./plan-view-decomposition.md)
 - [Plan: Fix Swipe-to-Delete in Organize View](./plan-fix-swipe-to-delete.md)
-- [Plan: Resolve Gesture Conflict on Collection Cards](./plan-resolve-gesture-conflict.md)
 - [Plan: Atomic Move to Collection](./plan-fix-atomic-move-to-collection.md)
 - [Plan: Fix Orphaned Collection Links in CollectionItemRepository](./plan-fix-orphaned-collection-links.md)
 - [Plan: Fix Voice Recording Service Off-Main-Actor Mutations](./plan-fix-voice-recording-threading.md)
 - [Plan: Fix Collection Form Sheet Dismissing on Save Failure](./plan-fix-collection-form-dismissal.md)
-- [Plan: Tag Relationship Refactor (Pending Confirmation)](./plan-tag-relationship-refactor.md)
 - [Plan: Fix Structured Item Position Collisions](./plan-fix-structured-item-position-collisions.md)
 - [Plan: Fix Tag Usage Semantics](./plan-fix-tag-usage-semantics.md)
-- [Plan: Diagnose Idle Memory Pressure](./plan-diagnose-idle-memory-pressure.md)
 - [Plan: Fix Collection Position Backfill](./plan-fix-collection-position-backfill.md)
-- [Plan: Backend API + Privacy Constraints MVP (Breakdown-First)](./plan-backend-api-privacy.md)
-- [Plan: Backend Session Security Hardening](./plan-backend-session-security-hardening.md)
-- [Plan: iOS Data and Performance Hardening](./plan-ios-data-performance-hardening.md)
-- [Plan: Backend Reliability and Durability Hardening](./plan-backend-reliability-durability.md)
-- [Plan: Tab Shell Accessibility Hardening](./plan-tab-shell-accessibility-hardening.md)
 
 ### Proposed
 

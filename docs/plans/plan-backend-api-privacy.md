@@ -1,14 +1,14 @@
 ---
 id: plan-backend-api-privacy
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - backend
   - ai
   - privacy
-last_updated: 2026-02-15
+last_updated: 2026-02-17
 related:
   - plan-roadmap
   - adr-0008-backend-api-privacy-mvp

@@ -1,12 +1,12 @@
 ---
 id: plan-fix-swipe-to-delete
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - organize
-last_updated: 2026-02-13
+last_updated: 2026-02-17
 related:
   - plan-resolve-gesture-conflict
   - plan-drag-drop-ordering

@@ -1,12 +1,12 @@
 ---
 id: plan-ux-accessibility-audit-fixes
 type: plan
-status: in-progress
+status: uat
 owners:
   - Will-Conklin
 applies_to:
   - ios
-last_updated: 2026-02-09
+last_updated: 2026-02-17
 related:
   - plan-advanced-accessibility
   - adr-0003-adhd-focused-ux-ui-guardrails
