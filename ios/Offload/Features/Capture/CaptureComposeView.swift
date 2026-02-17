@@ -292,7 +292,7 @@ struct CaptureComposeView: View {
                 Button(action: save) {
                     Text("Save")
                         .font(Theme.Typography.buttonLabel)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.Colors.buttonDarkText(colorScheme, style: style))
                         .padding(.horizontal, Theme.Spacing.lg)
                         .padding(.vertical, Theme.Spacing.sm)
                         .background(Theme.Colors.buttonDark(colorScheme))
