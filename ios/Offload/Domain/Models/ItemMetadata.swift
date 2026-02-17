@@ -14,6 +14,8 @@ enum ItemMetadataValue: Codable, Equatable {
     case array([ItemMetadataValue])
     case null
 
+    /// Decodes a flexible metadata value from a single-value container.
+    /// - Parameter decoder: Decoder positioned at a metadata scalar/object/array.
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if container.decodeNil() {
@@ -38,6 +40,8 @@ enum ItemMetadataValue: Codable, Equatable {
         }
     }
 
+    /// Encodes the metadata value into its single-value JSON representation.
+    /// - Parameter encoder: Encoder receiving the serialized metadata value.
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
@@ -77,6 +81,9 @@ enum ItemMetadataValue: Codable, Equatable {
         }
     }
 
+    /// Converts Foundation-compatible values into typed metadata values.
+    /// - Parameter value: Foundation value parsed from legacy dictionaries or JSON bridges.
+    /// - Returns: Typed metadata value when supported, otherwise `nil`.
     static func fromFoundation(_ value: Any) -> ItemMetadataValue? {
         if value is NSNull {
             return .null
@@ -130,6 +137,10 @@ struct ItemMetadata: Codable, Equatable {
     var attachmentFilePath: String?
     var extensions: [String: ItemMetadataValue]
 
+    /// Creates typed metadata from known fields and extension values.
+    /// - Parameters:
+    ///   - attachmentFilePath: Optional attachment file path.
+    ///   - extensions: Additional unknown metadata fields preserved for round-tripping.
     init(
         attachmentFilePath: String? = nil,
         extensions: [String: ItemMetadataValue] = [:]
@@ -138,6 +149,8 @@ struct ItemMetadata: Codable, Equatable {
         self.extensions = extensions
     }
 
+    /// Builds typed metadata from a legacy Foundation dictionary payload.
+    /// - Parameter dictionary: Metadata dictionary potentially containing unknown keys.
     init(dictionary: [String: Any]) {
         var extensionValues: [String: ItemMetadataValue] = [:]
         extensionValues.reserveCapacity(dictionary.count)
@@ -157,6 +170,8 @@ struct ItemMetadata: Codable, Equatable {
         extensions = extensionValues
     }
 
+    /// Decodes metadata while preserving unknown keys in the extension map.
+    /// - Parameter decoder: Decoder positioned at a metadata JSON object.
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: DynamicCodingKey.self)
         var extensionValues: [String: ItemMetadataValue] = [:]
@@ -175,6 +190,8 @@ struct ItemMetadata: Codable, Equatable {
         extensions = extensionValues
     }
 
+    /// Encodes metadata core fields plus extension map back to JSON.
+    /// - Parameter encoder: Encoder receiving serialized metadata fields.
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: DynamicCodingKey.self)
 
@@ -198,12 +215,17 @@ struct ItemMetadata: Codable, Equatable {
         return dictionary
     }
 
+    /// Decodes metadata from a raw JSON string with safe fallback.
+    /// - Parameter jsonString: Raw metadata JSON string from persistence.
+    /// - Returns: Decoded metadata, or empty metadata when decoding fails.
     static func decode(from jsonString: String) -> ItemMetadata {
         guard let data = jsonString.data(using: .utf8) else { return ItemMetadata() }
         let decoder = JSONDecoder()
         return (try? decoder.decode(ItemMetadata.self, from: data)) ?? ItemMetadata()
     }
 
+    /// Encodes metadata to a stable, sorted-key JSON string.
+    /// - Returns: Encoded JSON string, or `{}` when encoding fails.
     func encodeToJSONString() -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
@@ -220,6 +242,8 @@ private struct DynamicCodingKey: CodingKey {
     let stringValue: String
     let intValue: Int?
 
+    /// Creates a dynamic coding key from a string key.
+    /// - Parameter key: Metadata field key.
     init(_ key: String) {
         stringValue = key
         intValue = nil

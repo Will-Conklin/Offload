@@ -12,6 +12,10 @@ final class ItemRepository {
     private let modelContext: ModelContext
     private let attachmentStorage: AttachmentStorage
 
+    /// Creates a repository backed by a SwiftData context and attachment storage provider.
+    /// - Parameters:
+    ///   - modelContext: SwiftData context used for item persistence.
+    ///   - attachmentStorage: Optional attachment storage implementation; defaults to `AttachmentStorageService`.
     init(
         modelContext: ModelContext,
         attachmentStorage: AttachmentStorage? = nil
@@ -163,6 +167,9 @@ final class ItemRepository {
         return try modelContext.fetch(descriptor)
     }
 
+    /// Loads attachment data for an item from in-memory cache or file-backed storage.
+    /// - Parameter item: Item whose attachment data should be read.
+    /// - Returns: Attachment bytes when present; otherwise `nil`.
     func attachmentData(for item: Item) throws -> Data? {
         if let cachedData = item.cachedAttachmentData {
             return cachedData
@@ -176,6 +183,9 @@ final class ItemRepository {
         return storedData
     }
 
+    /// Returns attachment data for UI display and suppresses read errors with logging.
+    /// - Parameter item: Item whose attachment data should be loaded for rendering.
+    /// - Returns: Attachment bytes when available and readable; otherwise `nil`.
     func attachmentDataForDisplay(_ item: Item) -> Data? {
         do {
             return try attachmentData(for: item)
@@ -185,10 +195,17 @@ final class ItemRepository {
         }
     }
 
+    /// Returns typed metadata decoded from an item's persisted metadata JSON string.
+    /// - Parameter item: Item whose metadata should be decoded.
+    /// - Returns: Typed metadata value with known fields and extension data.
     func metadata(for item: Item) -> ItemMetadata {
         item.typedMetadata
     }
 
+    /// Persists typed metadata for an item.
+    /// - Parameters:
+    ///   - item: Item to update.
+    ///   - metadata: Typed metadata payload to encode and store.
     func updateMetadata(_ item: Item, metadata: ItemMetadata) throws {
         item.typedMetadata = metadata
         try modelContext.save()
@@ -218,6 +235,10 @@ final class ItemRepository {
         try modelContext.save()
     }
 
+    /// Replaces an item's attachment and persists the new file reference.
+    /// - Parameters:
+    ///   - item: Item whose attachment should be replaced.
+    ///   - attachmentData: New attachment bytes, or `nil` to remove attachment.
     func updateAttachment(_ item: Item, attachmentData: Data?) throws {
         let previousPath = item.attachmentFilePath
         let previousInlineData = item.attachmentData
@@ -451,6 +472,11 @@ final class ItemRepository {
         return try modelContext.fetch(descriptor).first
     }
 
+    /// Stores attachment bytes and returns the persisted file path.
+    /// - Parameters:
+    ///   - attachmentData: Attachment data to persist.
+    ///   - itemId: Item identifier used to namespace file naming.
+    /// - Returns: Stored attachment file path, or `nil` when `attachmentData` is `nil`.
     private func prepareAttachmentPath(for attachmentData: Data?, itemId: UUID) throws -> String? {
         guard let attachmentData else { return nil }
         return try attachmentStorage.storeAttachment(attachmentData, for: itemId)
