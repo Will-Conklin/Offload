@@ -25,7 +25,9 @@ struct DraggableCollectionCard: View {
     @State private var dragStartOffset: CGFloat = 0
     @State private var isSwipeDragging = false
 
-    private let swipeModel = SwipeInteractionModel.trailingDelete
+    private var swipeModel: SwipeInteractionModel {
+        onConvert == nil ? .trailingDelete : .capture
+    }
 
     var body: some View {
         ZStack(alignment: .trailing) {
@@ -50,6 +52,18 @@ struct DraggableCollectionCard: View {
                 onAddTag: onAddTag,
                 onToggleStar: onToggleStar
             )
+            .overlay {
+                HStack {
+                    if swipeOffset > 0, onConvert != nil {
+                        AppIcon(name: Icons.more, size: 16)
+                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                            .padding(.leading, Theme.Spacing.md)
+                            .opacity(min(1, Double(swipeOffset / swipeModel.maxLeadingOffset)))
+                            .accessibilityHidden(true)
+                    }
+                    Spacer()
+                }
+            }
             .offset(x: swipeOffset)
             .contentShape(Rectangle())
             .onTapGesture {
@@ -88,9 +102,12 @@ struct DraggableCollectionCard: View {
                             case .triggerTrailingAction:
                                 swipeOffset = 0
                                 onDeleteRequested()
+                            case .triggerLeadingAction:
+                                swipeOffset = 0
+                                onConvert?()
                             case .revealed:
                                 swipeOffset = swipeModel.revealedOffset
-                            case .closed, .triggerLeadingAction:
+                            case .closed:
                                 swipeOffset = 0
                             }
                         }
@@ -139,26 +156,13 @@ struct DraggableCollectionCard: View {
                     .transition(.opacity)
             }
         }
-        .overlay(alignment: .topTrailing) {
-            if let onConvert {
-                Button(action: onConvert) {
-                    IconTile(
-                        iconName: Icons.more,
-                        iconSize: 12,
-                        tileSize: 28,
-                        style: .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
-                    )
-                }
-                .buttonStyle(.plain)
-                .padding(Theme.Spacing.sm)
-                .accessibilityLabel("Collection actions")
-                .accessibilityHint("Show options for this collection")
-            }
-        }
         .animation(Theme.Animations.motion(.easeInOut(duration: 0.2), reduceMotion: reduceMotion), value: isDropTarget)
         .accessibilityElement(children: .combine)
         .accessibilityAction(named: "Delete") {
             onDeleteRequested()
+        }
+        .accessibilityAction(named: "Convert") {
+            onConvert?()
         }
         .accessibilityAction(named: "Move up") {
             onMoveUp?()
