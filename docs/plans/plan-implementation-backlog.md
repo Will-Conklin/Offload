@@ -6,7 +6,7 @@ owners:
   - Will-Conklin
 applies_to:
   - agents
-last_updated: 2026-02-23
+last_updated: 2026-02-24
 related: []
 depends_on: []
 supersedes:
@@ -25,22 +25,20 @@ related_issues: []
 
 # Implementation Backlog
 
-## Active
+## Completed
 
 ### Advanced Accessibility
 
-Action parity and Dynamic Type hardening for VoiceOver/Switch Control users. Ensures gesture-based interactions (swipe, tap) are available through VoiceOver/Switch Control accessibility menus, and interactive controls scale for accessibility text sizes.
+Action parity and Dynamic Type hardening for VoiceOver/Switch Control users. Code implementation complete: `AdvancedAccessibilityActionPolicy`, `AdvancedAccessibilityLayoutPolicy`, `accessibilityActionIf()` extension, wired into `CaptureItemCard`, `CollectionDetailItemRows`, `OrganizeCollectionCards`. Unit tests passing.
 
-**Implementation:** `AdvancedAccessibilityActionPolicy` enum centralizes action labels; `AdvancedAccessibilityLayoutPolicy` scales control sizes and drop-zone heights based on `DynamicTypeSize`. `accessibilityActionIf()` view extension conditionally exposes actions only when handlers exist. Wired into `CaptureItemCard`, `CollectionDetailItemRows`, `OrganizeCollectionCards`.
-
-**Remaining:**
+**Remaining (manual/QA only):**
 
 - [ ] Complete on-device VoiceOver + Switch Control validation (testing checklist in `docs/design/testing/design-advanced-accessibility-testing-checklist.md`)
 - [ ] Run refactored tests in CI-capable environment
 - [ ] Adjust labels based on QA feedback
 - [ ] Complete user verification
 
-## Ready to Start
+## Active
 
 ### Testing & Polish
 
@@ -68,6 +66,8 @@ Final launch testing and polish. Blocks Release Prep. Related issue: #116.
 
 - [ ] Define and record thresholds: backend p95 latency, iOS startup budget, iOS idle-memory budget, TestFlight crash-free rate
 - [ ] Triage and fix issues from testing phases, retest affected flows
+
+## Ready to Start
 
 ### Release Prep
 
@@ -101,26 +101,6 @@ App Store preparation, TestFlight distribution, security release gate. Blocked b
 
 ## Future Work
 
-### Tag Relationship Refactor
-
-Migrate tag storage from denormalized string arrays to proper SwiftData relationships.
-
-**Current model:** `Item.tags: [String]` stores tag names directly. `Tag` model exists with `name` and `color` but has no relationship to `Item`. Tag lookup recomputes a `[String: Tag]` dictionary every view update. `fetchByTag` fetches ALL items into memory and filters client-side.
-
-**Target model:** `Item.tags: [Tag]?` with `@Relationship(deleteRule: .nullify, inverse: \Tag.items)`. `Tag.items: [Item]?` inverse. `Tag.name` marked `@Attribute(.unique)`. `tagNames: [String]` computed property for backward compatibility. Queries use `#Predicate<Item>` for database-layer filtering.
-
-**Migration:** Versioned schemas `OffloadSchemaV1` → `OffloadSchemaV2` via `SchemaMigrationPlan`. `willMigrate` hook collects unique tag strings, creates `Tag` objects, re-links items. `TagRepository` gets `findOrCreate(name:color:)`. Migrated tags will have `color: nil` unless matched to pre-existing `Tag` objects by name.
-
-**Risks:** Migration failures could cause data loss (staged tests + backups required). All views referencing `item.tags` as `[String]` will break. `tagLookup` dictionary pattern must be removed entirely.
-
-**Remaining:**
-
-- [ ] Confirm scope approval
-- [ ] Identify all impacted views (CaptureComposeView, CaptureView, CollectionDetailView, tag pickers)
-- [ ] Implement versioned schema migration with tests
-- [ ] Update repositories and views
-- [ ] Validate migration on real data
-
 ### Celebration Animations
 
 Positive feedback animations for key moments, respecting reduced motion and ADHD guardrails.
@@ -149,6 +129,26 @@ Visual timeline component for ADHD-focused progress tracking. Related issue: #11
 - [ ] Define placement and states
 - [ ] Build timeline components with Theme tokens
 - [ ] Validate accessibility
+
+### Tag Relationship Refactor
+
+Migrate tag storage from denormalized string arrays to proper SwiftData relationships.
+
+**Current model:** `Item.tags: [String]` stores tag names directly. `Tag` model exists with `name` and `color` but has no relationship to `Item`. Tag lookup recomputes a `[String: Tag]` dictionary every view update. `fetchByTag` fetches ALL items into memory and filters client-side.
+
+**Target model:** `Item.tags: [Tag]?` with `@Relationship(deleteRule: .nullify, inverse: \Tag.items)`. `Tag.items: [Item]?` inverse. `Tag.name` marked `@Attribute(.unique)`. `tagNames: [String]` computed property for backward compatibility. Queries use `#Predicate<Item>` for database-layer filtering.
+
+**Migration:** Versioned schemas `OffloadSchemaV1` → `OffloadSchemaV2` via `SchemaMigrationPlan`. `willMigrate` hook collects unique tag strings, creates `Tag` objects, re-links items. `TagRepository` gets `findOrCreate(name:color:)`. Migrated tags will have `color: nil` unless matched to pre-existing `Tag` objects by name.
+
+**Risks:** Migration failures could cause data loss (staged tests + backups required). All views referencing `item.tags` as `[String]` will break. `tagLookup` dictionary pattern must be removed entirely.
+
+**Remaining:**
+
+- [ ] Confirm scope approval
+- [ ] Identify all impacted views (CaptureComposeView, CaptureView, CollectionDetailView, tag pickers)
+- [ ] Implement versioned schema migration with tests
+- [ ] Update repositories and views
+- [ ] Validate migration on real data
 
 ### AI Organization Flows
 
