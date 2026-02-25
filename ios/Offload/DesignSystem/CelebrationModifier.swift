@@ -100,3 +100,111 @@ struct CelebrationParticlesView: View {
         CGFloat.random(in: 6 ... 12)
     }
 }
+
+// MARK: - Celebration Overlay Modifier
+
+/// ViewModifier that overlays celebration animations on any view.
+///
+/// Applies scale pulse, optional particles, haptic feedback, and respects
+/// reduced motion settings. Auto-resets `isActive` after animation completes.
+struct CelebrationOverlayModifier: ViewModifier {
+    let style: CelebrationStyle
+    @Binding var isActive: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var themeManager: ThemeManager
+
+    @State private var showParticles = false
+    @State private var scaleEffect: CGFloat = 1.0
+    @State private var colorFlashOpacity: Double = 0
+
+    private var themeStyle: ThemeStyle { themeManager.currentStyle }
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(scaleEffect)
+            .overlay {
+                if colorFlashOpacity > 0 {
+                    RoundedRectangle(cornerRadius: Theme.CornerRadius.md)
+                        .fill(Theme.Colors.success(colorScheme, style: themeStyle).opacity(colorFlashOpacity))
+                        .allowsHitTesting(false)
+                }
+            }
+            .overlay {
+                if showParticles, !reduceMotion {
+                    CelebrationParticlesView(particleCount: style.particleCount)
+                        .allowsHitTesting(false)
+                }
+            }
+            .onChange(of: isActive) { _, newValue in
+                if newValue {
+                    triggerCelebration()
+                }
+            }
+    }
+
+    /// Orchestrates haptic, scale, color flash, and particle animations.
+    private func triggerCelebration() {
+        // Haptic fires regardless of reduce motion
+        UIImpactFeedbackGenerator(style: style.hapticStyle).impactOccurred()
+
+        guard !reduceMotion else {
+            // Skip visual animation, just reset
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isActive = false
+            }
+            return
+        }
+
+        // Scale pulse
+        if style.scalePeak > 1.0 {
+            withAnimation(Theme.Animations.motion(Theme.Animations.springSnappy, reduceMotion: false)) {
+                scaleEffect = style.scalePeak
+            }
+            withAnimation(Theme.Animations.motion(Theme.Animations.springDefault, reduceMotion: false).delay(0.15)) {
+                scaleEffect = 1.0
+            }
+        }
+
+        // Color flash for itemCompleted
+        if style == .itemCompleted {
+            withAnimation(Theme.Animations.motion(Theme.Animations.typewriterDing, reduceMotion: false)) {
+                colorFlashOpacity = 0.15
+            }
+            withAnimation(Theme.Animations.motion(Theme.Animations.springDefault, reduceMotion: false).delay(0.2)) {
+                colorFlashOpacity = 0
+            }
+        }
+
+        // Particles
+        if style.showsParticles {
+            showParticles = true
+            withAnimation(Theme.Animations.motion(Theme.Animations.mechanicalSlide, reduceMotion: false)) {
+                // Particles animate via their own onAppear
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + style.duration) {
+                showParticles = false
+            }
+        }
+
+        // Reset
+        DispatchQueue.main.asyncAfter(deadline: .now() + style.duration) {
+            isActive = false
+        }
+    }
+}
+
+// MARK: - View Extension
+
+extension View {
+    /// Adds a celebration animation overlay to the view.
+    ///
+    /// - Parameters:
+    ///   - style: The celebration type determining animation intensity.
+    ///   - isActive: Binding that triggers the celebration when set to true.
+    ///     Auto-resets to false after the animation completes.
+    func celebrationOverlay(style: CelebrationStyle, isActive: Binding<Bool>) -> some View {
+        modifier(CelebrationOverlayModifier(style: style, isActive: isActive))
+    }
+}
