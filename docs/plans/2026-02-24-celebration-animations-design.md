@@ -69,15 +69,14 @@ trigger `.firstCapture` celebration and set flag to true. If already captured
 before: keep existing typewriterDing + amber flash (no change). First capture
 celebration replaces the amber flash for that one time only.
 
-### Collection Completed — CollectionDetailView
+### Collection Completed — CaptureView
 
-After completing the last item, check if all items in the collection have
-`completedAt` set. If yes: trigger `.collectionCompleted` + show success toast
-via ToastManager ("Collection complete!").
-
-Re-trigger guard: `@State var hasShownCollectionCelebration = false`, reset when
-any item becomes uncompleted. Prevents spamming if user uncompletes then
-re-completes the last item.
+When an item is completed in CaptureView, check if it belongs to any collection
+via `item.collectionItems` relationship. If all sibling items in that collection
+now have `completedAt` set, trigger a `.success` toast via ToastManager
+("Collection name complete!") + medium haptic. Detection lives in CaptureView
+since that is where item completion happens — collections themselves do not have
+a complete action.
 
 ## File Organization
 
