@@ -63,4 +63,24 @@ final class CelebrationModifierTests: XCTestCase {
     func testCollectionCompletedDuration() {
         XCTAssertEqual(CelebrationStyle.collectionCompleted.duration, 2.0, accuracy: 0.01)
     }
+
+    // MARK: - Collection Completion Detection
+
+    func testAllItemsCompleteDetection() {
+        let completedDates: [Date?] = [Date(), Date(), Date()]
+        let allComplete = completedDates.allSatisfy { $0 != nil }
+        XCTAssertTrue(allComplete)
+    }
+
+    func testNotAllItemsCompleteDetection() {
+        let completedDates: [Date?] = [Date(), nil, Date()]
+        let allComplete = completedDates.allSatisfy { $0 != nil }
+        XCTAssertFalse(allComplete)
+    }
+
+    func testEmptyCollectionIsNotComplete() {
+        let completedDates: [Date?] = []
+        let allComplete = !completedDates.isEmpty && completedDates.allSatisfy { $0 != nil }
+        XCTAssertFalse(allComplete)
+    }
 }

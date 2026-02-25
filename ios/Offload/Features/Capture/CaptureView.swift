@@ -15,6 +15,7 @@ struct CaptureView: View {
     @Environment(\.collectionRepository) private var collectionRepository
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
+    @Environment(ToastManager.self) private var toastManager
     @State private var errorPresenter = ErrorPresenter()
     @State private var viewModel = CaptureListViewModel()
 
@@ -206,11 +207,35 @@ struct CaptureView: View {
             try itemRepository.complete(item)
             viewModel.remove(item)
             AppLogger.workflow.info("CaptureView complete completed - id: \(itemId, privacy: .public)")
+
+            // Check if this completion finishes any collection
+            checkCollectionCompletion(for: item)
         } catch {
             AppLogger.workflow.error(
                 "CaptureView complete failed - id: \(itemId, privacy: .public), error: \(error.localizedDescription, privacy: .public)"
             )
             errorPresenter.present(error)
+        }
+    }
+
+    /// Checks if completing this item finishes all items in any of its collections.
+    private func checkCollectionCompletion(for item: Item) {
+        guard let collectionItems = item.collectionItems, !collectionItems.isEmpty else { return }
+
+        for collectionItem in collectionItems {
+            guard let collection = collectionItem.collection,
+                  let allCollectionItems = collection.collectionItems,
+                  !allCollectionItems.isEmpty else { continue }
+
+            let allItems = allCollectionItems.compactMap(\.item)
+            guard !allItems.isEmpty else { continue }
+
+            let allComplete = allItems.allSatisfy { $0.completedAt != nil }
+            if allComplete {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                toastManager.show("\"\(collection.name)\" complete!", type: .success)
+                AppLogger.workflow.info("Collection completed - name: \(collection.name, privacy: .public)")
+            }
         }
     }
 
