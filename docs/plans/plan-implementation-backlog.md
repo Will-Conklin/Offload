@@ -59,6 +59,7 @@ Final launch testing and polish. Blocks Release Prep. Related issue: #116.
 - [ ] Swipe-to-complete on collections needs a confirmation step and a visible affordance icon (current indicator overlaps with the card and is not visible; should match the trash icon pattern used by swipe-to-delete)
 - [ ] +tag icon on collection items is oversized; should match the +tag icon size used on capture items
 - [ ] Collection cards are too large; reduce content density — remove date display and limit visible tags (e.g., show max 2-3 with "+N more" overflow)
+- [ ] Collection list view scroll is broken — unable to scroll the list on the collection screen
 
 **Performance & reliability:**
 
