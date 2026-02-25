@@ -123,6 +123,41 @@ final class PerformanceBenchmarkTests: XCTestCase {
         }
     }
 
+    private func benchmarkFetchCaptureItemsFirstPage(count: Int) throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+        let repository = ItemRepository(modelContext: context)
+        try seedItems(count: count, modelContext: context)
+
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        measure(metrics: [XCTClockMetric()], options: options) {
+            do {
+                _ = try repository.fetchCaptureItems(limit: 50, offset: 0)
+            } catch {
+                XCTFail("fetchCaptureItems first page failed: \(error)")
+            }
+        }
+    }
+
+    private func benchmarkFetchCaptureItemsDeepPage(count: Int) throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+        let repository = ItemRepository(modelContext: context)
+        try seedItems(count: count, modelContext: context)
+
+        let deepOffset = max(0, count - 50)
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3
+        measure(metrics: [XCTClockMetric()], options: options) {
+            do {
+                _ = try repository.fetchCaptureItems(limit: 50, offset: deepOffset)
+            } catch {
+                XCTFail("fetchCaptureItems deep page failed: \(error)")
+            }
+        }
+    }
+
     private func benchmarkFetchWithFollowUp(count: Int) throws {
         let container = try makeContainer()
         let context = container.mainContext
@@ -203,5 +238,33 @@ final class PerformanceBenchmarkTests: XCTestCase {
 
     func testFetchWithFollowUpPerformance10000Items() throws {
         try benchmarkFetchWithFollowUp(count: 10000)
+    }
+
+    // MARK: - Paginated Capture Items (first page)
+
+    func testFetchCaptureItemsFirstPagePerformance100Items() throws {
+        try benchmarkFetchCaptureItemsFirstPage(count: 100)
+    }
+
+    func testFetchCaptureItemsFirstPagePerformance1000Items() throws {
+        try benchmarkFetchCaptureItemsFirstPage(count: 1000)
+    }
+
+    func testFetchCaptureItemsFirstPagePerformance10000Items() throws {
+        try benchmarkFetchCaptureItemsFirstPage(count: 10000)
+    }
+
+    // MARK: - Paginated Capture Items (deep offset)
+
+    func testFetchCaptureItemsDeepPagePerformance100Items() throws {
+        try benchmarkFetchCaptureItemsDeepPage(count: 100)
+    }
+
+    func testFetchCaptureItemsDeepPagePerformance1000Items() throws {
+        try benchmarkFetchCaptureItemsDeepPage(count: 1000)
+    }
+
+    func testFetchCaptureItemsDeepPagePerformance10000Items() throws {
+        try benchmarkFetchCaptureItemsDeepPage(count: 10000)
     }
 }
