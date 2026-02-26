@@ -38,6 +38,10 @@ Action parity and Dynamic Type hardening for VoiceOver/Switch Control users. Cod
 - [ ] Adjust labels based on QA feedback
 - [ ] Complete user verification
 
+### Celebration Animations
+
+Positive feedback animations for three moments: item completed, first capture, and collection fully completed. Uses `CelebrationStyle` enum + `.celebrationOverlay()` ViewModifier with pure SwiftUI particle system. All animations respect reduced motion via `Theme.Animations.motion()`. Collection completion detected from CaptureView via item relationships, shown as success toast. Design: `docs/plans/2026-02-24-celebration-animations-design.md`.
+
 ## Active
 
 ### Testing & Polish
@@ -49,6 +53,13 @@ Final launch testing and polish. Blocks Release Prep. Related issue: #116.
 - [ ] Run full manual testing checklist (text capture CRUD + undo, attachments, tags/star/follow-up, organize plan + list creation, item move, reorder persistence, mark complete, voice capture, settings, persistence across force-quit and background)
 - [ ] Test on at least one iPhone + one iPad, physical device for voice capture
 - [ ] Record results with device, OS, build, tester, pass/fail
+
+**UX fixes:**
+
+- [ ] Swipe-to-complete on collections needs a confirmation step and a visible affordance icon (current indicator overlaps with the card and is not visible; should match the trash icon pattern used by swipe-to-delete)
+- [ ] +tag icon on collection items is oversized; should match the +tag icon size used on capture items
+- [ ] Collection cards are too large; reduce content density — remove date display and limit visible tags (e.g., show max 2-3 with "+N more" overflow). When cards are oversized the decorative circle's bottom cutoff becomes visible, breaking the visual effect
+- [ ] Collection list view scroll is broken — unable to scroll the list on the collection screen
 
 **Performance & reliability:**
 
@@ -101,20 +112,9 @@ App Store preparation, TestFlight distribution, security release gate. Blocked b
 
 ## Future Work
 
-### Celebration Animations
+### Home Dashboard
 
-Positive feedback animations for key moments, respecting reduced motion and ADHD guardrails.
-
-**Constraints:** Calm visual system (restrained palette, minimal simultaneous colors). Non-blocking feedback only (banners/snackbars, not modals). No urgency language. All animations gated via `Theme.Animations.motion(_:reduceMotion:)` and `@Environment(\.accessibilityReduceMotion)`. Must use `Theme.Animations.*` tokens (`springDefault` 0.3s, `springSnappy` 0.2s, `mechanicalSlide` 0.4s). No new visual noise beyond existing design system palette.
-
-**Open decisions:** Specific trigger moments TBD (first capture, collection completed, milestone reached). Animation patterns and durations TBD. Performance budget on older devices TBD.
-
-**Remaining:**
-
-- [ ] Define key celebration moments
-- [ ] Define animation patterns against design system motion tokens
-- [ ] Implement with reduce-motion guards
-- [ ] Profile performance on older devices
+The Home tab is currently empty (placeholder view). Needs to become a user dashboard with at-a-glance context: recent captures, active collections, progress summary. The Visual Timeline (below) could be a natural component here. Scope and layout TBD — requires brainstorming and design.
 
 ### Visual Timeline
 
