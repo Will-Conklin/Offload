@@ -12,6 +12,13 @@ fi
 echo "==> Installing gh CLI..."
 apt-get install -y -q gh
 
+echo "==> Configuring gh CLI..."
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+    gh auth login --with-token <<< "$GITHUB_TOKEN"
+else
+    echo "    GITHUB_TOKEN not set — skipping gh auth (set it in project secrets to enable PR creation)"
+fi
+
 echo "==> Installing markdownlint-cli..."
 npm install -g markdownlint-cli --silent
 
