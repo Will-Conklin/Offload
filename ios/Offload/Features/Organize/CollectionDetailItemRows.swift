@@ -344,9 +344,10 @@ struct ItemRow: View {
 
     var body: some View {
         ZStack(alignment: .trailing) {
-            TrailingDeleteAffordance(
-                colorScheme: colorScheme,
-                style: style,
+            SwipeAffordance(
+                side: .trailing,
+                iconName: Icons.deleteFilled,
+                color: Theme.Colors.destructive(colorScheme, style: style),
                 progress: swipeModel.trailingProgress(offset: swipeOffset),
                 isEnabled: swipeOffset <= swipeModel.revealedOffset,
                 accessibilityLabel: "Delete item",
@@ -379,7 +380,7 @@ struct ItemRow: View {
                     .onChanged { value in
                         if !isSwipeDragging {
                             // Only activate horizontal swipe; let ScrollView own vertical drags
-                            guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                            guard swipeModel.isHorizontal(translation: value.translation) else { return }
                             dragStartOffset = swipeOffset
                             isSwipeDragging = true
                         }

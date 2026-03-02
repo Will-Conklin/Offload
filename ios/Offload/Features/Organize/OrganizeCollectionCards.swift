@@ -29,18 +29,15 @@ struct DraggableCollectionCard: View {
         onConvert == nil ? .trailingDelete : .capture
     }
 
-    private var leadingProgress: Double {
-        min(1, max(0, Double(swipeOffset / swipeModel.maxLeadingOffset)))
-    }
-
     var body: some View {
         ZStack {
             if onConvert != nil {
-                LeadingConvertAffordance(
-                    colorScheme: colorScheme,
-                    style: style,
-                    progress: leadingProgress,
-                    isEnabled: swipeOffset >= swipeModel.actionThreshold,
+                SwipeAffordance(
+                    side: .leading,
+                    iconName: Icons.convert,
+                    color: Theme.Colors.accentSecondary(colorScheme, style: style),
+                    progress: swipeModel.leadingProgress(offset: swipeOffset),
+                    isEnabled: swipeModel.isLeadingTriggered(offset: swipeOffset),
                     accessibilityLabel: "Convert collection",
                     accessibilityHint: "Converts between plan and list format."
                 ) {
@@ -51,9 +48,10 @@ struct DraggableCollectionCard: View {
                 }
             }
 
-            TrailingDeleteAffordance(
-                colorScheme: colorScheme,
-                style: style,
+            SwipeAffordance(
+                side: .trailing,
+                iconName: Icons.deleteFilled,
+                color: Theme.Colors.destructive(colorScheme, style: style),
                 progress: swipeModel.trailingProgress(offset: swipeOffset),
                 isEnabled: swipeOffset <= swipeModel.revealedOffset,
                 accessibilityLabel: "Delete collection",
@@ -88,7 +86,7 @@ struct DraggableCollectionCard: View {
                     .onChanged { value in
                         if !isSwipeDragging {
                             // Only activate horizontal swipe; let ScrollView own vertical drags
-                            guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                            guard swipeModel.isHorizontal(translation: value.translation) else { return }
                             dragStartOffset = swipeOffset
                             isSwipeDragging = true
                         }

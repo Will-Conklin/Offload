@@ -1,49 +1,18 @@
-// Purpose: Reusable trailing-gutter delete affordance for swipe interactions.
+// Purpose: Reusable swipe affordance views for leading and trailing swipe actions.
 // Authority: Code-level
 // Governed by: AGENTS.md
 
 import SwiftUI
 
-/// Leading-gutter affordance for the swipe-to-convert action on collection cards.
-struct LeadingConvertAffordance: View {
-    let colorScheme: ColorScheme
-    let style: ThemeStyle
-    let progress: Double
-    let isEnabled: Bool
-    let accessibilityLabel: String
-    let accessibilityHint: String
-    let action: () -> Void
-
-    var body: some View {
-        HStack {
-            Button(action: action) {
-                RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
-                    .fill(Theme.Colors.accentSecondary(colorScheme, style: style).opacity(0.14))
-                    .overlay {
-                        AppIcon(name: Icons.convert, size: 18)
-                            .foregroundStyle(Theme.Colors.accentSecondary(colorScheme, style: style))
-                    }
-                    .frame(
-                        width: Theme.Spacing.xl + Theme.Spacing.lg,
-                        height: Theme.HitTarget.minimum.height + Theme.Spacing.sm
-                    )
-                    .scaleEffect(0.9 + (0.1 * progress))
-            }
-            .buttonStyle(.plain)
-            .padding(.leading, Theme.Spacing.sm)
-            .opacity(progress)
-            .disabled(!isEnabled)
-            .accessibilityLabel(accessibilityLabel)
-            .accessibilityHint(accessibilityHint)
-
-            Spacer()
-        }
+/// A reusable swipe affordance rendered behind a card on either the leading or trailing side.
+struct SwipeAffordance: View {
+    enum Side {
+        case leading, trailing
     }
-}
 
-struct TrailingDeleteAffordance: View {
-    let colorScheme: ColorScheme
-    let style: ThemeStyle
+    let side: Side
+    let iconName: String
+    let color: Color
     let progress: Double
     let isEnabled: Bool
     let accessibilityLabel: String
@@ -52,14 +21,14 @@ struct TrailingDeleteAffordance: View {
 
     var body: some View {
         HStack {
-            Spacer()
+            if side == .trailing { Spacer() }
 
             Button(action: action) {
                 RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
-                    .fill(Theme.Colors.destructive(colorScheme, style: style).opacity(0.14))
+                    .fill(color.opacity(0.14))
                     .overlay {
-                        AppIcon(name: Icons.deleteFilled, size: 18)
-                            .foregroundStyle(Theme.Colors.destructive(colorScheme, style: style))
+                        AppIcon(name: iconName, size: 18)
+                            .foregroundStyle(color)
                     }
                     .frame(
                         width: Theme.Spacing.xl + Theme.Spacing.lg,
@@ -68,11 +37,13 @@ struct TrailingDeleteAffordance: View {
                     .scaleEffect(0.9 + (0.1 * progress))
             }
             .buttonStyle(.plain)
-            .padding(.trailing, Theme.Spacing.sm)
+            .padding(side == .leading ? .leading : .trailing, Theme.Spacing.sm)
             .opacity(progress)
             .disabled(!isEnabled)
             .accessibilityLabel(accessibilityLabel)
             .accessibilityHint(accessibilityHint)
+
+            if side == .leading { Spacer() }
         }
     }
 }
