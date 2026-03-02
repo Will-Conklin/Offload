@@ -4,6 +4,43 @@
 
 import SwiftUI
 
+/// Leading-gutter affordance for the swipe-to-convert action on collection cards.
+struct LeadingConvertAffordance: View {
+    let colorScheme: ColorScheme
+    let style: ThemeStyle
+    let progress: Double
+    let isEnabled: Bool
+    let accessibilityLabel: String
+    let accessibilityHint: String
+    let action: () -> Void
+
+    var body: some View {
+        HStack {
+            Button(action: action) {
+                RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                    .fill(Theme.Colors.accentSecondary(colorScheme, style: style).opacity(0.14))
+                    .overlay {
+                        AppIcon(name: Icons.convert, size: 18)
+                            .foregroundStyle(Theme.Colors.accentSecondary(colorScheme, style: style))
+                    }
+                    .frame(
+                        width: Theme.Spacing.xl + Theme.Spacing.lg,
+                        height: Theme.HitTarget.minimum.height + Theme.Spacing.sm
+                    )
+                    .scaleEffect(0.9 + (0.1 * progress))
+            }
+            .buttonStyle(.plain)
+            .padding(.leading, Theme.Spacing.sm)
+            .opacity(progress)
+            .disabled(!isEnabled)
+            .accessibilityLabel(accessibilityLabel)
+            .accessibilityHint(accessibilityHint)
+
+            Spacer()
+        }
+    }
+}
+
 struct TrailingDeleteAffordance: View {
     let colorScheme: ColorScheme
     let style: ThemeStyle

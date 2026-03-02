@@ -378,6 +378,8 @@ struct ItemRow: View {
                 DragGesture()
                     .onChanged { value in
                         if !isSwipeDragging {
+                            // Only activate horizontal swipe; let ScrollView own vertical drags
+                            guard abs(value.translation.width) > abs(value.translation.height) else { return }
                             dragStartOffset = swipeOffset
                             isSwipeDragging = true
                         }
@@ -390,6 +392,7 @@ struct ItemRow: View {
                         swipeOffset = dragOffset
                     }
                     .onEnded { value in
+                        guard isSwipeDragging else { return }
                         let endState = swipeModel.endState(
                             startOffset: dragStartOffset,
                             translation: value.translation

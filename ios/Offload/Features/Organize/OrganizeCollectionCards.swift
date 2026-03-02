@@ -29,8 +29,28 @@ struct DraggableCollectionCard: View {
         onConvert == nil ? .trailingDelete : .capture
     }
 
+    private var leadingProgress: Double {
+        min(1, max(0, Double(swipeOffset / swipeModel.maxLeadingOffset)))
+    }
+
     var body: some View {
-        ZStack(alignment: .trailing) {
+        ZStack {
+            if onConvert != nil {
+                LeadingConvertAffordance(
+                    colorScheme: colorScheme,
+                    style: style,
+                    progress: leadingProgress,
+                    isEnabled: swipeOffset >= swipeModel.actionThreshold,
+                    accessibilityLabel: "Convert collection",
+                    accessibilityHint: "Converts between plan and list format."
+                ) {
+                    withAnimation(Theme.Animations.motion(Theme.Animations.springDefault, reduceMotion: reduceMotion)) {
+                        swipeOffset = 0
+                    }
+                    onConvert?()
+                }
+            }
+
             TrailingDeleteAffordance(
                 colorScheme: colorScheme,
                 style: style,
@@ -52,18 +72,6 @@ struct DraggableCollectionCard: View {
                 onAddTag: onAddTag,
                 onToggleStar: onToggleStar
             )
-            .overlay {
-                HStack {
-                    if swipeOffset > 0, onConvert != nil {
-                        AppIcon(name: Icons.more, size: 16)
-                            .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
-                            .padding(.leading, Theme.Spacing.md)
-                            .opacity(min(1, Double(swipeOffset / swipeModel.maxLeadingOffset)))
-                            .accessibilityHidden(true)
-                    }
-                    Spacer()
-                }
-            }
             .offset(x: swipeOffset)
             .contentShape(Rectangle())
             .onTapGesture {
@@ -79,6 +87,8 @@ struct DraggableCollectionCard: View {
                 DragGesture()
                     .onChanged { value in
                         if !isSwipeDragging {
+                            // Only activate horizontal swipe; let ScrollView own vertical drags
+                            guard abs(value.translation.width) > abs(value.translation.height) else { return }
                             dragStartOffset = swipeOffset
                             isSwipeDragging = true
                         }
@@ -91,6 +101,7 @@ struct DraggableCollectionCard: View {
                         swipeOffset = dragOffset
                     }
                     .onEnded { value in
+                        guard isSwipeDragging else { return }
                         let endState = swipeModel.endState(
                             startOffset: dragStartOffset,
                             translation: value.translation
@@ -281,15 +292,15 @@ struct CollectionCard: View {
                         }
 
                         Button(action: onAddTag) {
-                            HStack(spacing: Theme.Spacing.xs) {
+                            HStack(spacing: 4) {
                                 AppIcon(name: Icons.add, size: 8)
                                 Text("TAG")
-                                    .font(Theme.Typography.badge)
+                                    .font(.system(size: 8, weight: .bold, design: .default))
                                     .tracking(0.5)
                             }
                             .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
-                            .padding(.horizontal, Theme.Spacing.sm)
-                            .padding(.vertical, Theme.Spacing.xs)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
                             .background(
                                 Capsule()
                                     .strokeBorder(
