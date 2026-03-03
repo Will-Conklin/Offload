@@ -444,7 +444,7 @@ final class ItemRepositoryTests: XCTestCase {
     }
 
     func testFetchCaptures() throws {
-        // Captures are type=nil AND not completed
+        // Captures are: not linked to a collection AND not completed (type is irrelevant)
         try repository.create(content: "Active capture")
 
         let completed = try repository.create(content: "Completed capture")
@@ -453,8 +453,8 @@ final class ItemRepositoryTests: XCTestCase {
         try repository.create(type: "task", content: "Task")
 
         let captures = try repository.fetchCaptureItems()
-        XCTAssertEqual(captures.count, 1)
-        XCTAssertEqual(captures[0].content, "Active capture")
+        XCTAssertEqual(captures.count, 2)
+        XCTAssertTrue(captures.allSatisfy { $0.linkedCollectionId == nil && $0.completedAt == nil })
     }
 
     func testFetchCaptureItemsPage() throws {
