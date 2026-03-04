@@ -6,7 +6,7 @@ owners:
   - Will-Conklin
 applies_to:
   - agents
-last_updated: 2026-03-03
+last_updated: 2026-03-04
 related: []
 depends_on: []
 supersedes:
@@ -122,24 +122,28 @@ Expand the `ItemType` enum beyond the current `task` and `link` cases to support
 
 **Remaining:**
 
-- [ ] Voice capture: map AI-inferred category to new `ItemType` enum cases (see `VoiceCaptureViewModel`; AI returns a string category, needs mapping to `ItemType.rawValue`)
+- [ ] Voice capture type mapping: deferred — `VoiceCaptureViewModel` does not exist yet; implement after voice capture feature is built
 - [ ] Align Brain Dump Compiler category labels with `ItemType.rawValue` (no translation layer needed now)
 - [ ] Type-aware grouping option in Organize tab (future; do not implement until AI Organization Flows are underway)
 
-### AI Organization Flows [Needs Decision]
+### AI Organization Flows [Ready]
 
-Six AI-assisted features for neurodivergent users. All depend on backend API/privacy infrastructure being confirmed production-ready. **Do not implement any feature until the human gate below is cleared.**
+Six AI-assisted features for neurodivergent users.
 
 **Backend/privacy constraints:** On-device processing is default; cloud requires explicit per-feature opt-in. Zero content retention (no durable storage of prompts/responses). Anonymous device session tokens only (`POST /v1/sessions/anonymous`). Python + FastAPI backend, single provider (OpenAI) behind adapter interface. Cloud endpoint fails closed if opt-in absent. Logs: request ID, route, status, latency only.
 
 **ADHD design rules:** AI always suggests, never auto-acts. No judgmental language ("overdue," "late," "easy," "simple," "you should"). Tone is collaborative. All features optional and dismissible. Concerns acknowledged as valid. Animations respect `accessibilityReduceMotion`.
 
-**Open decisions:** On-device model selection (Core ML, model size/latency budgets). Minimum completion count for pattern detection (Recurring Task Intelligence). Whether learning is implicit or explicit to user.
+**Decided:**
+
+- Backend API/privacy infrastructure confirmed production-ready: sessions router with IP/install rate limiting, breakdown endpoint with proper error mapping and provider retry, usage reconcile endpoint, JWT v2 with key rotation, zero durable content retention (only usage counts in SQLite), production-like config validation enforced at startup. Feature 1 is unblocked.
+- On-device model scope deferred to post-launch. All AI features use cloud endpoints for initial release. Core ML model evaluation is a future optimization after launch telemetry is available.
+- Minimum completion count for Recurring Task Intelligence (Feature 3): 3 completions. Learning is implicit (no explicit user controls for initial release).
 
 **Remaining — prerequisites:**
 
-- [ ] ⚠️ Human gate: Confirm backend API/privacy infrastructure is production-ready
-- [ ] ⚠️ Human gate: Define on-device model constraints per device class (Core ML model ID, max size, acceptable latency)
+- ~~⚠️ Human gate: Confirm backend API/privacy infrastructure is production-ready~~ ✅ Confirmed
+- ~~⚠️ Human gate: Define on-device model constraints per device class~~ ✅ Deferred; cloud-only for initial release
 
 **Feature 1 — Smart Task Breakdown** (implement first):
 
@@ -193,46 +197,80 @@ Surfaces max 2-3 "good enough" recommendations. Max 1-2 clarifying questions. "J
 - [ ] Add `DecisionService` calling backend with item options + context
 - [ ] Build `DecisionSheet` (recommendation list, clarifying question flow, "just pick" mode)
 
-### AI Pricing & Limits [Needs Decision]
+### AI Pricing & Limits [Ready]
 
-Free/paid tier boundaries, quota enforcement, billing integration. **Cannot implement until pricing tiers are defined by owner.**
+Free/paid tier boundaries, quota enforcement, billing integration.
 
 **Decided:** Hybrid enforcement model — local provisional counters (UserDefaults) + Keychain mirror for tamper resistance, reconciled with server on reconnect via `POST /v1/usage/reconcile` at `max(local, server)`. Server-only enforcement rejected (poor offline UX). UX tone: non-judgmental, shame-free, no pressure language.
+
+- Free only for launch. No paid tier until after TestFlight feedback.
+- Free tier: 100 AI actions. Matches existing `default_feature_quota = 100` in `config.py` — no backend change needed.
+- Definition of "AI action": one successful call to any `/v1/ai/*` endpoint (currently only `/v1/ai/breakdown/generate`; future AI endpoints count equally at 1 action each).
+- Billing integration: deferred until a paid tier is introduced post-launch.
+- Quota UX: non-judgmental inline message when limit is approached (e.g., "You've used X of 100 AI features this month"). No upgrade nudge for launch.
 
 **Research findings:** UserDefaults counters lightweight but not tamper-proof. Keychain provides moderate resistance. DeviceCheck requires network, viable as defense-in-depth. Core ML suitable for smaller models; large LLMs need optimization or cloud fallback. Hybrid on-device-first + optional cloud recommended.
 
 **Remaining:**
 
-- [ ] ⚠️ Human gate: Define free tier AI action counts, paid tier soft caps, and what constitutes one "AI action"
-- [ ] ⚠️ Human gate: Decide billing integration approach (RevenueCat, StoreKit direct, or other)
+- ~~⚠️ Human gate: Define free tier AI action counts, paid tier soft caps, and what constitutes one "AI action"~~ ✅ Decided: 100 free, no paid tier for launch, one action = one `/v1/ai/*` call
+- ~~⚠️ Human gate: Decide billing integration approach~~ ✅ Deferred — no billing needed for launch
 - [ ] Implement local quota enforcement (`QuotaStore`: UserDefaults counter + Keychain mirror)
 - [ ] Build server reconciliation: `POST /v1/usage/reconcile`, `max(local, server)` merge
-- [ ] Add quota-exceeded UX (non-judgmental inline message, upgrade nudge if paid tier exists)
-- [ ] Integrate billing per chosen approach
+- [ ] Add quota-approached UX (non-judgmental: "X of 100 AI features used this month"; no upgrade nudge)
+- [ ] Integrate billing per chosen approach (deferred to post-launch)
 
-### Visual Timeline [Needs Design]
+### Visual Timeline [Ready]
 
 Visual timeline component for ADHD-focused progress tracking. Related issue: #118.
 
 **Constraints:** Must fit within existing tab shell or shallow sheets (no deep navigation stacks). Calm visual system, no urgency language, non-blocking with snooze/dismiss. Accessibility-first: Dynamic Type, Reduce Motion, 44x44pt tap targets. Must use Theme tokens exclusively.
 
-**Blocked on design:** Target view placement, timeline states, and visual design assets must be defined before implementation tasks can be written. The planning task below must be completed first.
+**Decided:**
+
+- Placement: Home tab, as a dedicated section within `HomeView` below the stats card. Implemented as part of Home Dashboard work.
+- States:
+  - **Empty**: No items with `followUpDate` set → `EmptyStateView` with neutral message ("No upcoming check-ins").
+  - **Active**: Items with `followUpDate` within the next 7 days, sorted chronologically.
+  - **Past**: Items with `followUpDate` before today and not yet completed → shown without urgency language, labeled "Waiting since [relative date]".
+- Design: Vertical list of date-grouped compact `CardSurface` cards. Calm warm MCM palette. No red urgency indicators. Snooze action shifts `followUpDate` by +1 day; dismiss hides without deleting.
 
 **Remaining:**
 
-- [ ] ⚠️ Human gate: Define target placement (Home tab, Organize tab, or sheet), timeline states (empty, active, completed), and provide or approve visual design before implementation begins
-- [ ] Build timeline component(s) with Theme tokens per approved design
+- ~~⚠️ Human gate: Define target placement, timeline states, and visual design~~ ✅ Decided above
+- [ ] Add `fetchItemsWithFollowUpDate(from:to:using:)` to `ItemRepository`
+- [ ] Build `TimelineSection` SwiftUI view (date-grouped list of `TimelineItemRow`)
+- [ ] Build `TimelineItemRow` (date indicator + item content + snooze/dismiss actions using `ItemActionButton`)
+- [ ] Implement snooze: shifts `followUpDate` by +1 day via `ItemRepository.update()`
+- [ ] Integrate `TimelineSection` into `HomeView` below the stats card
 - [ ] Validate accessibility (Dynamic Type, Reduce Motion, 44pt targets)
 
-### Home Dashboard [Needs Design]
+### Home Dashboard [Ready]
 
-The Home tab is currently empty (placeholder view). Needs to become a user dashboard with at-a-glance context: recent captures, active collections, progress summary. The Visual Timeline could be a natural component here.
+The Home tab is currently empty (placeholder view). Needs to become a user dashboard with at-a-glance context. The Visual Timeline is a companion section within this view.
 
-**Blocked on design:** No scope, layout, or data requirements defined. Cannot implement until design is complete.
+**Decided:** Stats-forward layout. Primary content: completion stats (total captures, items completed this week, overall completion rate). Secondary: active collection count. Tertiary: Visual Timeline section (items with upcoming follow-up dates).
+
+Layout (top-to-bottom in `NavigationStack`):
+
+1. **Stats card** — `CardSurface` with `MCMCardContent`: total item count, completed-this-week count, overall completion rate as a progress ring using `Theme.Colors.success`. Triggers existing `CelebrationStyle` overlay if completion rate ≥ 80%.
+2. **Active collections row** — count of collections that have at least one non-completed item; tapping navigates to Organize tab.
+3. **Timeline section** — `TimelineSection` component (see Visual Timeline above).
+
+Data requirements:
+
+- `ItemRepository.fetchAllItems()` — total count and completion rate (already available)
+- `ItemRepository.fetchCompletedThisWeek(using:)` — new query: `completedAt >= startOfWeek`
+- `CollectionRepository.fetchActiveCollections(using:)` — new query: collections with ≥1 non-completed item
 
 **Remaining:**
 
-- [ ] ⚠️ Human gate: Define Home tab scope — which data surfaces (recent captures, collection progress, timeline), layout (grid, list, cards), and interaction model. Produce wireframe or written spec before implementation begins
-- [ ] Implement Home tab layout per approved design using existing `CardSurface`/`MCMCardContent` components
-- [ ] Add data queries to `ItemRepository`/`CollectionRepository` as needed for dashboard data
-- [ ] Validate accessibility and performance (pagination if lists are unbounded)
+- ~~⚠️ Human gate: Define Home tab scope, layout, and interaction model~~ ✅ Decided above
+- [ ] Add `fetchCompletedThisWeek(using:)` to `ItemRepository` (predicate: `completedAt >= startOfWeek && completedAt != nil`)
+- [ ] Add `fetchActiveCollections(using:)` to `CollectionRepository` (predicate: at least one non-completed `CollectionItem`)
+- [ ] Implement `HomeViewModel` with `@Published` stats properties (totalItems, completedThisWeek, completionRate, activeCollectionCount)
+- [ ] Build stats card section in `HomeView` using `CardSurface` + `MCMCardContent`
+- [ ] Build progress ring component using `Circle` + trim + `Theme.Colors.success`; guard with `Theme.Animations.motion()`
+- [ ] Integrate `TimelineSection` below the stats card
+- [ ] Wire collection count row to navigate to Organize tab
+- [ ] Validate accessibility and performance (no unbounded fetches; all queries use limit or aggregate)
