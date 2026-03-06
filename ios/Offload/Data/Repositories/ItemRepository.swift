@@ -164,8 +164,9 @@ final class ItemRepository {
     }
 
     /// Returns non-completed items with a followUpDate in [startDate, endDate], sorted ascending.
+    /// Limited to 50 results — sufficient for a 7-day timeline window.
     func fetchItemsWithFollowUpDate(from startDate: Date, to endDate: Date) throws -> [Item] {
-        let descriptor = FetchDescriptor<Item>(
+        var descriptor = FetchDescriptor<Item>(
             predicate: #Predicate<Item> { item in
                 item.followUpDate != nil &&
                     item.followUpDate! >= startDate &&
@@ -174,6 +175,7 @@ final class ItemRepository {
             },
             sortBy: [SortDescriptor(\.followUpDate)]
         )
+        descriptor.fetchLimit = 50
         return try modelContext.fetch(descriptor)
     }
 
