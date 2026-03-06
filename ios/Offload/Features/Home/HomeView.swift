@@ -18,7 +18,6 @@ struct HomeView: View {
 
     @State private var viewModel = HomeViewModel()
     @State private var showCelebration = false
-    @State private var hasCelebrated = false
     @AppStorage("home.supportNudgeDismissed") private var nudgeDismissed = false
 
     var body: some View {
@@ -53,7 +52,6 @@ struct HomeView: View {
             HStack(alignment: .top, spacing: Theme.Spacing.lg) {
                 statColumn(value: viewModel.capturedThisWeek, label: "captured\nthis week")
                 Divider()
-                    .frame(height: 56)
                 statColumn(value: viewModel.completedThisWeek, label: "done\nthis week")
             }
             .padding(.vertical, Theme.Spacing.sm)
@@ -64,7 +62,7 @@ struct HomeView: View {
     }
 
     private func statColumn(value: Int, label: String) -> some View {
-        VStack(alignment: .center, spacing: 4) {
+        VStack(alignment: .center, spacing: Theme.Spacing.xs) {
             Text("\(value)")
                 .font(Theme.Typography.largeTitle)
                 .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
@@ -112,8 +110,7 @@ struct HomeView: View {
 
     private func loadStats() async {
         try? await viewModel.loadStats(using: itemRepository, collectionRepository: collectionRepository)
-        if viewModel.completedThisWeek > 0 && !hasCelebrated {
-            hasCelebrated = true
+        if viewModel.completedThisWeek > 0 && !showCelebration {
             withAnimation(Theme.Animations.motion(.springDefault, reduceMotion: reduceMotion)) {
                 showCelebration = true
             }
@@ -124,15 +121,13 @@ struct HomeView: View {
 
     private func snoozeItem(_ item: Item) {
         let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: item.followUpDate ?? Date()) ?? Date()
-        item.followUpDate = nextDay
-        try? itemRepository.update(item)
-        Task { await loadStats() }
+        try? itemRepository.updateFollowUpDate(item, date: nextDay)
+        try? viewModel.reloadTimeline(using: itemRepository)
     }
 
     private func clearFollowUp(_ item: Item) {
-        item.followUpDate = nil
-        try? itemRepository.update(item)
-        Task { await loadStats() }
+        try? itemRepository.updateFollowUpDate(item, date: nil)
+        try? viewModel.reloadTimeline(using: itemRepository)
     }
 }
 

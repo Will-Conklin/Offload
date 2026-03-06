@@ -88,6 +88,7 @@ final class SupportNudgeEvaluatorTests: XCTestCase {
 
 // MARK: - Test Doubles
 
+@MainActor
 private final class MockNudgeEvaluator: SupportNudgeEvaluating {
     let message: SupportNudgeMessage?
     private(set) var wasCalled = false
@@ -102,6 +103,7 @@ private final class MockNudgeEvaluator: SupportNudgeEvaluating {
     }
 }
 
+@MainActor
 private final class CapturingNudgeEvaluator: SupportNudgeEvaluating {
     private(set) var capturedSignals: SupportNudgeSignals?
 
