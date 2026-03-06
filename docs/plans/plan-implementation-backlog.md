@@ -97,20 +97,9 @@ App Store preparation, TestFlight distribution, security release gate. Blocked b
 > **[Needs Decision]** items are blocked on a human choice; look for tasks marked `⚠️ Human gate` and stop there.
 > **[Needs Design]** items require design or scoping work before implementation tasks can be written.
 
-### Tag Relationship Refactor [Ready]
+### Tag Relationship Refactor [Done]
 
-Migrate tag storage from denormalized string arrays to proper SwiftData relationships.
-
-**Current model:** `Item.tags: [String]` stores tag names directly. `Tag` model exists with `name` and `color` but has no relationship to `Item`. Tag lookup recomputes a `[String: Tag]` dictionary every view update. `fetchByTag` fetches ALL items into memory and filters client-side.
-
-**Target model:** `Item.tags: [Tag]?` with `@Relationship(deleteRule: .nullify, inverse: \Tag.items)`. `Tag.items: [Item]?` inverse. `Tag.name` marked `@Attribute(.unique)`. `tagNames: [String]` computed property for backward compatibility. Queries use `#Predicate<Item>` for database-layer filtering.
-
-**Remaining:**
-
-- [ ] ⚠️ Human gate: Confirm scope approval before starting
-- [ ] Identify all impacted views (CaptureComposeView, CaptureView, CollectionDetailView, tag pickers)
-- [ ] Update model and repositories in place
-- [ ] Update all views referencing `item.tags` as `[String]`; remove `tagLookup` dictionary pattern
+**Implemented:** `Item.tags` is now a direct `@Relationship(deleteRule: .nullify, inverse: \Tag.items) var tags: [Tag]`. Removed `legacyTags: [String]`, the `tagLinks` indirection, the computed bridge property, `TagMigration.swift`, and all migration tests. `ItemRepository.fetchByTag` uses `tag.items` (relationship traversal). No string-based tag patterns remain.
 
 ### New Item Types [Ready]
 
