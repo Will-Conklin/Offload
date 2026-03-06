@@ -141,7 +141,7 @@ final class ItemRepository {
 
     /// Returns items created during the current calendar week, sorted newest-first.
     func fetchCapturedThisWeek() throws -> [Item] {
-        let startOfWeek = Calendar.current.dateInterval(of: .weekOfYear, for: Date())?.start ?? Date()
+        let startOfWeek = currentWeekStart()
         let descriptor = FetchDescriptor<Item>(
             predicate: #Predicate<Item> { item in
                 item.createdAt >= startOfWeek
@@ -153,7 +153,7 @@ final class ItemRepository {
 
     /// Returns items completed during the current calendar week, sorted newest-first.
     func fetchCompletedThisWeek() throws -> [Item] {
-        let startOfWeek = Calendar.current.dateInterval(of: .weekOfYear, for: Date())?.start ?? Date()
+        let startOfWeek = currentWeekStart()
         let descriptor = FetchDescriptor<Item>(
             predicate: #Predicate<Item> { item in
                 item.completedAt != nil && item.completedAt! >= startOfWeek
@@ -517,6 +517,10 @@ final class ItemRepository {
     }
 
     // MARK: - Private helpers
+
+    private func currentWeekStart() -> Date {
+        Calendar.current.dateInterval(of: .weekOfYear, for: Date())?.start ?? Date()
+    }
 
     private func fetchCollection(by id: UUID) throws -> Collection? {
         let descriptor = FetchDescriptor<Collection>(

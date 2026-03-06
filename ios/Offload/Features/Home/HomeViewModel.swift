@@ -38,8 +38,7 @@ final class HomeViewModel {
         completedThisWeek = try itemRepository.fetchCompletedThisWeek().count
         activeCollectionCount = try collectionRepository.fetchActiveCollections().count
 
-        let allItems = try itemRepository.fetchAll()
-        let totalUncompleted = allItems.filter { $0.completedAt == nil }.count
+        let totalUncompleted = try itemRepository.fetchIncomplete().count
 
         let signals = SupportNudgeSignals(
             totalUncompleted: totalUncompleted,
@@ -48,8 +47,17 @@ final class HomeViewModel {
         )
         supportNudgeMessage = await nudgeEvaluator.evaluate(signals)
 
+        timelineItems = try Self.upcomingItems(from: itemRepository)
+    }
+
+    /// Refreshes only the timeline items — lighter than a full `loadStats` reload.
+    func reloadTimeline(using itemRepository: ItemRepository) throws {
+        timelineItems = try Self.upcomingItems(from: itemRepository)
+    }
+
+    private static func upcomingItems(from itemRepository: ItemRepository) throws -> [Item] {
         let now = Date()
         let sevenDaysOut = Calendar.current.date(byAdding: .day, value: 7, to: now) ?? now
-        timelineItems = try itemRepository.fetchItemsWithFollowUpDate(from: now, to: sevenDaysOut)
+        return try itemRepository.fetchItemsWithFollowUpDate(from: now, to: sevenDaysOut)
     }
 }

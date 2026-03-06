@@ -19,7 +19,7 @@ struct TimelineItemRow: View {
         CardSurface(showsBorder: true, contentPadding: EdgeInsets(top: Theme.Spacing.sm, leading: Theme.Spacing.sm, bottom: Theme.Spacing.sm, trailing: Theme.Spacing.xs)) {
             HStack(alignment: .center, spacing: Theme.Spacing.sm) {
                 // Item info
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
                     Text(item.content.isEmpty ? "Untitled" : item.content)
                         .font(Theme.Typography.cardBody)
                         .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))

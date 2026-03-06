@@ -61,12 +61,16 @@ struct TimelineSection: View {
         }
     }
 
+    private static let groupDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "EEE, MMM d"
+        return f
+    }()
+
     /// Returns a human-friendly group label: "Today", "Tomorrow", weekday name, or date string.
     private func groupLabel(for date: Date, calendar: Calendar) -> String {
         if calendar.isDateInToday(date) { return "Today" }
         if calendar.isDateInTomorrow(date) { return "Tomorrow" }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEE, MMM d"
-        return formatter.string(from: date)
+        return Self.groupDateFormatter.string(from: date)
     }
 }
