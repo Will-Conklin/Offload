@@ -156,27 +156,29 @@ final class ItemRepository {
         let startOfWeek = currentWeekStart()
         let descriptor = FetchDescriptor<Item>(
             predicate: #Predicate<Item> { item in
-                item.completedAt != nil && item.completedAt! >= startOfWeek
+                item.completedAt != nil
             },
             sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
         )
-        return try modelContext.fetch(descriptor)
+        let allCompleted = try modelContext.fetch(descriptor)
+        return allCompleted.filter { $0.completedAt! >= startOfWeek }
     }
 
     /// Returns non-completed items with a followUpDate in [startDate, endDate], sorted ascending.
     /// Limited to 50 results — sufficient for a 7-day timeline window.
     func fetchItemsWithFollowUpDate(from startDate: Date, to endDate: Date) throws -> [Item] {
-        var descriptor = FetchDescriptor<Item>(
+        let descriptor = FetchDescriptor<Item>(
             predicate: #Predicate<Item> { item in
-                item.followUpDate != nil &&
-                    item.followUpDate! >= startDate &&
-                    item.followUpDate! <= endDate &&
-                    item.completedAt == nil
+                item.followUpDate != nil && item.completedAt == nil
             },
             sortBy: [SortDescriptor(\.followUpDate)]
         )
-        descriptor.fetchLimit = 50
-        return try modelContext.fetch(descriptor)
+        let allWithFollowUp = try modelContext.fetch(descriptor)
+        let filtered = allWithFollowUp.filter { item in
+            guard let followUpDate = item.followUpDate else { return false }
+            return followUpDate >= startDate && followUpDate <= endDate
+        }
+        return Array(filtered.prefix(50))
     }
 
     func fetchIncomplete() throws -> [Item] {
