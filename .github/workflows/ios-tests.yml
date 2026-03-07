@@ -108,12 +108,84 @@ jobs:
         env:
           DEVICE_NAME: ${{ env.CI_SIM_DEVICE }}
           OS_VERSION: ${{ env.CI_SIM_OS }}
-        run: scripts/ios/test.sh
+        run: |
+          mkdir -p .ci
+          set -o pipefail
+          scripts/ios/test.sh 2>&1 | tee .ci/build.log
+
+      - name: Extract test failures
+        if: ${{ always() }}
+        run: |
+          set +e
+          SUMMARY=".ci/test-summary.txt"
+          echo "=== Build/Test Failure Summary ===" > "${SUMMARY}"
+          echo "Generated: $(date -u)" >> "${SUMMARY}"
+          echo "" >> "${SUMMARY}"
+
+          # Extract compiler errors and test failures from raw log
+          if [[ -f .ci/build.log ]]; then
+            echo "--- Errors from build log ---" >> "${SUMMARY}"
+            grep -E "error:|warning:|FAILED|Test Suite|Test Case.*failed" .ci/build.log \
+              | grep -v "^#" >> "${SUMMARY}" || true
+            echo "" >> "${SUMMARY}"
+          fi
+
+          # Extract structured failures from xcresult bundle
+          if [[ -d .ci/TestResults.xcresult ]]; then
+            echo "--- xcresult failure details ---" >> "${SUMMARY}"
+            xcrun xcresulttool get \
+              --path .ci/TestResults.xcresult \
+              --format json 2>/dev/null \
+            | python3 -c "
+          import json, sys
+
+          def walk(obj):
+              if isinstance(obj, dict):
+                  t = obj.get('_type', {}).get('_name', '')
+                  if t == 'ActionTestFailureSummary':
+                      msg = obj.get('message', {}).get('_value', '')
+                      src = obj.get('sourceCodeContext', {})
+                      loc = src.get('location', {})
+                      f = loc.get('file', {}).get('_value', '')
+                      ln = loc.get('line', {}).get('_value', '')
+                      print(f'FAIL: {msg}')
+                      if f:
+                          print(f'  at {f}:{ln}')
+                  for v in obj.values():
+                      walk(v)
+              elif isinstance(obj, list):
+                  for item in obj:
+                      walk(item)
+
+          try:
+              walk(json.load(sys.stdin))
+          except Exception as e:
+              print(f'(could not parse xcresult: {e})')
+          " >> "${SUMMARY}" 2>&1 || true
+          fi
+
+          cat "${SUMMARY}"
 
       - name: Coverage (non-blocking)
         if: ${{ always() && inputs.full_run }}
         continue-on-error: true
         run: scripts/ios/coverage.sh
+
+      - name: Upload build log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-log
+          path: .ci/build.log
+          if-no-files-found: ignore
+
+      - name: Upload test failure summary
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-test-summary
+          path: .ci/test-summary.txt
+          if-no-files-found: ignore
 
       - name: Upload test results
         if: ${{ always() && hashFiles('.ci/TestResults.xcresult/**') != '' }}

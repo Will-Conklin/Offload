@@ -139,6 +139,46 @@ final class ItemRepository {
         return try modelContext.fetch(descriptor)
     }
 
+    /// Returns items created during the current calendar week, sorted newest-first.
+    func fetchCapturedThisWeek() throws -> [Item] {
+        let startOfWeek = currentWeekStart()
+        let descriptor = FetchDescriptor<Item>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        let all = try modelContext.fetch(descriptor)
+        return all.filter { $0.createdAt >= startOfWeek }
+    }
+
+    /// Returns items completed during the current calendar week, sorted newest-first.
+    func fetchCompletedThisWeek() throws -> [Item] {
+        let startOfWeek = currentWeekStart()
+        let descriptor = FetchDescriptor<Item>(
+            predicate: #Predicate<Item> { item in
+                item.completedAt != nil
+            },
+            sortBy: [SortDescriptor(\.completedAt, order: .reverse)]
+        )
+        let allCompleted = try modelContext.fetch(descriptor)
+        return allCompleted.filter { $0.completedAt! >= startOfWeek }
+    }
+
+    /// Returns non-completed items with a followUpDate in [startDate, endDate], sorted ascending.
+    /// Limited to 50 results — sufficient for a 7-day timeline window.
+    func fetchItemsWithFollowUpDate(from startDate: Date, to endDate: Date) throws -> [Item] {
+        let descriptor = FetchDescriptor<Item>(
+            predicate: #Predicate<Item> { item in
+                item.followUpDate != nil && item.completedAt == nil
+            },
+            sortBy: [SortDescriptor(\.followUpDate)]
+        )
+        let allWithFollowUp = try modelContext.fetch(descriptor)
+        let filtered = allWithFollowUp.filter { item in
+            guard let followUpDate = item.followUpDate else { return false }
+            return followUpDate >= startDate && followUpDate <= endDate
+        }
+        return Array(filtered.prefix(50))
+    }
+
     func fetchIncomplete() throws -> [Item] {
         let descriptor = FetchDescriptor<Item>(
             predicate: #Predicate { $0.completedAt == nil },
@@ -479,6 +519,10 @@ final class ItemRepository {
     }
 
     // MARK: - Private helpers
+
+    private func currentWeekStart() -> Date {
+        Calendar.current.dateInterval(of: .weekOfYear, for: Date())?.start ?? Date()
+    }
 
     private func fetchCollection(by id: UUID) throws -> Collection? {
         let descriptor = FetchDescriptor<Collection>(
