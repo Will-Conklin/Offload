@@ -45,9 +45,12 @@ final class HomeViewModel {
             capturedThisWeek: capturedThisWeek,
             completedThisWeek: completedThisWeek
         )
+        // Capture evaluator explicitly before the task group to avoid accessing
+        // @MainActor-isolated state from within a concurrent Sendable closure.
+        let evaluator = nudgeEvaluator
         // Guard against a slow or hung evaluator (e.g. network-backed); fall back to nil on timeout.
         supportNudgeMessage = await withTaskGroup(of: SupportNudgeMessage?.self) { group in
-            group.addTask { await self.nudgeEvaluator.evaluate(signals) }
+            group.addTask { await evaluator.evaluate(signals) }
             group.addTask {
                 try? await Task.sleep(for: .seconds(3))
                 return nil

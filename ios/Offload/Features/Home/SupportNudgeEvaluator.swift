@@ -19,7 +19,9 @@ struct SupportNudgeMessage {
 
 /// Decides whether to surface a support nudge and what it should say.
 /// Conforming types can range from simple threshold checks to AI-generated copy.
-protocol SupportNudgeEvaluating {
+/// `Sendable` conformance allows implementations to be safely passed into concurrent
+/// task groups (e.g. the timeout race in `HomeViewModel.loadStats`).
+protocol SupportNudgeEvaluating: Sendable {
     /// Returns a message if a nudge should be shown, nil otherwise.
     /// Implementations may be async (e.g. a network call) — callers await.
     func evaluate(_ signals: SupportNudgeSignals) async -> SupportNudgeMessage?
