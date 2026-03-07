@@ -193,9 +193,9 @@ private var style: ThemeStyle { themeManager.currentStyle }
 
 | Token | Purpose |
 | --- | --- |
-| `Theme.Colors.accent` | Primary burnt orange |
+| `Theme.Colors.accentPrimary` | Primary burnt orange |
 | `Theme.Colors.accentSecondary` | Avocado green |
-| `Theme.Colors.textPrimary/Secondary/Tertiary` | Text hierarchy |
+| `Theme.Colors.textPrimary/Secondary` | Text hierarchy |
 | `Theme.Surface.background/card` | Backgrounds |
 | `Theme.Colors.cardColor(index:)` | 5-color cycling palette for card backgrounds |
 | `Theme.Colors.success/caution/destructive` | Semantic states |
@@ -213,7 +213,7 @@ Never use `.foregroundStyle(.white)` on colored backgrounds — use the contrast
 | `Theme.Typography.cardTitle/cardTitleEmphasis` | Bebas Neue | Card headings |
 | `Theme.Typography.cardBody` | Space Grotesk | Card content |
 | `Theme.Typography.buttonLabel` | Space Grotesk | Button text |
-| `Theme.Typography.badge/metadata/timestamp` | Space Grotesk | Small/monospaced |
+| `Theme.Typography.badge/metadata/timestampMono` | Space Grotesk | Small/monospaced |
 
 ### Spacing
 
@@ -248,7 +248,7 @@ Cards get `.cardTexture(colorScheme)` (linen overlay, 0.02-0.03 opacity). Respec
 
 ### Shadows
 
-Minimal — prefer `showsBorder` on `CardSurface` over shadows. If needed: `Theme.Shadows.ultraLight/xs/sm/md`.
+Minimal — prefer `showsBorder` on `CardSurface` over shadows. If needed: `Theme.Shadows.ultraLight(colorScheme)` (color function) or elevation constants `Theme.Shadows.elevationXs/elevationSm/elevationMd`.
 
 ### Animations
 
