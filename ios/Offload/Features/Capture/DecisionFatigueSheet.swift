@@ -28,13 +28,6 @@ final class DecisionFatigueSheetViewModel {
         !clarifyingQuestions.isEmpty
     }
 
-    /// Pairs of questions and their current answer strings.
-    var questionAnswerPairs: [(question: String, answer: String)] {
-        clarifyingQuestions.enumerated().map { index, question in
-            (question: question, answer: index < answers.count ? answers[index] : "")
-        }
-    }
-
     /// Builds clarifying answers from questions + user-entered answers.
     var clarifyingAnswers: [DecisionClarifyingAnswer] {
         clarifyingQuestions.enumerated().compactMap { index, question in
