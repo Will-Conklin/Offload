@@ -5,8 +5,9 @@ import time
 import httpx
 import pytest
 
-from offload_backend.dependencies import get_provider
+from offload_backend.dependencies import get_ai_inference_rate_limiter, get_provider
 from offload_backend.providers.base import ProviderBreakdownResult
+from offload_backend.session_rate_limiter import InMemorySessionRateLimiter
 
 CONCURRENT_REQUESTS = 50
 P95_THRESHOLD_MS = 100.0
@@ -27,6 +28,11 @@ class FakeProvider:
 async def _run_load_test(app) -> list[float]:
     """Fire concurrent requests and return per-request latencies in ms."""
     app.dependency_overrides[get_provider] = lambda: FakeProvider()
+    app.dependency_overrides[get_ai_inference_rate_limiter] = lambda: InMemorySessionRateLimiter(
+        limit_per_install=CONCURRENT_REQUESTS + 10,
+        limit_per_ip=CONCURRENT_REQUESTS + 10,
+        window_seconds=60,
+    )
     try:
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(transport=transport, base_url='http://test') as ac:
@@ -68,6 +74,7 @@ async def _run_load_test(app) -> list[float]:
             )
     finally:
         app.dependency_overrides.pop(get_provider, None)
+        app.dependency_overrides.pop(get_ai_inference_rate_limiter, None)
 
     return sorted(latencies)
 

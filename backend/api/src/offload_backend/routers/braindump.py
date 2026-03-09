@@ -22,10 +22,10 @@ from offload_backend.providers.base import (
     ProviderUnavailable,
 )
 from offload_backend.schemas import (
-    BreakdownGenerateRequest,
-    BreakdownGenerateResponse,
-    BreakdownStep,
-    BreakdownUsage,
+    BrainDumpCompileRequest,
+    BrainDumpCompileResponse,
+    BrainDumpItem,
+    BrainDumpUsage,
 )
 from offload_backend.security import SessionClaims
 from offload_backend.session_rate_limiter import SessionRateLimiter
@@ -33,24 +33,20 @@ from offload_backend.session_rate_limiter import SessionRateLimiter
 router = APIRouter()
 
 
-def _request_content_size_chars(request: BreakdownGenerateRequest) -> int:
-    return (
-        len(request.input_text)
-        + sum(len(hint) for hint in request.context_hints)
-        + sum(len(template_id) for template_id in request.template_ids)
-    )
+def _request_content_size_chars(request: BrainDumpCompileRequest) -> int:
+    return len(request.input_text) + sum(len(h) for h in request.context_hints)
 
 
-@router.post("/ai/breakdown/generate", response_model=BreakdownGenerateResponse)
-async def generate_breakdown(
-    request: BreakdownGenerateRequest,
+@router.post("/ai/braindump/compile", response_model=BrainDumpCompileResponse)
+async def compile_brain_dump(
+    request: BrainDumpCompileRequest,
     http_request: Request,
     claims: SessionClaims = Depends(get_session_claims),
     _: None = Depends(require_cloud_opt_in),
     provider: AIProvider = Depends(get_provider),
     settings: Settings = Depends(get_app_settings),
     limiter: SessionRateLimiter = Depends(get_ai_inference_rate_limiter),
-) -> BreakdownGenerateResponse:
+) -> BrainDumpCompileResponse:
     enforce_ai_inference_rate_limit(
         install_id=claims.install_id, request=http_request, limiter=limiter
     )
@@ -64,11 +60,9 @@ async def generate_breakdown(
     started_at = datetime.now(UTC)
 
     try:
-        result = await provider.generate_breakdown(
+        result = await provider.compile_brain_dump(
             input_text=request.input_text,
-            granularity=request.granularity,
             context_hints=request.context_hints,
-            template_ids=request.template_ids,
         )
     except ProviderTimeout as exc:
         raise APIException(
@@ -97,9 +91,9 @@ async def generate_breakdown(
 
     latency_ms = max(0, int((datetime.now(UTC) - started_at).total_seconds() * 1000))
 
-    return BreakdownGenerateResponse(
-        steps=[BreakdownStep.model_validate(step) for step in result.steps],
+    return BrainDumpCompileResponse(
+        items=[BrainDumpItem.model_validate(item) for item in result.items],
         provider="openai",
         latency_ms=latency_ms,
-        usage=BreakdownUsage(input_tokens=result.input_tokens, output_tokens=result.output_tokens),
+        usage=BrainDumpUsage(input_tokens=result.input_tokens, output_tokens=result.output_tokens),
     )
