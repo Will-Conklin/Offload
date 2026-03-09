@@ -79,4 +79,3 @@ Local quota enforcement, server reconciliation, and usage UX.
 - Implement local quota enforcement (`QuotaStore`: UserDefaults counter + Keychain mirror)
 - Build server reconciliation (`max(local, server)` merge)
 - Add quota-approached UX (non-judgmental; no upgrade nudge)
-
