@@ -1,9 +1,10 @@
-from offload_backend.dependencies import get_provider
+from offload_backend.dependencies import get_ai_inference_rate_limiter, get_provider
 from offload_backend.providers.base import (
     ProviderBrainDumpResult,
     ProviderRequestError,
     ProviderTimeout,
 )
+from offload_backend.session_rate_limiter import InMemorySessionRateLimiter
 
 
 class FakeBrainDumpProvider:
@@ -206,5 +207,39 @@ def test_braindump_accepts_context_hints(client, app, create_session_token):
     )
 
     assert response.status_code == 200
+
+    app.dependency_overrides.clear()
+
+
+def test_braindump_rate_limit_throttles_excess_requests(client, app, create_session_token):
+    tight_limiter = InMemorySessionRateLimiter(
+        limit_per_install=1, limit_per_ip=1000, window_seconds=60
+    )
+    app.dependency_overrides[get_provider] = lambda: FakeBrainDumpProvider()
+    app.dependency_overrides[get_ai_inference_rate_limiter] = lambda: tight_limiter
+    token = create_session_token()
+    headers = {"Authorization": f"Bearer {token}", "X-Offload-Cloud-Opt-In": "true"}
+    payload = {"input_text": "Brain dump text."}
+
+    assert client.post("/v1/ai/braindump/compile", json=payload, headers=headers).status_code == 200
+
+    response = client.post("/v1/ai/braindump/compile", json=payload, headers=headers)
+    assert response.status_code == 429
+    assert response.json()["error"]["code"] == "inference_rate_limited"
+
+    app.dependency_overrides.clear()
+
+
+def test_braindump_rejects_unknown_fields(client, app, create_session_token):
+    app.dependency_overrides[get_provider] = lambda: FakeBrainDumpProvider()
+    token = create_session_token()
+
+    response = client.post(
+        "/v1/ai/braindump/compile",
+        json={"input_text": "A brain dump.", "unexpected_field": "sneaky"},
+        headers={"Authorization": f"Bearer {token}", "X-Offload-Cloud-Opt-In": "true"},
+    )
+
+    assert response.status_code == 422
 
     app.dependency_overrides.clear()

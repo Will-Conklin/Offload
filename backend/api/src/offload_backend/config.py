@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     session_issue_limit_per_ip: int = Field(default=8, ge=1)
     session_issue_limit_per_install: int = Field(default=4, ge=1)
     session_issue_limit_window_seconds: int = Field(default=60, ge=1)
+    ai_inference_limit_per_install: int = Field(default=20, ge=1)
+    ai_inference_limit_per_ip: int = Field(default=120, ge=1)
+    ai_inference_limit_window_seconds: int = Field(default=60, ge=1)
     openai_api_key: str | None = None
     openai_base_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-4o-mini"

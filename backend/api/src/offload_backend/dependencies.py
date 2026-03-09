@@ -102,6 +102,21 @@ def get_session_rate_limiter(
     return limiter
 
 
+def get_ai_inference_rate_limiter(
+    request: Request,
+    settings: Settings = Depends(get_app_settings),
+) -> SessionRateLimiter:
+    limiter = getattr(request.app.state, "ai_inference_rate_limiter", None)
+    if limiter is None:
+        limiter = InMemorySessionRateLimiter(
+            limit_per_ip=settings.ai_inference_limit_per_ip,
+            limit_per_install=settings.ai_inference_limit_per_install,
+            window_seconds=settings.ai_inference_limit_window_seconds,
+        )
+        request.app.state.ai_inference_rate_limiter = limiter
+    return limiter
+
+
 def _client_ip(request: Request) -> str:
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
@@ -113,6 +128,33 @@ def _client_ip(request: Request) -> str:
 
 def _install_id_hash(install_id: str) -> str:
     return hashlib.sha256(install_id.encode("utf-8")).hexdigest()[:12]
+
+
+def enforce_ai_inference_rate_limit(
+    *,
+    install_id: str,
+    request: Request,
+    limiter: SessionRateLimiter,
+) -> None:
+    client_ip = _client_ip(request)
+    try:
+        limiter.check(client_ip=client_ip, install_id=install_id)
+    except SessionRateLimitExceeded as exc:
+        logger.info(
+            "ai_inference_throttled",
+            extra={
+                "request_id": get_request_id(request),
+                "path": request.url.path,
+                "dimension": exc.dimension,
+                "retry_after_seconds": exc.retry_after_seconds,
+                "install_id_hash": _install_id_hash(install_id),
+            },
+        )
+        raise APIException(
+            status_code=429,
+            code="inference_rate_limited",
+            message="Too many AI requests; retry later",
+        ) from exc
 
 
 def enforce_session_issuance_rate_limit(

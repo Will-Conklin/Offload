@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from offload_backend.config import Settings
 from offload_backend.dependencies import (
+    enforce_ai_inference_rate_limit,
+    get_ai_inference_rate_limiter,
     get_app_settings,
     get_provider,
     get_session_claims,
@@ -26,6 +28,7 @@ from offload_backend.schemas import (
     BrainDumpUsage,
 )
 from offload_backend.security import SessionClaims
+from offload_backend.session_rate_limiter import SessionRateLimiter
 
 router = APIRouter()
 
@@ -37,11 +40,16 @@ def _request_content_size_chars(request: BrainDumpCompileRequest) -> int:
 @router.post("/ai/braindump/compile", response_model=BrainDumpCompileResponse)
 async def compile_brain_dump(
     request: BrainDumpCompileRequest,
-    _claims: SessionClaims = Depends(get_session_claims),
+    http_request: Request,
+    claims: SessionClaims = Depends(get_session_claims),
     _: None = Depends(require_cloud_opt_in),
     provider: AIProvider = Depends(get_provider),
     settings: Settings = Depends(get_app_settings),
+    limiter: SessionRateLimiter = Depends(get_ai_inference_rate_limiter),
 ) -> BrainDumpCompileResponse:
+    enforce_ai_inference_rate_limit(
+        install_id=claims.install_id, request=http_request, limiter=limiter
+    )
     if _request_content_size_chars(request) > settings.max_input_chars:
         raise APIException(
             status_code=413,

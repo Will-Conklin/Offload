@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class HealthResponse(BaseModel):
@@ -25,6 +25,8 @@ class AnonymousSessionResponse(BaseModel):
 
 
 class BreakdownGenerateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     input_text: str = Field(min_length=1)
     granularity: int = Field(ge=1, le=5)
     context_hints: list[Annotated[str, Field(min_length=1, max_length=280)]] = Field(
@@ -81,6 +83,8 @@ class ErrorEnvelope(BaseModel):
 
 
 class BrainDumpCompileRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     input_text: str = Field(min_length=1)
     context_hints: list[Annotated[str, Field(min_length=1, max_length=280)]] = Field(
         default_factory=list,
