@@ -146,15 +146,23 @@ final class BreakdownSheetViewModelTests: XCTestCase {
         XCTAssertEqual(vm.steps[0].title, "Edited step title")
     }
 
-    func testResetPlanNameClearsToEmpty() {
+    // MARK: - isPlanNameEmpty
+
+    func testIsPlanNameEmptyTrueWhenBlank() {
         let vm = BreakdownSheetViewModel()
-        vm.planName = "Something"
+        XCTAssertTrue(vm.isPlanNameEmpty)
+    }
 
-        vm.reset()
+    func testIsPlanNameEmptyTrueForWhitespaceOnly() {
+        let vm = BreakdownSheetViewModel()
+        vm.planName = "   "
+        XCTAssertTrue(vm.isPlanNameEmpty)
+    }
 
-        XCTAssertEqual(vm.planName, "")
-        XCTAssertEqual(vm.phase, .configure)
-        XCTAssertTrue(vm.steps.isEmpty)
+    func testIsPlanNameEmptyFalseWhenNonEmpty() {
+        let vm = BreakdownSheetViewModel()
+        vm.planName = "My Plan"
+        XCTAssertFalse(vm.isPlanNameEmpty)
     }
 
     // MARK: - Granularity

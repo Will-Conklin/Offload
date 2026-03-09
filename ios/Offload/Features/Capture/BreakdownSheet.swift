@@ -32,6 +32,11 @@ final class BreakdownSheetViewModel {
     var isGenerating: Bool = false
     var phase: Phase = .configure
 
+    /// True when `planName` is blank after trimming whitespace.
+    var isPlanNameEmpty: Bool {
+        planName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     /// Requests a breakdown from the service and transitions to the preview phase.
     /// - Parameters:
     ///   - inputText: The item content to break down.
@@ -57,13 +62,11 @@ final class BreakdownSheetViewModel {
     }
 
     /// Saves the approved breakdown steps as a new structured plan collection.
-    /// - Returns: The newly created `Collection`.
-    @discardableResult
     func save(
         itemRepository: ItemRepository,
         collectionRepository: CollectionRepository,
         collectionItemRepository: CollectionItemRepository
-    ) throws -> Collection {
+    ) throws {
         let trimmedName = planName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else {
             throw ValidationError("Plan name cannot be empty.")
@@ -71,28 +74,19 @@ final class BreakdownSheetViewModel {
 
         let collection = try collectionRepository.create(name: trimmedName, isStructured: true)
 
-        for (index, step) in steps.enumerated() {
+        var position = 0
+        for step in steps {
             let trimmedTitle = step.title.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmedTitle.isEmpty else { continue }
             let item = try itemRepository.create(type: "task", content: trimmedTitle)
             _ = try collectionItemRepository.addItemToCollection(
                 itemId: item.id,
                 collectionId: collection.id,
-                position: index,
+                position: position,
                 parentId: nil
             )
+            position += 1
         }
-
-        return collection
-    }
-
-    /// Resets the ViewModel to its initial state.
-    func reset() {
-        granularity = 3
-        steps = []
-        planName = ""
-        isGenerating = false
-        phase = .configure
     }
 }
 
@@ -101,7 +95,6 @@ final class BreakdownSheetViewModel {
 /// Presents the Smart Task Breakdown experience: configure granularity, generate steps, edit, then save as a plan.
 struct BreakdownSheet: View {
     let item: Item
-    let onComplete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.breakdownService) private var breakdownService
@@ -130,15 +123,7 @@ struct BreakdownSheet: View {
 
                         granularitySection
 
-                        if viewModel.phase == .configure {
-                            generateButtonSection
-                        }
-
-                        if viewModel.phase == .preview {
-                            stepsSection
-                            planNameSection
-                            saveButtonSection
-                        }
+                        phaseContent
                     }
                     .padding(.horizontal, Theme.Spacing.md)
                     .padding(.bottom, Theme.Spacing.xl)
@@ -164,6 +149,20 @@ struct BreakdownSheet: View {
             }
         }
         .errorToasts(errorPresenter)
+    }
+
+    // MARK: - Phase content
+
+    @ViewBuilder
+    private var phaseContent: some View {
+        switch viewModel.phase {
+        case .configure:
+            generateButtonSection
+        case .preview:
+            stepsSection
+            planNameSection
+            saveButtonSection
+        }
     }
 
     // MARK: - Sections
@@ -220,27 +219,31 @@ struct BreakdownSheet: View {
         }
     }
 
+    @ViewBuilder
     private var generateButtonSection: some View {
-        FloatingActionButton(
-            label: viewModel.isGenerating ? "Generating…" : "Generate Steps",
-            iconName: viewModel.isGenerating ? nil : Icons.breakdown
-        ) {
-            Task {
-                do {
-                    try await viewModel.generate(inputText: item.content, using: breakdownService)
-                } catch {
-                    errorPresenter.present(error)
+        if viewModel.isGenerating {
+            HStack(spacing: Theme.Spacing.sm) {
+                ProgressView()
+                    .tint(Theme.Colors.accentPrimary(colorScheme, style: style))
+                Text("Generating…")
+                    .font(Theme.Typography.buttonLabel)
+                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(Theme.Spacing.md)
+            .accessibilityLabel("Generating steps, please wait")
+        } else {
+            FloatingActionButton(label: "Generate Steps", iconName: Icons.breakdown) {
+                Task {
+                    do {
+                        try await viewModel.generate(inputText: item.content, using: breakdownService)
+                    } catch {
+                        errorPresenter.present(error)
+                    }
                 }
             }
+            .accessibilityLabel("Generate steps")
         }
-        .disabled(viewModel.isGenerating)
-        .overlay {
-            if viewModel.isGenerating {
-                ProgressView()
-                    .tint(Theme.Colors.accentButtonText(colorScheme, style: style))
-            }
-        }
-        .accessibilityLabel(viewModel.isGenerating ? "Generating steps, please wait" : "Generate steps")
     }
 
     private var stepsSection: some View {
@@ -276,13 +279,10 @@ struct BreakdownSheet: View {
     }
 
     private var saveButtonSection: some View {
-        FloatingActionButton(
-            label: "Save as Plan",
-            iconName: Icons.plans
-        ) {
+        FloatingActionButton(label: "Save as Plan", iconName: Icons.plans) {
             saveBreakdown()
         }
-        .disabled(viewModel.planName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        .disabled(viewModel.isPlanNameEmpty)
         .accessibilityLabel("Save as plan")
         .accessibilityHint("Creates a new plan with the generated steps")
     }
@@ -297,7 +297,6 @@ struct BreakdownSheet: View {
                 collectionItemRepository: collectionItemRepository
             )
             dismiss()
-            onComplete()
         } catch {
             errorPresenter.present(error)
         }

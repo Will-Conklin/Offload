@@ -180,12 +180,10 @@ struct CaptureView: View {
                 }
             }
             .sheet(item: $breakdownItem) { item in
-                BreakdownSheet(item: item) {
-                    breakdownItem = nil
-                }
-                .environmentObject(themeManager)
-                .presentationDetents([.large])
-                .presentationDragIndicator(.visible)
+                BreakdownSheet(item: item)
+                    .environmentObject(themeManager)
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
             }
             .errorToasts(errorPresenter)
         }
