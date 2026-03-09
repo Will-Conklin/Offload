@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     ai_inference_limit_per_install: int = Field(default=20, ge=1)
     ai_inference_limit_per_ip: int = Field(default=120, ge=1)
     ai_inference_limit_window_seconds: int = Field(default=60, ge=1)
+    ai_provider: str = "openai"  # "openai" | "anthropic"
     openai_api_key: str | None = None
     openai_base_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-4o-mini"
@@ -41,6 +42,11 @@ class Settings(BaseSettings):
     openai_retry_max_delay_seconds: float = Field(default=2.0, ge=0.0)
     openai_retry_max_total_delay_seconds: float = Field(default=4.0, ge=0.0)
     openai_retry_jitter_factor: float = Field(default=0.25, ge=0.0, le=1.0)
+    anthropic_api_key: str | None = None
+    anthropic_base_url: str = "https://api.anthropic.com"
+    anthropic_model: str = "claude-haiku-4-5-20251001"
+    anthropic_version: str = "2023-06-01"
+    anthropic_timeout_seconds: float = 20.0
     max_input_chars: int = Field(default=4000, ge=1)
     default_feature_quota: int = Field(default=100, ge=0)
     usage_db_path: str = ".offload-backend/usage.sqlite3"

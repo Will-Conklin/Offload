@@ -8,6 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from offload_backend.config import Settings, get_settings
 from offload_backend.errors import APIException
+from offload_backend.providers.anthropic_adapter import AnthropicProviderAdapter
 from offload_backend.providers.base import AIProvider
 from offload_backend.providers.openai_adapter import OpenAIProviderAdapter
 from offload_backend.security import (
@@ -80,6 +81,9 @@ def require_cloud_opt_in(
 
 
 def get_provider(settings: Settings = Depends(get_app_settings)) -> AIProvider:
+    """Return the configured AI provider adapter (openai or anthropic)."""
+    if settings.ai_provider == "anthropic":
+        return AnthropicProviderAdapter(settings=settings)
     return OpenAIProviderAdapter(settings=settings)
 
 
