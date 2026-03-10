@@ -40,6 +40,22 @@
 			);
 			target = 34B95EC22F04D56F0005166B /* Offload */;
 		};
+		CA1000EE000000EECA1000EE /* Exceptions for "OffloadShareExtension" folder in "OffloadShareExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				OffloadShareExtension.entitlements,
+			);
+			target = CA10000700000007CA100007 /* OffloadShareExtension */;
+		};
+		CB1000EE000000EECB1000EE /* Exceptions for "OffloadWidget" folder in "OffloadWidget" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				OffloadWidget.entitlements,
+			);
+			target = CB10000700000007CB100007 /* OffloadWidget */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -63,6 +79,9 @@
 		};
 		CA10000200000002CA100002 /* OffloadShareExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CA1000EE000000EECA1000EE /* Exceptions for "OffloadShareExtension" folder in "OffloadShareExtension" target */,
+			);
 			path = OffloadShareExtension;
 			sourceTree = "<group>";
 		};
@@ -73,6 +92,9 @@
 		};
 		CB10000200000002CB100002 /* OffloadWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CB1000EE000000EECB1000EE /* Exceptions for "OffloadWidget" folder in "OffloadWidget" target */,
+			);
 			path = OffloadWidget;
 			sourceTree = "<group>";
 		};
