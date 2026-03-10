@@ -685,19 +685,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K86HVH894Y;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSExtension = {
-					NSExtensionAttributes = {
-						NSExtensionActivationRule = {
-							NSExtensionActivationSupportsText = YES;
-							NSExtensionActivationSupportsWebURLWithMaxCount = 1;
-							NSExtensionActivationSupportsImageWithMaxCount = 1;
-						};
-					};
-					NSExtensionMainStoryboard = "";
-					NSExtensionPrincipalClass = "$(PRODUCT_MODULE_NAME).ShareViewController";
-					NSExtensionPointIdentifier = "com.apple.share-services";
-				};
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OffloadShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = wc.Offload.ShareExtension;
@@ -719,19 +708,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K86HVH894Y;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSExtension = {
-					NSExtensionAttributes = {
-						NSExtensionActivationRule = {
-							NSExtensionActivationSupportsText = YES;
-							NSExtensionActivationSupportsWebURLWithMaxCount = 1;
-							NSExtensionActivationSupportsImageWithMaxCount = 1;
-						};
-					};
-					NSExtensionMainStoryboard = "";
-					NSExtensionPrincipalClass = "$(PRODUCT_MODULE_NAME).ShareViewController";
-					NSExtensionPointIdentifier = "com.apple.share-services";
-				};
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OffloadShareExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = wc.Offload.ShareExtension;
@@ -753,10 +731,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K86HVH894Y;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSExtension = {
-					NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
-				};
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OffloadWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = wc.Offload.Widget;
@@ -778,10 +754,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K86HVH894Y;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSExtension = {
-					NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
-				};
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OffloadWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = wc.Offload.Widget;
