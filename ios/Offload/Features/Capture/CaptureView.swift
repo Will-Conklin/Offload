@@ -36,6 +36,7 @@ struct CaptureView: View {
     /// Extra clearance for the OffloadCTA button that lifts above the floating tab bar.
     private var ctaClearance: CGFloat { Theme.Spacing.xl + Theme.Spacing.lg }
     private var isQuickCaptureEmpty: Bool { quickCaptureText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    private var isQuickCaptureAtLimit: Bool { quickCaptureText.count >= PendingCaptureStore.maxContentLength }
 
     init(navigationTitle: String = "Capture") {
         self.navigationTitle = navigationTitle
@@ -268,8 +269,14 @@ struct CaptureView: View {
                 .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
                 .onSubmit { quickSave() }
                 .submitLabel(.send)
+                .onChange(of: quickCaptureText) { _, new in
+                    if new.count > PendingCaptureStore.maxContentLength {
+                        quickCaptureText = String(new.prefix(PendingCaptureStore.maxContentLength))
+                    }
+                }
                 .accessibilityLabel("Quick capture")
                 .accessibilityHint("Type a thought and hit return to save instantly.")
+                .accessibilityValue(isQuickCaptureAtLimit ? "Character limit reached" : "")
 
             Button(action: quickSave) {
                 Image(systemName: isQuickCaptureEmpty ? "arrow.up.circle" : "arrow.up.circle.fill")

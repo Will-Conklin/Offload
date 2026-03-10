@@ -26,12 +26,20 @@ struct PendingCapture: Codable, Identifiable {
 enum PendingCaptureStore {
     static let appGroupID = "group.wc.Offload"
     private static let key = "pending_captures"
+    /// Maximum character count accepted per capture. Enforced at enqueue time to prevent
+    /// oversized payloads from corrupting the App Group UserDefaults plist (practical limit ~4 MB).
+    static let maxContentLength = 10_000
 
-    /// Appends a pending capture to the shared queue. Safe to call from any extension target.
+    /// Appends a pending capture to the shared queue, truncating content that exceeds
+    /// `maxContentLength`. Safe to call from any extension target.
     static func enqueue(_ capture: PendingCapture) {
         guard let defaults = UserDefaults(suiteName: appGroupID) else { return }
+        var safe = capture
+        if safe.content.count > maxContentLength {
+            safe.content = String(safe.content.prefix(maxContentLength))
+        }
         var existing = decode(from: defaults)
-        existing.append(capture)
+        existing.append(safe)
         defaults.set(try? JSONEncoder().encode(existing), forKey: key)
     }
 
