@@ -11,7 +11,23 @@ import SwiftData
 
 /// Simplified persistence controller for all SwiftData models
 enum PersistenceController {
-    /// Shared persistent container for production use
+    private static let appGroupID = "group.wc.Offload"
+    private static let storeFilename = "Offload.store"
+
+    /// URL of the SwiftData store inside the shared App Group container.
+    /// Falls back to the app's own Application Support directory if the App Group is unavailable
+    /// (e.g. first run before the entitlement is provisioned in development).
+    static var storeURL: URL {
+        if let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
+            return groupURL.appendingPathComponent(storeFilename)
+        }
+        AppLogger.persistence.warning("App Group unavailable — falling back to local Application Support directory.")
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        return appSupport.appendingPathComponent(storeFilename)
+    }
+
+    /// Shared persistent container for production use.
+    /// Stored in the App Group container so the Share Extension and Widget can enqueue captures.
     static let shared: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -20,19 +36,17 @@ enum PersistenceController {
             Tag.self,
         ])
 
-        // Create migration plan for schema changes
         let configuration = ModelConfiguration(
             schema: schema,
+            url: storeURL,
             isStoredInMemoryOnly: false,
             allowsSave: true
         )
 
         do {
-            // SwiftData will perform lightweight migration automatically
-            // for adding properties with default values
             return try ModelContainer(
                 for: schema,
-                migrationPlan: nil, // Automatic lightweight migration
+                migrationPlan: nil,
                 configurations: [configuration]
             )
         } catch {
