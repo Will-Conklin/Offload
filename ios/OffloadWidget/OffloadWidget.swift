@@ -1,4 +1,4 @@
-// Purpose: Home Screen widgets — small "Offload" button + medium recent-captures view.
+// Purpose: Home Screen widgets — small "Offload" button + medium pending-captures view.
 // Authority: Code-level
 // Governed by: CLAUDE.md
 
@@ -35,13 +35,13 @@ struct OffloadWidgetProvider: TimelineProvider {
     }
 
     private func entry() -> OffloadWidgetEntry {
-        // Read pending captures from App Group as a cheap proxy for "recent" items.
-        // The main app writes new captures here; widget shows them until the next refresh.
-        let recent = PendingCaptureStore.load()
+        // Show pending captures queued by extensions or App Intents that haven't been
+        // flushed to SwiftData yet. These disappear once the user opens the app.
+        let pending = PendingCaptureStore.load()
             .sorted { $0.createdAt > $1.createdAt }
             .prefix(3)
             .map(\.content)
-        return OffloadWidgetEntry(date: Date(), recentCaptures: Array(recent))
+        return OffloadWidgetEntry(date: Date(), recentCaptures: Array(pending))
     }
 }
 
@@ -76,7 +76,7 @@ struct MediumWidgetView: View {
             // Left column: Offload button
             Link(destination: URL(string: "offload://capture")!) {
                 ZStack {
-                    Color(red: 0.82, green: 0.38, blue: 0.19)
+                    widgetAccentColor
                     VStack(spacing: 6) {
                         Image(systemName: "brain.head.profile")
                             .font(.system(size: 26, weight: .medium))
@@ -90,10 +90,10 @@ struct MediumWidgetView: View {
             }
             .accessibilityLabel("Open Offload capture")
 
-            // Right column: recent captures
+            // Right column: pending captures (queued from Share Extension or Siri)
             VStack(alignment: .leading, spacing: 4) {
                 if entry.recentCaptures.isEmpty {
-                    Text("No recent captures")
+                    Text("No pending captures")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -140,7 +140,7 @@ struct OffloadMediumWidget: Widget {
             MediumWidgetView(entry: entry)
         }
         .configurationDisplayName("Offload")
-        .description("Capture button + recent captures at a glance.")
+        .description("Capture button + pending captures waiting to be saved.")
         .supportedFamilies([.systemMedium])
     }
 }
