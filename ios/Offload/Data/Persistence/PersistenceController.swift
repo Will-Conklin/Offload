@@ -11,7 +11,11 @@ import SwiftData
 
 /// Simplified persistence controller for all SwiftData models
 enum PersistenceController {
-    /// Shared persistent container for production use
+    private static let appGroupID = "group.wc.Offload"
+    private static let storeFilename = "Offload.store"
+
+    /// Shared persistent container for production use.
+    /// Stored in the App Group container so the Share Extension and Widget can enqueue captures.
     static let shared: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -20,19 +24,18 @@ enum PersistenceController {
             Tag.self,
         ])
 
-        // Create migration plan for schema changes
         let configuration = ModelConfiguration(
+            storeFilename,
             schema: schema,
             isStoredInMemoryOnly: false,
-            allowsSave: true
+            allowsSave: true,
+            groupContainer: .identifier(appGroupID)
         )
 
         do {
-            // SwiftData will perform lightweight migration automatically
-            // for adding properties with default values
             return try ModelContainer(
                 for: schema,
-                migrationPlan: nil, // Automatic lightweight migration
+                migrationPlan: nil,
                 configurations: [configuration]
             )
         } catch {
