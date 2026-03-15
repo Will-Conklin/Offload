@@ -15,7 +15,9 @@ enum PersistenceController {
     private static let storeFilename = "Offload.store"
 
     /// Shared persistent container for production use.
-    /// Stored in the App Group container so the Share Extension and Widget can enqueue captures.
+    /// Prefers the App Group container (so Share Extension and Widget share data with the main app)
+    /// but falls back to the default container when the App Group is unavailable (e.g., CI simulators
+    /// that lack provisioning for the development team).
     static let shared: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -24,22 +26,45 @@ enum PersistenceController {
             Tag.self,
         ])
 
-        let configuration = ModelConfiguration(
-            storeFilename,
+        // Attempt App Group container first for extension data sharing.
+        if let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
+            let storeURL = groupURL.appending(path: storeFilename)
+            let groupConfig = ModelConfiguration(
+                storeFilename,
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                allowsSave: true,
+                groupContainer: .identifier(appGroupID)
+            )
+            do {
+                let container = try ModelContainer(
+                    for: schema,
+                    migrationPlan: nil,
+                    configurations: [groupConfig]
+                )
+                AppLogger.persistence.info("ModelContainer created in App Group container - url: \(storeURL.path, privacy: .public)")
+                return container
+            } catch {
+                AppLogger.persistence.error("App Group ModelContainer failed, falling back to default - error: \(error.localizedDescription, privacy: .public)")
+            }
+        } else {
+            AppLogger.persistence.warning("App Group container unavailable (group: \(appGroupID, privacy: .public)), using default container")
+        }
+
+        // Fallback: default container (no extension data sharing, but tests and CI still work).
+        let fallbackConfig = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
-            allowsSave: true,
-            groupContainer: .identifier(appGroupID)
+            allowsSave: true
         )
-
         do {
             return try ModelContainer(
                 for: schema,
                 migrationPlan: nil,
-                configurations: [configuration]
+                configurations: [fallbackConfig]
             )
         } catch {
-            AppLogger.persistence.critical("Failed to create production ModelContainer: \(error.localizedDescription, privacy: .public)")
+            AppLogger.persistence.critical("Failed to create fallback ModelContainer: \(error.localizedDescription, privacy: .public)")
             fatalError("Failed to create ModelContainer: \(error)")
         }
     }()
