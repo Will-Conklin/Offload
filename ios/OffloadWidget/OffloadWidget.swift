@@ -2,7 +2,6 @@
 // Authority: Code-level
 // Governed by: CLAUDE.md
 
-import AppIntents
 import SwiftUI
 import WidgetKit
 
