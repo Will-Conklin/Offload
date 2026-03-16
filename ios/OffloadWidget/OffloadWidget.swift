@@ -49,18 +49,16 @@ struct OffloadWidgetProvider: TimelineProvider {
 struct SmallWidgetView: View {
     var body: some View {
         Link(destination: URL(string: "offload://capture")!) {
-            ZStack {
-                widgetAccentColor
-                VStack(spacing: 6) {
-                    Image(systemName: "brain.head.profile")
-                        .font(.system(size: 28, weight: .medium))
-                        .foregroundStyle(.white)
-                    Text("Offload")
-                        .font(.system(size: 13, weight: .bold, design: .default))
-                        .foregroundStyle(.white)
-                }
+            VStack(spacing: 6) {
+                Image(systemName: "brain.head.profile")
+                    .font(.system(size: 28, weight: .medium))
+                    .foregroundStyle(.white)
+                Text("Offload")
+                    .font(.system(size: 13, weight: .bold, design: .default))
+                    .foregroundStyle(.white)
             }
         }
+        .containerBackground(widgetAccentColor, for: .widget)
         .accessibilityLabel("Open Offload capture")
     }
 }
@@ -113,6 +111,7 @@ struct MediumWidgetView: View {
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity)
         }
+        .containerBackground(.fill.tertiary, for: .widget)
     }
 }
 
