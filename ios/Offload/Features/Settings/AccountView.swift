@@ -3,15 +3,22 @@
 // Governed by: CLAUDE.md
 // Additional instructions: Avoid introducing feature logic that belongs in repositories.
 
+import AuthenticationServices
 import SwiftUI
+import UIKit
 
 struct AccountView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
+    @EnvironmentObject private var authManager: AuthManager
+    @Environment(\.aiBackendClient) private var backendClient
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @AppStorage("userDisplayName") private var displayName = ""
     @State private var isEditingName = false
+    @State private var isSigningIn = false
+    @State private var signInError: Error?
+    @State private var showSignOutConfirm = false
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
@@ -25,6 +32,7 @@ struct AccountView: View {
         NavigationStack {
             List {
                 profileSection
+                signInSection
                 preferencesSection
                 tagsSection
                 aboutSection
@@ -39,6 +47,20 @@ struct AccountView: View {
         .sheet(isPresented: $isEditingName) {
             EditNameSheet(displayName: $displayName)
                 .environmentObject(themeManager)
+        }
+        .alert("Sign In Failed", isPresented: .init(
+            get: { signInError != nil },
+            set: { if !$0 { signInError = nil } }
+        )) {
+            Button("OK") { signInError = nil }
+        } message: {
+            if let err = signInError { Text(err.localizedDescription) }
+        }
+        .confirmationDialog("Sign Out", isPresented: $showSignOutConfirm, titleVisibility: .visible) {
+            Button("Sign Out", role: .destructive) { authManager.signOut() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("You'll continue using the app anonymously.")
         }
     }
 
@@ -90,6 +112,108 @@ struct AccountView: View {
                     .font(Theme.Typography.title2)
                     .foregroundStyle(Theme.Colors.accentButtonText(colorScheme, style: style))
             }
+        }
+    }
+
+    @ViewBuilder
+    private var signInSection: some View {
+        switch authManager.authState {
+        case .anonymous:
+            Section {
+                if isSigningIn {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                            .tint(Theme.Colors.accentPrimary(colorScheme, style: style))
+                        Spacer()
+                    }
+                    .rowStyle(.card)
+                } else {
+                    SignInWithAppleButton(.signIn, onRequest: { request in
+                        request.requestedScopes = [.fullName]
+                    }, onCompletion: { result in
+                        handleAppleSignIn(result)
+                    })
+                    .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
+                    .frame(height: 44)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm))
+                    .accessibilityLabel("Sign in with Apple")
+                }
+
+                Text("Optional. Your data stays on your device either way.")
+                    .font(Theme.Typography.metadata)
+                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                    .rowStyle(.card)
+            } header: {
+                Text("Account")
+            }
+
+        case .authenticated(_, let displayName):
+            Section {
+                HStack(spacing: Theme.Spacing.sm) {
+                    AppIcon(name: Icons.account, size: 16)
+                        .foregroundStyle(Theme.Colors.accentPrimary(colorScheme, style: style))
+                    Text(displayName ?? "Apple Account")
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+                    Spacer()
+                    Text("Signed in")
+                        .font(Theme.Typography.metadata)
+                        .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+                }
+                .rowStyle(.card)
+
+                Button(role: .destructive) {
+                    showSignOutConfirm = true
+                } label: {
+                    Text("Sign Out")
+                        .font(Theme.Typography.body)
+                        .foregroundStyle(Theme.Colors.destructive(colorScheme, style: style))
+                }
+                .rowStyle(.card)
+                .accessibilityLabel("Sign out")
+                .accessibilityHint("You'll continue using the app anonymously")
+            } header: {
+                Text("Account")
+            }
+        }
+    }
+
+    private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .success(let authorization):
+            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+                  let tokenData = credential.identityToken,
+                  let identityToken = String(data: tokenData, encoding: .utf8) else {
+                return
+            }
+            let name: String? = credential.fullName.flatMap { components in
+                let formatted = PersonNameComponentsFormatter.localizedString(
+                    from: components, style: .default
+                )
+                return formatted.isEmpty ? nil : formatted
+            }
+            let installId = UIDevice.current.identifierForVendor?.uuidString ?? "unknown-install"
+
+            isSigningIn = true
+            Task {
+                do {
+                    try await authManager.signInWithApple(
+                        identityToken: identityToken,
+                        installId: installId,
+                        displayName: name,
+                        using: backendClient
+                    )
+                } catch {
+                    signInError = error
+                }
+                isSigningIn = false
+            }
+
+        case .failure(let error):
+            let nsError = error as NSError
+            if nsError.domain == ASAuthorizationErrorDomain, nsError.code == 1001 { return }
+            signInError = error
         }
     }
 
@@ -201,4 +325,5 @@ private struct EditNameSheet: View {
 #Preview {
     AccountView()
         .environmentObject(ThemeManager.shared)
+        .environmentObject(AuthManager.shared)
 }

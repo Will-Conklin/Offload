@@ -130,6 +130,7 @@ final class UserDefaultsUsageCounterStore: UsageCounterStore {
 
 protocol AIBackendClient {
     func createAnonymousSession(request: AnonymousSessionRequest) async throws -> AnonymousSessionResponse
+    func signInWithApple(request: AppleAuthRequest) async throws -> AppleAuthResponse
     func generateBreakdown(request: BreakdownGenerateRequest) async throws -> BreakdownGenerateResponse
     func compileBrainDump(request: BrainDumpCompileRequest) async throws -> BrainDumpCompileResponse
     func suggestDecisions(request: DecisionRecommendRequest) async throws -> DecisionRecommendResponse
@@ -167,6 +168,19 @@ final class NetworkAIBackendClient: AIBackendClient {
     func createAnonymousSession(request: AnonymousSessionRequest) async throws -> AnonymousSessionResponse {
         let response: AnonymousSessionResponse = try await performRequest(
             path: "/v1/sessions/anonymous",
+            method: "POST",
+            body: request,
+            headers: [:],
+            retryUnauthorized: false
+        )
+        tokenStore.token = response.sessionToken
+        tokenStore.expiresAt = response.expiresAt
+        return response
+    }
+
+    func signInWithApple(request: AppleAuthRequest) async throws -> AppleAuthResponse {
+        let response: AppleAuthResponse = try await performRequest(
+            path: "/v1/auth/apple",
             method: "POST",
             body: request,
             headers: [:],
