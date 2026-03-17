@@ -3,9 +3,10 @@ from __future__ import annotations
 import sqlite3
 import uuid
 from dataclasses import dataclass
-from pathlib import Path
 from threading import Lock
 from typing import Protocol
+
+from offload_backend.usage_store import _open_sqlite_connection
 
 
 @dataclass(frozen=True)
@@ -39,16 +40,8 @@ class SQLiteUserStore:
 
     def __init__(self, *, db_path: str):
         self._lock = Lock()
-        self._connection = self._open_connection(db_path=db_path)
+        self._connection = _open_sqlite_connection(db_path)
         self._bootstrap_schema()
-
-    def _open_connection(self, *, db_path: str) -> sqlite3.Connection:
-        if db_path != ":memory:":
-            Path(db_path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
-        connection = sqlite3.connect(db_path, check_same_thread=False)
-        connection.execute("PRAGMA journal_mode=WAL")
-        connection.execute("PRAGMA busy_timeout=5000")
-        return connection
 
     def _bootstrap_schema(self) -> None:
         with self._lock:
@@ -102,12 +95,7 @@ class SQLiteUserStore:
         if row is None:
             raise RuntimeError("failed to upsert user record")
 
-        return UserRecord(
-            user_id=str(row[0]),
-            apple_user_id=str(row[1]),
-            install_id=str(row[2]),
-            display_name=str(row[3]) if row[3] is not None else None,
-        )
+        return _parse_row(row)
 
     def get_by_apple_id(self, apple_user_id: str) -> UserRecord | None:
         """Return the UserRecord for the given Apple user ID, or None if not found."""
@@ -118,16 +106,17 @@ class SQLiteUserStore:
                 (apple_user_id,),
             ).fetchone()
 
-        if row is None:
-            return None
-
-        return UserRecord(
-            user_id=str(row[0]),
-            apple_user_id=str(row[1]),
-            install_id=str(row[2]),
-            display_name=str(row[3]) if row[3] is not None else None,
-        )
+        return _parse_row(row) if row is not None else None
 
     def close(self) -> None:
         with self._lock:
             self._connection.close()
+
+
+def _parse_row(row: sqlite3.Row | tuple) -> UserRecord:
+    return UserRecord(
+        user_id=str(row[0]),
+        apple_user_id=str(row[1]),
+        install_id=str(row[2]),
+        display_name=str(row[3]) if row[3] is not None else None,
+    )

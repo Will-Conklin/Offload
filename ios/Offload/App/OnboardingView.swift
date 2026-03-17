@@ -4,7 +4,6 @@
 
 import AuthenticationServices
 import SwiftUI
-import UIKit
 
 /// Shown once on first launch. Sign In with Apple is optional — users can skip
 /// and continue with an anonymous session at any time.
@@ -115,7 +114,7 @@ struct OnboardingView: View {
                 )
                 return formatted.isEmpty ? nil : formatted
             }
-            let installId = UIDevice.current.identifierForVendor?.uuidString ?? "unknown-install"
+            let installId = DeviceInfo.installId
 
             isSigningIn = true
             Task {

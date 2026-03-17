@@ -3,7 +3,6 @@
 // Governed by: CLAUDE.md
 
 import Foundation
-import Security
 
 // MARK: - Auth State
 
@@ -17,8 +16,7 @@ enum AuthState: Equatable {
 /// Stores the authenticated user identity (userId, displayName) in the Keychain.
 /// Separate from KeychainSessionTokenStore, which holds the backend session token.
 enum KeychainAuthStore {
-    private static let service = "wc.Offload"
-    private static let account = "apple_auth_identity"
+    private static let item = KeychainItem(account: "apple_auth_identity")
 
     struct Identity: Codable {
         let userId: String
@@ -27,44 +25,17 @@ enum KeychainAuthStore {
 
     static func save(userId: String, displayName: String?) {
         let identity = Identity(userId: userId, displayName: displayName)
-        let encoder = JSONEncoder()
-        guard let data = try? encoder.encode(identity) else { return }
-
-        let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: service,
-            kSecAttrAccount: account,
-        ]
-        let update: [CFString: Any] = [kSecValueData: data]
-        if SecItemUpdate(query as CFDictionary, update as CFDictionary) == errSecItemNotFound {
-            var addItem = query
-            addItem[kSecValueData] = data
-            addItem[kSecAttrAccessible] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-            SecItemAdd(addItem as CFDictionary, nil)
-        }
+        guard let data = try? JSONEncoder().encode(identity) else { return }
+        item.write(data)
     }
 
     static func load() -> Identity? {
-        let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: service,
-            kSecAttrAccount: account,
-            kSecReturnData: true,
-            kSecMatchLimit: kSecMatchLimitOne,
-        ]
-        var result: AnyObject?
-        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
-              let data = result as? Data else { return nil }
+        guard let data = item.read() else { return nil }
         return try? JSONDecoder().decode(Identity.self, from: data)
     }
 
     static func clear() {
-        let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: service,
-            kSecAttrAccount: account,
-        ]
-        SecItemDelete(query as CFDictionary)
+        item.delete()
     }
 }
 

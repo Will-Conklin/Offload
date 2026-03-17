@@ -97,11 +97,8 @@ def get_user_store(request: Request) -> UserStore:
     return request.app.state.user_store
 
 
-def get_apple_validator(settings: Settings = Depends(get_app_settings)) -> AppleTokenValidator:
-    return AppleTokenValidator(
-        jwks_url=settings.apple_jwks_url,
-        audience=settings.apple_bundle_id,
-    )
+def get_apple_validator(request: Request) -> AppleTokenValidator:
+    return request.app.state.apple_validator
 
 
 def get_session_rate_limiter(

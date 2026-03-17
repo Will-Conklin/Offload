@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 
 from offload_backend.apple_auth import AppleTokenValidationError, AppleTokenValidator
 from offload_backend.config import Settings
@@ -21,14 +21,11 @@ router = APIRouter()
 @router.post("/auth/apple", response_model=AppleAuthResponse)
 def sign_in_with_apple(
     body: AppleAuthRequest,
-    request: Request,
     token_manager: TokenManager = Depends(get_token_manager),
     user_store: UserStore = Depends(get_user_store),
     apple_validator: AppleTokenValidator = Depends(get_apple_validator),
     settings: Settings = Depends(get_app_settings),
 ) -> AppleAuthResponse:
-    _ = request
-
     try:
         apple_sub = apple_validator.validate(body.apple_identity_token)
     except AppleTokenValidationError as exc:

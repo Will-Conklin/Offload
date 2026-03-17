@@ -5,7 +5,6 @@
 
 import AuthenticationServices
 import SwiftUI
-import UIKit
 
 struct AccountView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -193,7 +192,7 @@ struct AccountView: View {
                 )
                 return formatted.isEmpty ? nil : formatted
             }
-            let installId = UIDevice.current.identifierForVendor?.uuidString ?? "unknown-install"
+            let installId = DeviceInfo.installId
 
             isSigningIn = true
             Task {

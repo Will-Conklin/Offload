@@ -149,9 +149,7 @@ final class NetworkAIBackendClient: AIBackendClient {
         transport: APITransporting = APIClient.shared,
         tokenStore: SessionTokenStore = KeychainSessionTokenStore(),
         consentStore: CloudAIConsentStore = UserDefaultsCloudAIConsentStore(),
-        installIDProvider: @escaping () -> String = {
-            UIDevice.current.identifierForVendor?.uuidString ?? "unknown-install"
-        },
+        installIDProvider: @escaping () -> String = { DeviceInfo.installId },
         appVersionProvider: @escaping () -> String = {
             Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
         },

@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 
+from offload_backend.apple_auth import AppleTokenValidator
 from offload_backend.config import get_settings
 from offload_backend.errors import APIException, api_exception_response, error_response
 from offload_backend.routers.auth import router as auth_router
@@ -38,6 +39,10 @@ def create_app() -> FastAPI:
     settings = get_settings()
     app.state.usage_store = SQLiteUsageStore(db_path=settings.usage_db_path)
     app.state.user_store = SQLiteUserStore(db_path=settings.usage_db_path)
+    app.state.apple_validator = AppleTokenValidator(
+        jwks_url=settings.apple_jwks_url,
+        audience=settings.apple_bundle_id,
+    )
 
     @app.middleware("http")
     async def request_context_middleware(request: Request, call_next):
