@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+from typing import Any
 
 import httpx
 import pytest
@@ -44,8 +45,8 @@ def _brain_dump_response() -> httpx.Response:
     )
 
 
-def _settings(**overrides) -> Settings:
-    defaults = {
+def _settings(**overrides: Any) -> Settings:
+    defaults: dict[str, Any] = {
         "session_secret": "test-secret",
         "anthropic_api_key": "test-anthropic-key",
         "ai_retry_max_attempts": 3,
