@@ -97,6 +97,8 @@ protocol UsageCounterStore: AnyObject {
     func localCount(for feature: String) -> Int
     func mergedCount(for feature: String) -> Int
     func updateServerCount(feature: String, serverCount: Int)
+    /// Sum of mergedCount across all given features — used for total quota enforcement.
+    func totalMergedCount(for features: [String]) -> Int
 }
 
 final class UserDefaultsUsageCounterStore: UsageCounterStore {
@@ -125,6 +127,10 @@ final class UserDefaultsUsageCounterStore: UsageCounterStore {
         let key = serverPrefix + feature
         let existing = defaults.integer(forKey: key)
         defaults.set(max(existing, serverCount), forKey: key)
+    }
+
+    func totalMergedCount(for features: [String]) -> Int {
+        features.reduce(0) { $0 + mergedCount(for: $1) }
     }
 }
 

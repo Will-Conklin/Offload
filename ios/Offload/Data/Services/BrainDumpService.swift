@@ -54,6 +54,8 @@ protocol BrainDumpService {
 
 final class DefaultBrainDumpService: BrainDumpService {
     static let featureKey = "braindump"
+    private static let allAIFeatures = ["breakdown", "braindump", "decide"]
+    private static let cloudQuotaLimit = 100
 
     private let backendClient: AIBackendClient
     private let consentStore: CloudAIConsentStore
@@ -87,6 +89,10 @@ final class DefaultBrainDumpService: BrainDumpService {
                 contextHints: contextHints
             )
             return BrainDumpExecutionResult(items: items, source: .onDevice, usage: nil)
+        }
+
+        if usageStore.totalMergedCount(for: Self.allAIFeatures) >= Self.cloudQuotaLimit {
+            throw AIBackendClientError.server(code: "quota_exceeded", status: 429)
         }
 
         do {

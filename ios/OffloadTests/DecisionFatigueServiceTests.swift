@@ -282,6 +282,10 @@ private final class TestDecisionUsageStore: UsageCounterStore {
         let existing = server[feature, default: 0]
         server[feature] = max(existing, serverCount)
     }
+
+    func totalMergedCount(for features: [String]) -> Int {
+        features.reduce(0) { $0 + mergedCount(for: $1) }
+    }
 }
 
 private struct StubOnDeviceDecisionGenerator: OnDeviceDecisionGenerating {

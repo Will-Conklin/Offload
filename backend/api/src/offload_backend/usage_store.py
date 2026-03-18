@@ -8,6 +8,8 @@ from typing import Protocol
 
 class UsageStore(Protocol):
     def reconcile(self, *, install_id: str, feature: str, local_count: int) -> int: ...
+    def get_total_count(self, *, install_id: str, features: list[str]) -> int: ...
+    def increment(self, *, install_id: str, feature: str) -> None: ...
     def dump(self) -> dict[tuple[str, str], int]: ...
     def close(self) -> None: ...
 
@@ -38,6 +40,15 @@ class InMemoryUsageStore:
             reconciled = max(current, local_count)
             self._counts[key] = reconciled
             return reconciled
+
+    def get_total_count(self, *, install_id: str, features: list[str]) -> int:
+        with self._lock:
+            return sum(self._counts.get((install_id, f), 0) for f in features)
+
+    def increment(self, *, install_id: str, feature: str) -> None:
+        key = (install_id, feature)
+        with self._lock:
+            self._counts[key] = self._counts.get(key, 0) + 1
 
     def dump(self) -> dict[tuple[str, str], int]:
         with self._lock:
@@ -101,6 +112,38 @@ class SQLiteUsageStore:
                     feature=feature,
                     local_count=local_count,
                 )
+            except Exception:
+                self._connection.rollback()
+                raise
+
+    def get_total_count(self, *, install_id: str, features: list[str]) -> int:
+        if not features:
+            return 0
+        with self._lock:
+            placeholders = ",".join("?" * len(features))
+            query = (
+                "SELECT COALESCE(SUM(count), 0) FROM usage_counts"
+                f" WHERE install_id = ? AND feature IN ({placeholders})"  # noqa: S608
+            )
+            row = self._connection.execute(query, [install_id, *features]).fetchone()
+            return int(row[0]) if row else 0
+
+    def increment(self, *, install_id: str, feature: str) -> None:
+        with self._lock:
+            try:
+                self._connection.execute("BEGIN IMMEDIATE")
+                self._connection.execute(
+                    """
+                    INSERT INTO usage_counts (install_id, feature, count)
+                    VALUES (?, ?, 1)
+                    ON CONFLICT (install_id, feature)
+                    DO UPDATE SET
+                        count = usage_counts.count + 1,
+                        updated_at = CURRENT_TIMESTAMP
+                    """,
+                    (install_id, feature),
+                )
+                self._connection.commit()
             except Exception:
                 self._connection.rollback()
                 raise

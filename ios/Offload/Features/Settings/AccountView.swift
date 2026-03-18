@@ -11,6 +11,7 @@ struct AccountView: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @EnvironmentObject private var authManager: AuthManager
     @Environment(\.aiBackendClient) private var backendClient
+    @Environment(\.usageCounterStore) private var usageStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @AppStorage("userDisplayName") private var displayName = ""
@@ -18,6 +19,9 @@ struct AccountView: View {
     @State private var isSigningIn = false
     @State private var signInError: Error?
     @State private var showSignOutConfirm = false
+
+    private static let allAIFeatures = ["breakdown", "braindump", "decide"]
+    private static let totalQuota = 100
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
@@ -33,6 +37,7 @@ struct AccountView: View {
                 profileSection
                 signInSection
                 preferencesSection
+                aiUsageSection
                 tagsSection
                 aboutSection
             }
@@ -227,6 +232,48 @@ struct AccountView: View {
             .rowStyle(.card)
         } header: {
             Text("Preferences")
+        }
+    }
+
+    private var aiUsageSection: some View {
+        let used = usageStore.totalMergedCount(for: Self.allAIFeatures)
+        let quota = Self.totalQuota
+        let progress = min(Double(used) / Double(quota), 1.0)
+        let barColor: Color = used >= quota
+            ? Theme.Colors.destructive(colorScheme, style: style)
+            : used >= 80
+                ? Theme.Colors.caution(colorScheme, style: style)
+                : Theme.Colors.accentPrimary(colorScheme, style: style)
+
+        return Section {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                Text("\(used) of \(quota) AI actions used this month")
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
+
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: Theme.CornerRadius.sm)
+                            .fill(Theme.Colors.textSecondary(colorScheme, style: style).opacity(0.15))
+                            .frame(height: 6)
+                        RoundedRectangle(cornerRadius: Theme.CornerRadius.sm)
+                            .fill(barColor)
+                            .frame(width: max(6.0, geo.size.width * progress), height: 6)
+                    }
+                }
+                .frame(height: 6)
+
+                Text("AI features help you organize and decide. Usage resets monthly.")
+                    .font(Theme.Typography.metadata)
+                    .foregroundStyle(Theme.Colors.textSecondary(colorScheme, style: style))
+            }
+            .padding(.vertical, Theme.Spacing.xs)
+            .rowStyle(.card)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(used) of \(quota) AI actions used this month")
+            .accessibilityValue(used >= quota ? "Limit reached" : "\(quota - used) remaining")
+        } header: {
+            Text("AI Usage")
         }
     }
 
