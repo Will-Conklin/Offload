@@ -15,7 +15,8 @@ struct OffloadCaptureIntent: AppIntent {
     )
 
     /// The content to capture. Siri prompts for this if not provided.
-    @Parameter(title: "Thought", description: "What's on your mind?")
+    @Parameter(title: "Thought", description: "What's on your mind?",
+               requestValueDialog: IntentDialog("What would you like to capture?"))
     var content: String
 
     static var parameterSummary: some ParameterSummary {
