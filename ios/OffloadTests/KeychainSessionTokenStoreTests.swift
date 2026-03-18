@@ -17,17 +17,17 @@ final class KeychainSessionTokenStoreTests: XCTestCase {
         KeychainSessionTokenStore().clear()
     }
 
-    func testStoreAndRetrieveToken() {
+    func testStoreAndRetrieveToken() throws {
         let store = KeychainSessionTokenStore()
         let expiry = Date(timeIntervalSinceNow: 3600)
         store.token = "test-token"
         store.expiresAt = expiry
 
         XCTAssertEqual(store.token, "test-token")
-        XCTAssertEqual(store.expiresAt?.timeIntervalSince1970, expiry.timeIntervalSince1970, accuracy: 1)
+        XCTAssertEqual(try XCTUnwrap(store.expiresAt).timeIntervalSince1970, expiry.timeIntervalSince1970, accuracy: 1)
     }
 
-    func testPersistsAcrossInstances() {
+    func testPersistsAcrossInstances() throws {
         let expiry = Date(timeIntervalSinceNow: 3600)
         let store1 = KeychainSessionTokenStore()
         store1.token = "persisted-token"
@@ -35,7 +35,7 @@ final class KeychainSessionTokenStoreTests: XCTestCase {
 
         let store2 = KeychainSessionTokenStore()
         XCTAssertEqual(store2.token, "persisted-token")
-        XCTAssertEqual(store2.expiresAt?.timeIntervalSince1970, expiry.timeIntervalSince1970, accuracy: 1)
+        XCTAssertEqual(try XCTUnwrap(store2.expiresAt).timeIntervalSince1970, expiry.timeIntervalSince1970, accuracy: 1)
     }
 
     func testClearRemovesTokenFromMemoryAndKeychain() {
