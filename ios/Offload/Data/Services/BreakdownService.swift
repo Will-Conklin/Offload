@@ -89,9 +89,8 @@ final class DefaultBreakdownService: BreakdownService {
         contextHints: [String],
         templateIds: [String]
     ) async throws -> BreakdownExecutionResult {
-        usageStore.increment(feature: Self.featureKey, by: 1)
-
         guard consentStore.isCloudAIEnabled else {
+            usageStore.increment(feature: Self.featureKey, by: 1)
             let steps = try await onDeviceGenerator.generateBreakdown(
                 inputText: inputText,
                 granularity: granularity,
@@ -104,6 +103,8 @@ final class DefaultBreakdownService: BreakdownService {
         if usageStore.totalMergedCount(for: Self.allAIFeatures) >= Self.cloudQuotaLimit {
             throw AIBackendClientError.server(code: "quota_exceeded", status: 429)
         }
+
+        usageStore.increment(feature: Self.featureKey, by: 1)
 
         do {
             let cloudResponse = try await backendClient.generateBreakdown(

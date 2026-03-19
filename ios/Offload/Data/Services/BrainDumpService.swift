@@ -81,9 +81,8 @@ final class DefaultBrainDumpService: BrainDumpService {
         inputText: String,
         contextHints: [String]
     ) async throws -> BrainDumpExecutionResult {
-        usageStore.increment(feature: DefaultBrainDumpService.featureKey, by: 1)
-
         guard consentStore.isCloudAIEnabled else {
+            usageStore.increment(feature: DefaultBrainDumpService.featureKey, by: 1)
             let items = try await onDeviceGenerator.compileBrainDump(
                 inputText: inputText,
                 contextHints: contextHints
@@ -94,6 +93,8 @@ final class DefaultBrainDumpService: BrainDumpService {
         if usageStore.totalMergedCount(for: Self.allAIFeatures) >= Self.cloudQuotaLimit {
             throw AIBackendClientError.server(code: "quota_exceeded", status: 429)
         }
+
+        usageStore.increment(feature: DefaultBrainDumpService.featureKey, by: 1)
 
         do {
             let cloudResponse = try await backendClient.compileBrainDump(
