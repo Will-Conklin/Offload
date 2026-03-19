@@ -1,10 +1,15 @@
-from offload_backend.dependencies import get_ai_inference_rate_limiter, get_provider
+from offload_backend.dependencies import (
+    get_ai_inference_rate_limiter,
+    get_provider,
+    get_usage_store,
+)
 from offload_backend.providers.base import (
     ProviderBreakdownResult,
     ProviderRequestError,
     ProviderTimeout,
 )
 from offload_backend.session_rate_limiter import InMemorySessionRateLimiter
+from offload_backend.usage_store import InMemoryUsageStore
 
 
 class FakeProvider:
@@ -333,6 +338,98 @@ def test_breakdown_rate_limit_throttles_excess_requests(
     )
     assert response.status_code == 429
     assert response.json()["error"]["code"] == "inference_rate_limited"
+
+    app.dependency_overrides.clear()
+
+
+def test_breakdown_quota_exhausted_returns_429(
+    client, app, create_session_token, make_breakdown_payload
+):
+    # Pre-fill usage to exactly the quota (10 in test env)
+    exhausted_store = InMemoryUsageStore()
+    for _ in range(10):
+        exhausted_store.increment(install_id="install-12345", feature="breakdown")
+    app.dependency_overrides[get_provider] = lambda: FakeProvider()
+    app.dependency_overrides[get_usage_store] = lambda: exhausted_store
+    token = create_session_token()
+
+    response = client.post(
+        "/v1/ai/breakdown/generate",
+        json=make_breakdown_payload(),
+        headers={"Authorization": f"Bearer {token}", "X-Offload-Cloud-Opt-In": "true"},
+    )
+
+    assert response.status_code == 429
+    assert response.json()["error"]["code"] == "quota_exceeded"
+
+    app.dependency_overrides.clear()
+
+
+def test_breakdown_quota_not_exhausted_increments(
+    client, app, create_session_token, make_breakdown_payload
+):
+    under_quota_store = InMemoryUsageStore()
+    for _ in range(9):
+        under_quota_store.increment(install_id="install-12345", feature="breakdown")
+    app.dependency_overrides[get_provider] = lambda: FakeProvider()
+    app.dependency_overrides[get_usage_store] = lambda: under_quota_store
+    token = create_session_token()
+
+    response = client.post(
+        "/v1/ai/breakdown/generate",
+        json=make_breakdown_payload(),
+        headers={"Authorization": f"Bearer {token}", "X-Offload-Cloud-Opt-In": "true"},
+    )
+
+    assert response.status_code == 200
+    assert under_quota_store.get_total_count(
+        install_id="install-12345", features=["breakdown", "braindump", "decide"]
+    ) == 10
+
+    app.dependency_overrides.clear()
+
+
+def test_breakdown_provider_error_does_not_increment(
+    client, app, create_session_token, make_breakdown_payload
+):
+    store = InMemoryUsageStore()
+    app.dependency_overrides[get_provider] = lambda: TimeoutProvider()
+    app.dependency_overrides[get_usage_store] = lambda: store
+    token = create_session_token()
+
+    response = client.post(
+        "/v1/ai/breakdown/generate",
+        json=make_breakdown_payload(),
+        headers={"Authorization": f"Bearer {token}", "X-Offload-Cloud-Opt-In": "true"},
+    )
+
+    assert response.status_code == 504
+    assert store.get_total_count(install_id="install-12345", features=["breakdown"]) == 0
+
+    app.dependency_overrides.clear()
+
+
+def test_breakdown_quota_is_shared_across_features(
+    client, app, create_session_token, make_breakdown_payload
+):
+    # Quota filled entirely by braindump/decide, not breakdown
+    cross_feature_store = InMemoryUsageStore()
+    for _ in range(6):
+        cross_feature_store.increment(install_id="install-12345", feature="braindump")
+    for _ in range(4):
+        cross_feature_store.increment(install_id="install-12345", feature="decide")
+    app.dependency_overrides[get_provider] = lambda: FakeProvider()
+    app.dependency_overrides[get_usage_store] = lambda: cross_feature_store
+    token = create_session_token()
+
+    response = client.post(
+        "/v1/ai/breakdown/generate",
+        json=make_breakdown_payload(),
+        headers={"Authorization": f"Bearer {token}", "X-Offload-Cloud-Opt-In": "true"},
+    )
+
+    assert response.status_code == 429
+    assert response.json()["error"]["code"] == "quota_exceeded"
 
     app.dependency_overrides.clear()
 

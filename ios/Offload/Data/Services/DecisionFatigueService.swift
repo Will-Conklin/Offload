@@ -97,6 +97,8 @@ protocol DecisionFatigueService {
 
 final class DefaultDecisionFatigueService: DecisionFatigueService {
     static let featureKey = "decide"
+    private static let allAIFeatures = ["breakdown", "braindump", "decide"]
+    private static let cloudQuotaLimit = 100
 
     private let backendClient: AIBackendClient
     private let consentStore: CloudAIConsentStore
@@ -123,9 +125,8 @@ final class DefaultDecisionFatigueService: DecisionFatigueService {
         contextHints: [String],
         clarifyingAnswers: [DecisionClarifyingAnswer]
     ) async throws -> DecisionFatigueExecutionResult {
-        usageStore.increment(feature: DefaultDecisionFatigueService.featureKey, by: 1)
-
         guard consentStore.isCloudAIEnabled else {
+            usageStore.increment(feature: DefaultDecisionFatigueService.featureKey, by: 1)
             let options = try await onDeviceGenerator.suggestDecisions(
                 inputText: inputText,
                 contextHints: contextHints,
@@ -138,6 +139,12 @@ final class DefaultDecisionFatigueService: DecisionFatigueService {
                 usage: nil
             )
         }
+
+        if usageStore.totalMergedCount(for: Self.allAIFeatures) >= Self.cloudQuotaLimit {
+            throw AIBackendClientError.server(code: "quota_exceeded", status: 429)
+        }
+
+        usageStore.increment(feature: DefaultDecisionFatigueService.featureKey, by: 1)
 
         do {
             let cloudResponse = try await backendClient.suggestDecisions(

@@ -144,6 +144,24 @@ def _install_id_hash(install_id: str) -> str:
     return hashlib.sha256(install_id.encode("utf-8")).hexdigest()[:12]
 
 
+AI_FEATURES = ("breakdown", "braindump", "decide")
+
+
+def enforce_ai_quota(
+    claims: SessionClaims = Depends(get_session_claims),
+    usage_store: UsageStore = Depends(get_usage_store),
+    settings: Settings = Depends(get_app_settings),
+) -> None:
+    """Raise 429 quota_exceeded when the install has used all free AI actions this month."""
+    total = usage_store.get_total_count(install_id=claims.install_id, features=list(AI_FEATURES))
+    if total >= settings.default_feature_quota:
+        raise APIException(
+            status_code=429,
+            code="quota_exceeded",
+            message="Monthly AI action limit reached.",
+        )
+
+
 def enforce_ai_inference_rate_limit(
     *,
     install_id: str,

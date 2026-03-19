@@ -177,6 +177,103 @@ final class BreakdownServiceTests: XCTestCase {
         }
     }
 
+    func testPreflightQuotaBlocksCloudCallWhenExhausted() async throws {
+        let backend = MockBackendClient()
+        backend.breakdownResult = .success(
+            BreakdownGenerateResponse(
+                steps: [BreakdownStep(title: "Cloud step")],
+                provider: "openai",
+                latencyMs: 10,
+                usage: BreakdownUsage(inputTokens: 1, outputTokens: 1)
+            )
+        )
+        let usage = TestUsageCounterStore()
+        // Fill total quota across all features (100 total)
+        usage.increment(feature: "breakdown", by: 60)
+        usage.increment(feature: "braindump", by: 40)
+
+        let service = DefaultBreakdownService(
+            backendClient: backend,
+            consentStore: TestConsentStore(isCloudAIEnabled: true),
+            usageStore: usage,
+            onDeviceGenerator: StubOnDeviceGenerator(steps: []),
+            installIDProvider: { "install-12345" }
+        )
+
+        do {
+            _ = try await service.generateBreakdown(
+                inputText: "Plan launch",
+                granularity: 3,
+                contextHints: [],
+                templateIds: []
+            )
+            XCTFail("Expected quota_exceeded preflight to be thrown")
+        } catch let error as AIBackendClientError {
+            XCTAssertEqual(error, .server(code: "quota_exceeded", status: 429))
+            XCTAssertEqual(backend.generateCalls, 0, "Cloud should not be called when quota exhausted")
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testPreflightQuotaAllowsCallWhenUnderLimit() async throws {
+        let backend = MockBackendClient()
+        backend.breakdownResult = .success(
+            BreakdownGenerateResponse(
+                steps: [BreakdownStep(title: "Cloud step")],
+                provider: "openai",
+                latencyMs: 10,
+                usage: BreakdownUsage(inputTokens: 1, outputTokens: 1)
+            )
+        )
+        let usage = TestUsageCounterStore()
+        usage.increment(feature: "breakdown", by: 99) // 99 total, 1 below limit
+
+        let service = DefaultBreakdownService(
+            backendClient: backend,
+            consentStore: TestConsentStore(isCloudAIEnabled: true),
+            usageStore: usage,
+            onDeviceGenerator: StubOnDeviceGenerator(steps: []),
+            installIDProvider: { "install-12345" }
+        )
+
+        let result = try await service.generateBreakdown(
+            inputText: "Plan launch",
+            granularity: 3,
+            contextHints: [],
+            templateIds: []
+        )
+
+        XCTAssertEqual(result.source, .cloud)
+        XCTAssertEqual(backend.generateCalls, 1)
+    }
+
+    func testPreflightQuotaNotAppliedToOnDevicePath() async throws {
+        let backend = MockBackendClient()
+        let usage = TestUsageCounterStore()
+        // Fill quota completely
+        usage.increment(feature: "breakdown", by: 100)
+
+        let service = DefaultBreakdownService(
+            backendClient: backend,
+            consentStore: TestConsentStore(isCloudAIEnabled: false),
+            usageStore: usage,
+            onDeviceGenerator: StubOnDeviceGenerator(steps: [BreakdownStep(title: "On-device")]),
+            installIDProvider: { "install-12345" }
+        )
+
+        // On-device path should succeed even when quota is full
+        let result = try await service.generateBreakdown(
+            inputText: "Plan launch",
+            granularity: 3,
+            contextHints: [],
+            templateIds: []
+        )
+
+        XCTAssertEqual(result.source, .onDevice)
+        XCTAssertEqual(backend.generateCalls, 0)
+    }
+
     func testReconcileUsagePreservesMergedCounts() async throws {
         let backend = MockBackendClient()
         backend.reconcileResult = .success(
@@ -277,6 +374,10 @@ private final class TestUsageCounterStore: UsageCounterStore {
     func updateServerCount(feature: String, serverCount: Int) {
         let existing = server[feature, default: 0]
         server[feature] = max(existing, serverCount)
+    }
+
+    func totalMergedCount(for features: [String]) -> Int {
+        features.reduce(0) { $0 + mergedCount(for: $1) }
     }
 }
 

@@ -7,10 +7,12 @@ from fastapi import APIRouter, Depends, Request
 from offload_backend.config import Settings
 from offload_backend.dependencies import (
     enforce_ai_inference_rate_limit,
+    enforce_ai_quota,
     get_ai_inference_rate_limiter,
     get_app_settings,
     get_provider,
     get_session_claims,
+    get_usage_store,
     require_cloud_opt_in,
 )
 from offload_backend.errors import APIException
@@ -29,6 +31,7 @@ from offload_backend.schemas import (
 )
 from offload_backend.security import SessionClaims
 from offload_backend.session_rate_limiter import SessionRateLimiter
+from offload_backend.usage_store import UsageStore
 
 router = APIRouter()
 
@@ -43,9 +46,11 @@ async def compile_brain_dump(
     http_request: Request,
     claims: SessionClaims = Depends(get_session_claims),
     _: None = Depends(require_cloud_opt_in),
+    _quota: None = Depends(enforce_ai_quota),
     provider: AIProvider = Depends(get_provider),
     settings: Settings = Depends(get_app_settings),
     limiter: SessionRateLimiter = Depends(get_ai_inference_rate_limiter),
+    usage_store: UsageStore = Depends(get_usage_store),
 ) -> BrainDumpCompileResponse:
     enforce_ai_inference_rate_limit(
         install_id=claims.install_id, request=http_request, limiter=limiter
@@ -90,6 +95,7 @@ async def compile_brain_dump(
         ) from exc
 
     latency_ms = max(0, int((datetime.now(UTC) - started_at).total_seconds() * 1000))
+    usage_store.increment(install_id=claims.install_id, feature="braindump")
 
     return BrainDumpCompileResponse(
         items=[BrainDumpItem.model_validate(item) for item in result.items],

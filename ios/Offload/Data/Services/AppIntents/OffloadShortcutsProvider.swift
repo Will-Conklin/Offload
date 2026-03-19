@@ -12,8 +12,8 @@ struct OffloadShortcutsProvider: AppShortcutsProvider {
         AppShortcut(
             intent: OffloadCaptureIntent(),
             phrases: [
-                "Offload \(\.$content)",
                 "Offload a thought in \(.applicationName)",
+                "Capture a thought in \(.applicationName)",
                 "Capture in \(.applicationName)",
             ],
             shortTitle: "Capture a Thought",

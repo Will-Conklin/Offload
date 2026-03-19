@@ -14,7 +14,7 @@ private struct CloudAIConsentStoreKey: EnvironmentKey {
 }
 
 private struct UsageCounterStoreKey: EnvironmentKey {
-    static let defaultValue: UsageCounterStore = UserDefaultsUsageCounterStore()
+    static let defaultValue: UsageCounterStore = QuotaStore()
 }
 
 private struct BreakdownServiceKey: EnvironmentKey {
