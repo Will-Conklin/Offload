@@ -20,7 +20,6 @@ struct CaptureView: View {
     @State private var viewModel = CaptureListViewModel()
 
     let navigationTitle: String
-    @State private var showingSettings = false
     @State private var showingSearch = false
     @State private var searchQuery = ""
     @State private var selectedItem: Item?
@@ -117,27 +116,12 @@ struct CaptureView: View {
                     }
                     .accessibilityLabel("Search")
 
-                    Button {
-                        showingSettings = true
-                    } label: {
-                        IconTile(
-                            iconName: Icons.settings,
-                            iconSize: 18,
-                            tileSize: 44,
-                            style: .secondaryOutlined(Theme.Colors.accentPrimary(colorScheme, style: style))
-                        )
-                    }
-                    .accessibilityLabel("Settings")
-                }
+}
             }
             .sheet(isPresented: $showingSearch) {
                 CaptureSearchView(searchQuery: $searchQuery)
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
-            }
-            .sheet(isPresented: $showingSettings) {
-                SettingsView()
-                    .environmentObject(themeManager)
             }
             .sheet(item: $selectedItem) { item in
                 CaptureDetailView(item: item)

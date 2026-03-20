@@ -36,7 +36,6 @@ struct OrganizeView: View {
 
     @AppStorage("organize.scope") private var selectedScopeRaw = Scope.plans.rawValue
     @State private var showingCreate = false
-    @State private var showingSettings = false
     @State private var selectedCollection: Collection?
     @State private var tagPickerCollection: Collection?
     @State private var errorPresenter = ErrorPresenter()
@@ -104,23 +103,10 @@ struct OrganizeView: View {
                     }
                     .accessibilityLabel("Search")
 
-                    Button { showingSettings = true } label: {
-                        IconTile(
-                            iconName: Icons.settings,
-                            iconSize: 18,
-                            tileSize: 44,
-                            style: .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
-                        )
-                    }
-                    .accessibilityLabel("Settings")
-                }
+}
             }
             .sheet(isPresented: $showingCreate, onDismiss: refreshCollections) {
                 createSheet
-            }
-            .sheet(isPresented: $showingSettings) {
-                SettingsView()
-                    .environmentObject(themeManager)
             }
             .sheet(isPresented: $showingSearch) {
                 OrganizeSearchView(searchQuery: $searchQuery)

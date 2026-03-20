@@ -11,11 +11,13 @@ import UIKit
 struct AppRootView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var themeManager: ThemeManager
+    @StateObject private var authManager = AuthManager()
     @State private var repositories: RepositoryBundle?
     private let launchCorrelationId = UUID().uuidString
 
     var body: some View {
         MainTabView()
+            .environmentObject(authManager)
             .environment(\.itemRepository, repositories?.itemRepository ?? ItemRepository(modelContext: modelContext))
             .environment(\.collectionRepository, repositories?.collectionRepository ?? CollectionRepository(modelContext: modelContext))
             .environment(\.collectionItemRepository, repositories?.collectionItemRepository ?? CollectionItemRepository(modelContext: modelContext))
@@ -38,6 +40,9 @@ struct AppRootView: View {
                 if let repos = repositories {
                     QuickCaptureService(itemRepository: repos.itemRepository).flushPending()
                 }
+
+                // Restore any previously authenticated session
+                await authManager.restoreSession()
 
                 let startupDuration = Date().timeIntervalSince(startupStart)
                 let memoryAfterStartup = MemoryDiagnostics.residentMemoryBytes()

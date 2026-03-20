@@ -148,7 +148,7 @@ final class NetworkAIBackendClient: AIBackendClient {
 
     init(
         transport: APITransporting = APIClient.shared,
-        tokenStore: SessionTokenStore = InMemorySessionTokenStore(),
+        tokenStore: SessionTokenStore = KeychainSessionTokenStore(),
         consentStore: CloudAIConsentStore = UserDefaultsCloudAIConsentStore(),
         installIDProvider: @escaping () -> String = {
             UIDevice.current.identifierForVendor?.uuidString ?? "unknown-install"
