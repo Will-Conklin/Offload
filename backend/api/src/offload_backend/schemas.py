@@ -19,9 +19,27 @@ class AnonymousSessionRequest(BaseModel):
     platform: str = Field(min_length=1, max_length=32)
 
 
-class AnonymousSessionResponse(BaseModel):
+class SessionResponse(BaseModel):
+    """Unified session response for all session types (anonymous, Apple, refresh)."""
+
     session_token: str
     expires_at: datetime
+
+
+class AppleSessionRequest(BaseModel):
+    """Request body for Apple Sign-In session creation."""
+
+    identity_token: str = Field(..., min_length=1)
+    install_id: str = Field(..., min_length=8, max_length=128)
+    app_version: str = Field(..., min_length=1, max_length=32)
+    platform: str = Field(..., min_length=1, max_length=32)
+
+
+class SessionRefreshRequest(BaseModel):
+    """Request body for refreshing an existing session."""
+
+    session_token: str = Field(..., min_length=1)
+    install_id: str = Field(..., min_length=8, max_length=128)
 
 
 class BreakdownGenerateRequest(BaseModel):

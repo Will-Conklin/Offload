@@ -50,6 +50,7 @@ class Settings(BaseSettings):
     anthropic_timeout_seconds: float = 20.0
     max_input_chars: int = Field(default=4000, ge=1)
     default_feature_quota: int = Field(default=100, ge=0)
+    apple_bundle_id: str = "wc.Offload"
     usage_db_path: str = ".offload-backend/usage.sqlite3"
 
     @model_validator(mode="after")
