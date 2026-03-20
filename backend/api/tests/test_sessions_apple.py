@@ -8,7 +8,6 @@ from fastapi.testclient import TestClient
 from offload_backend.config import get_settings
 from offload_backend.security import TokenManager
 
-
 APPLE_SESSION_URL = '/v1/sessions/apple'
 REFRESH_URL = '/v1/sessions/refresh'
 MOCK_APPLE_USER_ID = '001234.abcdef1234567890.1234'
