@@ -99,18 +99,30 @@ struct AddTagSheet: View {
     private var style: ThemeStyle { themeManager.currentStyle }
 
     @State private var name = ""
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         NavigationStack {
-            Form {
-                TextField("Tag name", text: $name)
+            VStack(spacing: 0) {
+                InputCard(fill: Theme.Colors.cardColor(index: 0, colorScheme, style: style)) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                        Text("Tag Name")
+                            .font(Theme.Typography.metadata)
+                            .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
+
+                        TextField("Tag name", text: $name)
+                            .font(Theme.Typography.body)
+                            .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+                            .focused($isFocused)
+                    }
+                }
+                .padding(Theme.Spacing.md)
+
+                Spacer()
             }
+            .background(Theme.Gradients.deepBackground(colorScheme).ignoresSafeArea())
             .navigationTitle("New Tag")
             .navigationBarTitleDisplayMode(.inline)
-            .scrollContentBackground(.hidden)
-            .background(Theme.Colors.background(colorScheme, style: style))
-            .toolbarBackground(Theme.Colors.background(colorScheme, style: style), for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -130,6 +142,7 @@ struct AddTagSheet: View {
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
+            .onAppear { isFocused = true }
         }
         .errorToasts(errorPresenter)
     }
