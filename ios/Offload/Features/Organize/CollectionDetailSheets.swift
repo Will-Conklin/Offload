@@ -17,58 +17,268 @@ struct ItemEditSheet: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var errorPresenter = ErrorPresenter()
     @State private var content: String
+    @State private var selectedType: ItemType?
+    @State private var isStarred: Bool
+    @State private var selectedTags: [Tag]
+    @State private var attachmentData: Data?
+    @State private var showingTags = false
+    @State private var showingAttachmentSource = false
+    @State private var showingImagePicker = false
+    @State private var imagePickerSource: UIImagePickerController.SourceType = .photoLibrary
+    @State private var showingCameraUnavailableAlert = false
+    @FocusState private var isFocused: Bool
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
     init(item: Item) {
         self.item = item
         _content = State(initialValue: item.content)
+        _selectedType = State(initialValue: item.itemType)
+        _isStarred = State(initialValue: item.isStarred)
+        _selectedTags = State(initialValue: item.tags)
+    }
+
+    private var canSave: Bool {
+        !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Content") {
-                    TextEditor(text: $content)
-                        .frame(minHeight: 120)
-                }
-
-                if let attachmentData = itemRepository.attachmentDataForDisplay(item),
-                   let uiImage = UIImage(data: attachmentData)
-                {
-                    Section("Attachment") {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 180)
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
-                    }
-                }
+            VStack(spacing: 0) {
+                inputSection
+                Spacer()
+                bottomBar
             }
-            .scrollContentBackground(.hidden)
-            .background(Theme.Colors.background(colorScheme, style: style))
+            .background(Theme.Gradients.deepBackground(colorScheme).ignoresSafeArea())
             .navigationTitle("Edit Item")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        do {
-                            try itemRepository.updateContent(
-                                item,
-                                content: content.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            .sheet(isPresented: $showingTags) {
+                TagSelectionSheet(selectedTags: $selectedTags)
+                    .environmentObject(themeManager)
+                    .presentationDetents([.medium])
+                    .presentationDragIndicator(.visible)
+            }
+            .confirmationDialog("Add Attachment", isPresented: $showingAttachmentSource) {
+                Button("Camera") {
+                    if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                        imagePickerSource = .camera
+                        showingImagePicker = true
+                    } else {
+                        showingCameraUnavailableAlert = true
+                    }
+                }
+                Button("Photo Library") {
+                    imagePickerSource = .photoLibrary
+                    showingImagePicker = true
+                }
+                Button("Cancel", role: .cancel) {}
+            }
+            .sheet(isPresented: $showingImagePicker) {
+                ImagePicker(sourceType: imagePickerSource, imageData: $attachmentData)
+            }
+            .alert("Camera Unavailable", isPresented: $showingCameraUnavailableAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("This device does not support camera capture.")
+            }
+            .onAppear {
+                attachmentData = itemRepository.attachmentDataForDisplay(item)
+                isFocused = true
+            }
+        }
+        .errorToasts(errorPresenter)
+    }
+
+    private var inputSection: some View {
+        InputCard(fill: Theme.Colors.cardColor(index: 0, colorScheme, style: style)) {
+            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                // Type selection
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: Theme.Spacing.sm) {
+                        ForEach(ItemType.allCases.filter(\.isUserAssignable), id: \.self) { type in
+                            Button {
+                                selectedType = selectedType == type ? nil : type
+                            } label: {
+                                Text(type.displayName)
+                                    .font(Theme.Typography.metadata)
+                                    .foregroundStyle(
+                                        selectedType == type
+                                            ? Theme.Colors.accentButtonText(colorScheme, style: style)
+                                            : Theme.Colors.textSecondary(colorScheme, style: style)
+                                    )
+                                    .padding(.horizontal, Theme.Spacing.sm)
+                                    .padding(.vertical, Theme.Spacing.xs)
+                                    .background(
+                                        Capsule().fill(
+                                            selectedType == type
+                                                ? Theme.Colors.primary(colorScheme, style: style)
+                                                : Theme.Colors.primary(colorScheme, style: style).opacity(0.08)
+                                        )
+                                    )
+                                    .overlay(
+                                        Capsule().stroke(
+                                            Theme.Colors.primary(colorScheme, style: style).opacity(selectedType == type ? 0 : 0.25),
+                                            lineWidth: 0.6
+                                        )
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("\(type.displayName) filter")
+                            .accessibilityHint("Tap to set type to \(type.displayName).")
+                            .accessibilityAddTraits(selectedType == type ? .isSelected : [])
+                        }
+                    }
+                }
+
+                TextEditor(text: $content)
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+                    .frame(minHeight: 120)
+                    .focused($isFocused)
+                    .scrollContentBackground(.hidden)
+                    .padding(Theme.Spacing.sm)
+                    .background(Theme.Colors.surface(colorScheme, style: style))
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Theme.CornerRadius.md, style: .continuous)
+                            .stroke(Theme.Colors.borderMuted(colorScheme, style: style).opacity(0.35), lineWidth: 0.6)
+                    )
+
+                if let attachmentData, let uiImage = UIImage(data: attachmentData) {
+                    ZStack(alignment: .topTrailing) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 150)
+                            .clipShape(RoundedRectangle(cornerRadius: Theme.CornerRadius.sm, style: .continuous))
+
+                        Button {
+                            self.attachmentData = nil
+                        } label: {
+                            IconTile(
+                                iconName: Icons.closeCircleFilled,
+                                iconSize: 16,
+                                tileSize: 44,
+                                style: .primaryFilled(Theme.Colors.destructive(colorScheme, style: style))
                             )
-                            dismiss()
-                        } catch {
-                            errorPresenter.present(error)
+                        }
+                        .padding(Theme.Spacing.xs)
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Remove attachment")
+                    }
+                }
+
+                if !selectedTags.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: Theme.Spacing.xs) {
+                            ForEach(selectedTags) { tag in
+                                TagPill(
+                                    name: tag.name,
+                                    color: Theme.Colors.tagColor(for: tag.name, colorScheme, style: style)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
-        .errorToasts(errorPresenter)
+        .padding(Theme.Spacing.md)
+    }
+
+    private var bottomBar: some View {
+        ActionBarContainer(fill: Theme.Colors.cardColor(index: 1, colorScheme, style: style)) {
+            HStack(spacing: Theme.Spacing.md) {
+                Button { showingAttachmentSource = true } label: {
+                    IconTile(
+                        iconName: attachmentData != nil ? Icons.cameraFilled : Icons.camera,
+                        iconSize: 20, tileSize: 44,
+                        style: attachmentData != nil
+                            ? .primaryFilled(Theme.Colors.primary(colorScheme, style: style))
+                            : .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(attachmentData == nil ? "Add attachment" : "Change attachment")
+
+                Button { showingTags = true } label: {
+                    IconTile(
+                        iconName: selectedTags.isEmpty ? Icons.tag : Icons.tagFilled,
+                        iconSize: 20, tileSize: 44,
+                        style: selectedTags.isEmpty
+                            ? .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                            : .primaryFilled(Theme.Colors.primary(colorScheme, style: style))
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(selectedTags.isEmpty ? "Add tags" : "Edit tags")
+
+                Button { isStarred.toggle() } label: {
+                    IconTile(
+                        iconName: isStarred ? Icons.starFilled : Icons.star,
+                        iconSize: 20, tileSize: 44,
+                        style: isStarred
+                            ? .primaryFilled(Theme.Colors.caution(colorScheme, style: style))
+                            : .secondaryOutlined(Theme.Colors.textSecondary(colorScheme, style: style))
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(isStarred ? "Unstar item" : "Star item")
+
+                Spacer()
+
+                Button(action: save) {
+                    Text("Save")
+                        .font(Theme.Typography.buttonLabel)
+                        .foregroundStyle(Theme.Colors.buttonDarkText(colorScheme, style: style))
+                        .padding(.horizontal, Theme.Spacing.lg)
+                        .padding(.vertical, Theme.Spacing.sm)
+                        .background(Theme.Colors.buttonDark(colorScheme))
+                        .clipShape(Capsule())
+                        .shadow(color: Theme.Shadows.ultraLight(colorScheme), radius: Theme.Shadows.elevationUltraLight, y: Theme.Shadows.offsetYUltraLight)
+                }
+                .disabled(!canSave)
+                .opacity(canSave ? 1 : 0.5)
+            }
+            .padding(.vertical, Theme.Spacing.sm)
+        }
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.bottom, Theme.Spacing.sm)
+    }
+
+    private func save() {
+        do {
+            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+            try itemRepository.updateContent(item, content: trimmed)
+            try itemRepository.updateType(item, type: selectedType?.rawValue)
+
+            if isStarred != item.isStarred {
+                try itemRepository.toggleStar(item)
+            }
+
+            let currentTagIds = Set(item.tags.map(\.id))
+            let selectedTagIds = Set(selectedTags.map(\.id))
+            for tag in item.tags where !selectedTagIds.contains(tag.id) {
+                try itemRepository.removeTag(item, tag: tag)
+            }
+            for tag in selectedTags where !currentTagIds.contains(tag.id) {
+                try itemRepository.addTag(item, tag: tag)
+            }
+
+            let hadAttachment = itemRepository.attachmentDataForDisplay(item) != nil
+            if attachmentData != nil || hadAttachment {
+                try itemRepository.updateAttachment(item, attachmentData: attachmentData)
+            }
+
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            dismiss()
+        } catch {
+            errorPresenter.present(error)
+        }
     }
 }
 
@@ -478,6 +688,7 @@ struct EditCollectionSheet: View {
 
     @State private var name: String
     @State private var errorPresenter = ErrorPresenter()
+    @FocusState private var isFocused: Bool
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
@@ -488,24 +699,35 @@ struct EditCollectionSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Name") {
-                    TextField("Collection name", text: $name)
-                }
+            VStack(spacing: Theme.Spacing.md) {
+                InputCard(fill: Theme.Colors.cardColor(index: 0, colorScheme, style: style)) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                        Text("Name")
+                            .font(Theme.Typography.metadata)
+                            .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
 
-                Section {
-                    Button("Delete Collection", role: .destructive) {
-                        do {
-                            try collectionRepository.delete(collection)
-                            dismiss()
-                        } catch {
-                            errorPresenter.present(error)
-                        }
+                        TextField("Collection name", text: $name)
+                            .font(Theme.Typography.body)
+                            .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+                            .focused($isFocused)
                     }
                 }
+
+                Button("Delete Collection", role: .destructive) {
+                    do {
+                        try collectionRepository.delete(collection)
+                        dismiss()
+                    } catch {
+                        errorPresenter.present(error)
+                    }
+                }
+                .font(Theme.Typography.buttonLabel)
+                .foregroundStyle(Theme.Colors.destructive(colorScheme, style: style))
+
+                Spacer()
             }
-            .scrollContentBackground(.hidden)
-            .background(Theme.Colors.background(colorScheme, style: style))
+            .padding(Theme.Spacing.md)
+            .background(Theme.Gradients.deepBackground(colorScheme).ignoresSafeArea())
             .navigationTitle("Edit Collection")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -527,6 +749,7 @@ struct EditCollectionSheet: View {
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
+            .onAppear { isFocused = true }
         }
         .errorToasts(errorPresenter)
     }

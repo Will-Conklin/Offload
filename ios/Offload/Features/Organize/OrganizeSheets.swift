@@ -15,18 +15,32 @@ struct CollectionFormSheet: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var name = ""
     @State private var errorPresenter = ErrorPresenter()
+    @FocusState private var isFocused: Bool
 
     private var style: ThemeStyle { themeManager.currentStyle }
 
     var body: some View {
         NavigationStack {
-            Form {
-                TextField(isStructured ? "Plan name" : "List name", text: $name)
+            VStack(spacing: 0) {
+                InputCard(fill: Theme.Colors.cardColor(index: 0, colorScheme, style: style)) {
+                    VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                        Text(isStructured ? "Plan Name" : "List Name")
+                            .font(Theme.Typography.metadata)
+                            .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
+
+                        TextField(isStructured ? "Plan name" : "List name", text: $name)
+                            .font(Theme.Typography.body)
+                            .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+                            .focused($isFocused)
+                    }
+                }
+                .padding(Theme.Spacing.md)
+
+                Spacer()
             }
+            .background(Theme.Gradients.deepBackground(colorScheme).ignoresSafeArea())
             .navigationTitle(isStructured ? "New Plan" : "New List")
             .navigationBarTitleDisplayMode(.inline)
-            .scrollContentBackground(.hidden)
-            .background(Theme.Colors.background(colorScheme, style: style))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -43,6 +57,7 @@ struct CollectionFormSheet: View {
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
+            .onAppear { isFocused = true }
         }
         .errorToasts(errorPresenter)
     }
@@ -69,41 +84,69 @@ struct CollectionTagPickerSheet: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section("Create New Tag") {
-                    HStack {
-                        TextField("Tag name", text: $newTagName)
-                            .focused($focused)
-                        Button("Add") {
-                            createTag()
-                        }
-                        .disabled(newTagName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                    }
-                }
+            ScrollView {
+                VStack(spacing: Theme.Spacing.md) {
+                    InputCard(fill: Theme.Colors.cardColor(index: 0, colorScheme, style: style)) {
+                        VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                            Text("Create New Tag")
+                                .font(Theme.Typography.metadata)
+                                .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
 
-                Section("Select Tags") {
-                    ForEach(allTags) { tag in
-                        Button {
-                            toggleTag(tag)
-                        } label: {
                             HStack {
-                                Text(tag.name)
-                                    .foregroundStyle(Theme.Colors.textPrimary(colorScheme, style: style))
-                                Spacer()
-                                if collection.tags.contains(where: { $0.id == tag.id }) {
-                                    AppIcon(name: Icons.check, size: 12)
-                                        .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                                TextField("Tag name", text: $newTagName)
+                                    .font(Theme.Typography.body)
+                                    .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+                                    .focused($focused)
+
+                                Button("Add") {
+                                    createTag()
+                                }
+                                .font(Theme.Typography.buttonLabelHeavy)
+                                .foregroundStyle(Theme.Colors.accentButtonText(colorScheme, style: style))
+                                .padding(.horizontal, Theme.Spacing.sm)
+                                .padding(.vertical, Theme.Spacing.chipVertical)
+                                .background(Theme.Colors.primary(colorScheme, style: style))
+                                .clipShape(Capsule())
+                                .disabled(newTagName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                                .opacity(newTagName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.5 : 1)
+                            }
+                        }
+                    }
+
+                    if !allTags.isEmpty {
+                        InputCard(fill: Theme.Colors.cardColor(index: 1, colorScheme, style: style)) {
+                            VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
+                                Text("Select Tags")
+                                    .font(Theme.Typography.metadata)
+                                    .foregroundStyle(Theme.Colors.cardTextSecondary(colorScheme, style: style))
+
+                                ForEach(allTags) { tag in
+                                    Button {
+                                        toggleTag(tag)
+                                    } label: {
+                                        HStack {
+                                            Text(tag.name)
+                                                .font(Theme.Typography.body)
+                                                .foregroundStyle(Theme.Colors.cardTextPrimary(colorScheme, style: style))
+                                            Spacer()
+                                            if collection.tags.contains(where: { $0.id == tag.id }) {
+                                                AppIcon(name: Icons.check, size: 14)
+                                                    .foregroundStyle(Theme.Colors.primary(colorScheme, style: style))
+                                            }
+                                        }
+                                        .padding(.vertical, Theme.Spacing.xs)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
                             }
                         }
                     }
                 }
+                .padding(Theme.Spacing.md)
             }
+            .background(Theme.Gradients.deepBackground(colorScheme).ignoresSafeArea())
             .navigationTitle("Tags")
             .navigationBarTitleDisplayMode(.inline)
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .background(Theme.Colors.background(colorScheme, style: style))
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
