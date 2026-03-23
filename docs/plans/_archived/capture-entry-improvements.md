@@ -20,7 +20,7 @@ Siri, no widgets. Every capture requires a full context switch into Offload.
 
 ### Phase 1: In-App Quick Capture (reduce taps inside the app)
 
-**1a. Single-Tap Capture with Inline Text Field**
+#### 1a. Single-Tap Capture with Inline Text Field
 
 Replace the current two-step tray (tap Offload → tap Quick Write) with a
 single-tap action that immediately opens `CaptureComposeView` in write mode.
@@ -33,7 +33,7 @@ down.
   starts immediately)
 - This eliminates one tap and one decision from the most common flow
 
-**1b. Persistent Capture Bar on CaptureView**
+#### 1b. Persistent Capture Bar on CaptureView
 
 Add a pinned text field at the top (or bottom) of CaptureView itself — like a
 chat input bar. Typing and hitting return creates an Item instantly without
@@ -46,7 +46,7 @@ item created. Users can enrich later from the inbox.
 - Voice mic button on the bar for quick dictation (uses system dictation, not
   custom voice recording — lower friction than the full voice flow)
 
-**1c. iPad Keyboard Shortcuts**
+#### 1c. iPad Keyboard Shortcuts
 
 For iPad users with keyboards:
 
@@ -89,14 +89,14 @@ without switching to Offload.
 
 Use the modern App Intents framework (iOS 16+) to enable:
 
-**3a. Siri Voice Capture**
+#### 3a. Siri Voice Capture
 
 - "Hey Siri, offload [thought]" → creates an Item with the spoken text
 - "Hey Siri, offload" (no text) → prompts "What would you like to capture?"
 - Confirmation shown inline in Siri UI; no app launch needed
 - Uses `AppIntent` with `@Parameter` for the content string
 
-**3b. Shortcuts Integration**
+#### 3b. Shortcuts Integration
 
 App Intents automatically surface in the Shortcuts app. Users can build
 automations like:
@@ -106,7 +106,7 @@ automations like:
 - Shortcut actions: "Create Capture", "List Recent Captures", "Search
   Captures"
 
-**3c. Spotlight / Action Button**
+#### 3c. Spotlight / Action Button
 
 - App Intents make the capture action discoverable via Spotlight search
   ("Offload a thought")
