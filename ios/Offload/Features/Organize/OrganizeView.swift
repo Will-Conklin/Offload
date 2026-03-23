@@ -121,7 +121,7 @@ struct OrganizeView: View {
             .sheet(isPresented: $showingSettings) {
                 AccountView(showsDismiss: true)
                     .environmentObject(themeManager)
-                    .environmentObject(AuthManager.shared)
+                    .environment(AuthManager.shared)
             }
             .sheet(isPresented: $showingSearch) {
                 OrganizeSearchView(searchQuery: $searchQuery)

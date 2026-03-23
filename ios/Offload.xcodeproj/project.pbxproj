@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DD10000200000002DD100002 /* OffloadShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CA10000100000001CA100001 /* OffloadShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DD10000300000003DD100003 /* OffloadWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CB10000100000001CB100001 /* OffloadWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		34B95ED32F04D5710005166B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,7 +26,36 @@
 			remoteGlobalIDString = 34B95EC22F04D56F0005166B;
 			remoteInfo = offload;
 		};
+		CA1000BB000000BBCA1000BB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34B95EBB2F04D56F0005166B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CA10000700000007CA100007;
+			remoteInfo = OffloadShareExtension;
+		};
+		CB1000BB000000BBCB1000BB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 34B95EBB2F04D56F0005166B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CB10000700000007CB100007;
+			remoteInfo = OffloadWidget;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DD10000100000001DD100001 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DD10000200000002DD100002 /* OffloadShareExtension.appex in Embed Foundation Extensions */,
+				DD10000300000003DD100003 /* OffloadWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		34B95EC32F04D56F0005166B /* Offload.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Offload.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -36,7 +70,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Offload.entitlements,
 			);
 			target = 34B95EC22F04D56F0005166B /* Offload */;
 		};
@@ -44,7 +77,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				OffloadShareExtension.entitlements,
 			);
 			target = CA10000700000007CA100007 /* OffloadShareExtension */;
 		};
@@ -52,7 +84,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				OffloadWidget.entitlements,
 			);
 			target = CB10000700000007CB100007 /* OffloadWidget */;
 		};
@@ -85,7 +116,7 @@
 			path = OffloadShareExtension;
 			sourceTree = "<group>";
 		};
-		CA10000300000003CA100003 /* OffloadShared (ShareExtension) */ = {
+		CA10000300000003CA100003 /* OffloadShared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = OffloadShared;
 			sourceTree = "<group>";
@@ -98,12 +129,12 @@
 			path = OffloadWidget;
 			sourceTree = "<group>";
 		};
-		CB10000300000003CB100003 /* OffloadShared (Widget) */ = {
+		CB10000300000003CB100003 /* OffloadShared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = OffloadShared;
 			sourceTree = "<group>";
 		};
-		CC10000200000002CC100002 /* OffloadShared (MainApp) */ = {
+		CC10000200000002CC100002 /* OffloadShared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = OffloadShared;
 			sourceTree = "<group>";
@@ -132,14 +163,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CA10000400000004CA100004 /* Frameworks (ShareExtension) */ = {
+		CA10000400000004CA100004 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CB10000400000004CB100004 /* Frameworks (Widget) */ = {
+		CB10000400000004CB100004 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -156,6 +187,7 @@
 				34B95ED52F04D5710005166B /* OffloadTests */,
 				34B95EDF2F04D5710005166B /* OffloadUITests */,
 				34B95EC42F04D56F0005166B /* Products */,
+				34CDA73A2F70D2BA004ED069 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -171,6 +203,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		34CDA73A2F70D2BA004ED069 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				CC10000200000002CC100002 /* OffloadShared */,
+				CA10000200000002CA100002 /* OffloadShareExtension */,
+				CA10000300000003CA100003 /* OffloadShared */,
+				CB10000200000002CB100002 /* OffloadWidget */,
+				CB10000300000003CB100003 /* OffloadShared */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -181,17 +225,17 @@
 				34B95EBF2F04D56F0005166B /* Sources */,
 				34B95EC02F04D56F0005166B /* Frameworks */,
 				34B95EC12F04D56F0005166B /* Resources */,
-				DD10000100000001DD100001 /* Embed App Extensions */,
+				DD10000100000001DD100001 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				CA1000CC000000CCCA1000CC /* PBXTargetDependency — ShareExtension */,
-				CB1000CC000000CCCB1000CC /* PBXTargetDependency — Widget */,
+				CA1000CC000000CCCA1000CC /* PBXTargetDependency */,
+				CB1000CC000000CCCB1000CC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				34B95EC52F04D56F0005166B /* Offload */,
-				CC10000200000002CC100002 /* OffloadShared (MainApp) */,
+				CC10000200000002CC100002 /* OffloadShared */,
 			);
 			name = Offload;
 			packageProductDependencies = (
@@ -199,52 +243,6 @@
 			productName = Offload;
 			productReference = 34B95EC32F04D56F0005166B /* Offload.app */;
 			productType = "com.apple.product-type.application";
-		};
-		CA10000700000007CA100007 /* OffloadShareExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = CA1000AA000000AACA1000AA /* Build configuration list for PBXNativeTarget "OffloadShareExtension" */;
-			buildPhases = (
-				CA10000500000005CA100005 /* Sources */,
-				CA10000400000004CA100004 /* Frameworks */,
-				CA10000600000006CA100006 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				CA10000200000002CA100002 /* OffloadShareExtension */,
-				CA10000300000003CA100003 /* OffloadShared (ShareExtension) */,
-			);
-			name = OffloadShareExtension;
-			packageProductDependencies = (
-			);
-			productName = OffloadShareExtension;
-			productReference = CA10000100000001CA100001 /* OffloadShareExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
-		CB10000700000007CB100007 /* OffloadWidget */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = CB1000AA000000AACB1000AA /* Build configuration list for PBXNativeTarget "OffloadWidget" */;
-			buildPhases = (
-				CB10000500000005CB100005 /* Sources */,
-				CB10000400000004CB100004 /* Frameworks */,
-				CB10000600000006CB100006 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				CB10000200000002CB100002 /* OffloadWidget */,
-				CB10000300000003CB100003 /* OffloadShared (Widget) */,
-			);
-			name = OffloadWidget;
-			packageProductDependencies = (
-			);
-			productName = OffloadWidget;
-			productReference = CB10000100000001CB100001 /* OffloadWidget.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 		34B95ED12F04D5710005166B /* OffloadTests */ = {
 			isa = PBXNativeTarget;
@@ -292,6 +290,52 @@
 			productReference = 34B95EDC2F04D5710005166B /* OffloadUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		CA10000700000007CA100007 /* OffloadShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA1000AA000000AACA1000AA /* Build configuration list for PBXNativeTarget "OffloadShareExtension" */;
+			buildPhases = (
+				CA10000500000005CA100005 /* Sources */,
+				CA10000400000004CA100004 /* Frameworks */,
+				CA10000600000006CA100006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CA10000200000002CA100002 /* OffloadShareExtension */,
+				CA10000300000003CA100003 /* OffloadShared */,
+			);
+			name = OffloadShareExtension;
+			packageProductDependencies = (
+			);
+			productName = OffloadShareExtension;
+			productReference = CA10000100000001CA100001 /* OffloadShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		CB10000700000007CB100007 /* OffloadWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB1000AA000000AACB1000AA /* Build configuration list for PBXNativeTarget "OffloadWidget" */;
+			buildPhases = (
+				CB10000500000005CB100005 /* Sources */,
+				CB10000400000004CB100004 /* Frameworks */,
+				CB10000600000006CB100006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CB10000200000002CB100002 /* OffloadWidget */,
+				CB10000300000003CB100003 /* OffloadShared */,
+			);
+			name = OffloadWidget;
+			packageProductDependencies = (
+			);
+			productName = OffloadWidget;
+			productReference = CB10000100000001CB100001 /* OffloadWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -300,7 +344,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2620;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					34B95EC22F04D56F0005166B = {
 						CreatedOnToolsVersion = 26.2;
@@ -354,21 +398,6 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		DD10000100000001DD100001 /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				DD10000200000002DD100002 /* OffloadShareExtension.appex in Embed App Extensions */,
-				DD10000300000003DD100003 /* OffloadWidget.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXResourcesBuildPhase section */
 		34B95EC12F04D56F0005166B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
@@ -391,14 +420,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CA10000600000006CA100006 /* Resources (ShareExtension) */ = {
+		CA10000600000006CA100006 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CB10000600000006CB100006 /* Resources (Widget) */ = {
+		CB10000600000006CB100006 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -406,19 +435,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXBuildFile section */
-		DD10000200000002DD100002 /* OffloadShareExtension.appex in Embed App Extensions */ = {
-			isa = PBXBuildFile;
-			fileRef = CA10000100000001CA100001 /* OffloadShareExtension.appex */;
-			settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); };
-		};
-		DD10000300000003DD100003 /* OffloadWidget.appex in Embed App Extensions */ = {
-			isa = PBXBuildFile;
-			fileRef = CB10000100000001CB100001 /* OffloadWidget.appex */;
-			settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); };
-		};
-/* End PBXBuildFile section */
 
 /* Begin PBXSourcesBuildPhase section */
 		34B95EBF2F04D56F0005166B /* Sources */ = {
@@ -442,14 +458,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CA10000500000005CA100005 /* Sources (ShareExtension) */ = {
+		CA10000500000005CA100005 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CB10000500000005CB100005 /* Sources (Widget) */ = {
+		CB10000500000005CB100005 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -457,23 +473,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXContainerItemProxy section (extensions) */
-		CA1000BB000000BBCA1000BB /* PBXContainerItemProxy — ShareExtension */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 34B95EBB2F04D56F0005166B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = CA10000700000007CA100007;
-			remoteInfo = OffloadShareExtension;
-		};
-		CB1000BB000000BBCB1000BB /* PBXContainerItemProxy — Widget */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 34B95EBB2F04D56F0005166B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = CB10000700000007CB100007;
-			remoteInfo = OffloadWidget;
-		};
-/* End PBXContainerItemProxy section (extensions) */
 
 /* Begin PBXTargetDependency section */
 		34B95ED42F04D5710005166B /* PBXTargetDependency */ = {
@@ -486,15 +485,15 @@
 			target = 34B95EC22F04D56F0005166B /* Offload */;
 			targetProxy = 34B95EDD2F04D5710005166B /* PBXContainerItemProxy */;
 		};
-		CA1000CC000000CCCA1000CC /* PBXTargetDependency — ShareExtension */ = {
+		CA1000CC000000CCCA1000CC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CA10000700000007CA100007 /* OffloadShareExtension */;
-			targetProxy = CA1000BB000000BBCA1000BB /* PBXContainerItemProxy — ShareExtension */;
+			targetProxy = CA1000BB000000BBCA1000BB /* PBXContainerItemProxy */;
 		};
-		CB1000CC000000CCCB1000CC /* PBXTargetDependency — Widget */ = {
+		CB1000CC000000CCCB1000CC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CB10000700000007CB100007 /* OffloadWidget */;
-			targetProxy = CB1000BB000000BBCB1000BB /* PBXContainerItemProxy — Widget */;
+			targetProxy = CB1000BB000000BBCB1000BB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -558,6 +557,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -615,6 +615,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -697,6 +698,90 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		34B95EEA2F04D5710005166B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K86HVH894Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = wc.OffloadTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Offload.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Offload";
+			};
+			name = Debug;
+		};
+		34B95EEB2F04D5710005166B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K86HVH894Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = wc.OffloadTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Offload.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Offload";
+			};
+			name = Release;
+		};
+		34B95EED2F04D5710005166B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K86HVH894Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = wc.OffloadUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Offload;
+			};
+			name = Debug;
+		};
+		34B95EEE2F04D5710005166B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K86HVH894Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = wc.OffloadUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Offload;
 			};
 			name = Release;
 		};
@@ -789,90 +874,6 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		34B95EEA2F04D5710005166B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = K86HVH894Y;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = wc.OffloadTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Offload.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Offload";
-			};
-			name = Debug;
-		};
-		34B95EEB2F04D5710005166B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = K86HVH894Y;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = wc.OffloadTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Offload.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Offload";
-			};
-			name = Release;
-		};
-		34B95EED2F04D5710005166B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = K86HVH894Y;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = wc.OffloadUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Offload;
-			};
-			name = Debug;
-		};
-		34B95EEE2F04D5710005166B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = K86HVH894Y;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = wc.OffloadUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Offload;
 			};
 			name = Release;
 		};

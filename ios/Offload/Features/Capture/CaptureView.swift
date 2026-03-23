@@ -138,7 +138,7 @@ struct CaptureView: View {
             .sheet(isPresented: $showingSettings) {
                 AccountView(showsDismiss: true)
                     .environmentObject(themeManager)
-                    .environmentObject(AuthManager.shared)
+                    .environment(AuthManager.shared)
             }
             .sheet(item: $selectedItem) { item in
                 CaptureDetailView(item: item)

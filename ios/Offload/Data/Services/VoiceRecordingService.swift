@@ -184,9 +184,13 @@ final class VoiceRecordingService {
             object: AVAudioSession.sharedInstance(),
             queue: nil
         ) { [weak self] notification in
+            guard let userInfo = notification.userInfo,
+                  let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  let interruptionType = AVAudioSession.InterruptionType(rawValue: typeValue)
+            else { return }
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                self.handleAudioInterruption(notification)
+                self.handleAudioInterruption(type: interruptionType, rawValue: typeValue)
             }
         }
 
@@ -253,12 +257,7 @@ final class VoiceRecordingService {
 
     // MARK: - Audio Interruption
 
-    private func handleAudioInterruption(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-              let type = AVAudioSession.InterruptionType(rawValue: typeValue)
-        else { return }
-
+    private func handleAudioInterruption(type: AVAudioSession.InterruptionType, rawValue: UInt) {
         switch type {
         case .began:
             AppLogger.voice.warning("Audio session interrupted — stopping recording")
@@ -266,7 +265,7 @@ final class VoiceRecordingService {
         case .ended:
             AppLogger.voice.info("Audio interruption ended")
         @unknown default:
-            AppLogger.voice.warning("Unknown audio interruption type: \(typeValue, privacy: .public)")
+            AppLogger.voice.warning("Unknown audio interruption type: \(rawValue, privacy: .public)")
         }
     }
 

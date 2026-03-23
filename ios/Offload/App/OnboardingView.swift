@@ -12,7 +12,7 @@ struct OnboardingView: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var themeManager: ThemeManager
-    @EnvironmentObject private var authManager: AuthManager
+    @Environment(AuthManager.self) private var authManager
     @Environment(\.aiBackendClient) private var backendClient
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
