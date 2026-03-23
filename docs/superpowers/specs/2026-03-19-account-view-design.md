@@ -214,7 +214,7 @@ Scrollable `NavigationStack` with flat card sections (each section its own borde
 ## Error Handling
 
 | Scenario | Behavior |
-|----------|----------|
+| ---------- | ---------- |
 | User cancels Apple sign-in | Silently stay on signed-out screen |
 | Apple auth OK, backend fails | Toast: "Couldn't connect to server. Try again later." Stay signed out |
 | Network timeout on sign-in | Same toast, no retry loop |
@@ -228,7 +228,7 @@ Scrollable `NavigationStack` with flat card sections (each section its own borde
 ## Files Changed
 
 | Action | File |
-|--------|------|
+| -------- | ------ |
 | Create | `ios/Offload/Data/Services/AuthManager.swift` |
 | Rewrite | `ios/Offload/Features/Settings/AccountView.swift` |
 | Create | `ios/Offload/Features/Settings/TagManagementView.swift` — extracted from SettingsView |

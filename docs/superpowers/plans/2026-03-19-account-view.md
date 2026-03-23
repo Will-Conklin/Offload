@@ -17,7 +17,7 @@
 ### Backend (new/modified)
 
 | File | Responsibility |
-|------|---------------|
+| ------ | --------------- |
 | `backend/api/src/offload_backend/security.py` | Add `apple_user_id` to SessionClaims, `allow_expired` to decode() |
 | `backend/api/src/offload_backend/config.py` | Add `OFFLOAD_APPLE_BUNDLE_ID` setting |
 | `backend/api/src/offload_backend/schemas.py` | Rename `AnonymousSessionResponse` → `SessionResponse`, add Apple/refresh request schemas |
@@ -32,7 +32,7 @@
 ### iOS (new/modified)
 
 | File | Responsibility |
-|------|---------------|
+| ------ | --------------- |
 | `ios/Offload/Data/Networking/AIBackendContracts.swift` | Add Apple/refresh contracts, rename response |
 | `ios/Offload/Data/Networking/AIBackendClient.swift` | Add protocol method, auth-aware refresh |
 | `ios/Offload/Data/Networking/KeychainSessionTokenStore.swift` | New: Keychain-backed token persistence |
@@ -48,6 +48,7 @@
 ## Task 1: Extend SessionClaims with optional apple_user_id
 
 **Files:**
+
 - Modify: `backend/api/src/offload_backend/security.py:29-33` (SessionClaims), `:60-67` (issue_session), `:69-88` (encode), `:90-141` (decode)
 - Test: `backend/api/tests/test_session_token_v2.py`
 
@@ -245,6 +246,7 @@ git commit -m "feat(auth): extend SessionClaims with optional apple_user_id and 
 ## Task 2: Rename AnonymousSessionResponse → SessionResponse and add config
 
 **Files:**
+
 - Modify: `backend/api/src/offload_backend/schemas.py:22-24`
 - Modify: `backend/api/src/offload_backend/routers/sessions.py:19`
 - Modify: `backend/api/src/offload_backend/config.py`
@@ -316,6 +318,7 @@ git commit -m "refactor(auth): rename AnonymousSessionResponse to SessionRespons
 ## Task 3: Add PyJWT dependency and Apple JWKS verification
 
 **Files:**
+
 - Modify: `backend/api/pyproject.toml`
 - Create: `backend/api/src/offload_backend/apple_jwt.py`
 - Test: `backend/api/tests/test_apple_jwt.py`
@@ -603,6 +606,7 @@ git commit -m "feat(auth): add Apple identity token JWKS verification module"
 ## Task 4: Apple session and refresh endpoints
 
 **Files:**
+
 - Create: `backend/api/src/offload_backend/routers/sessions_apple.py`
 - Modify: `backend/api/src/offload_backend/main.py:84-89`
 - Create: `backend/api/tests/test_sessions_apple.py`
@@ -948,6 +952,7 @@ git commit -m "feat(auth): add Apple session and token refresh endpoints"
 ## Task 5: iOS contract updates (rename + new types)
 
 **Files:**
+
 - Modify: `ios/Offload/Data/Networking/AIBackendContracts.swift:20-28`
 - Modify: `ios/Offload/Data/Networking/AIBackendClient.swift` (references to AnonymousSessionResponse)
 
@@ -1040,6 +1045,7 @@ git commit -m "feat(auth): add Apple session and refresh contracts, rename Sessi
 ## Task 6: KeychainSessionTokenStore
 
 **Files:**
+
 - Create: `ios/Offload/Data/Networking/KeychainSessionTokenStore.swift`
 
 - [ ] **Step 1: Create KeychainSessionTokenStore**
@@ -1145,6 +1151,7 @@ git commit -m "feat(auth): add Keychain-backed SessionTokenStore"
 ## Task 7: AuthManager
 
 **Files:**
+
 - Create: `ios/Offload/Data/Services/AuthManager.swift`
 
 - [ ] **Step 1: Create AuthManager**
@@ -1317,6 +1324,7 @@ git commit -m "feat(auth): add AuthManager with Sign in with Apple lifecycle"
 ## Task 8: Implement createAppleSession and auth-aware refresh in NetworkAIBackendClient
 
 **Files:**
+
 - Modify: `ios/Offload/Data/Networking/AIBackendClient.swift:131-137` (protocol), `:167-178` (createAnonymousSession), `:338-345` (refreshSession)
 
 - [ ] **Step 1: Implement createAppleSession in NetworkAIBackendClient**
@@ -1396,6 +1404,7 @@ git commit -m "feat(auth): add Apple session creation and auth-aware token refre
 ## Task 9: Extract TagManagementView from SettingsView
 
 **Files:**
+
 - Create: `ios/Offload/Features/Settings/TagManagementView.swift`
 - Reference: `ios/Offload/Features/Settings/SettingsView.swift:100-225`
 
@@ -1441,6 +1450,7 @@ git commit -m "refactor(settings): extract TagManagementView and AddTagSheet to 
 ## Task 10: Rewrite AccountView
 
 **Files:**
+
 - Rewrite: `ios/Offload/Features/Settings/AccountView.swift`
 
 - [ ] **Step 1: Rewrite AccountView with signed-out and signed-in states**
@@ -1451,6 +1461,7 @@ Replace the entire contents of `AccountView.swift`. The view switches on `AuthMa
 - **Signed in**: scrollable flat card sections (profile, usage, cloud AI, appearance, tags, about, sign out)
 
 Key implementation notes:
+
 - Use `@EnvironmentObject private var authManager: AuthManager`
 - Use `@EnvironmentObject private var themeManager: ThemeManager`
 - Use `@Environment(\.colorScheme) private var colorScheme`
@@ -1488,6 +1499,7 @@ git commit -m "feat(account): rewrite AccountView with auth states and full sect
 ## Task 11: Wire up AuthManager and clean up SettingsView
 
 **Files:**
+
 - Modify: `ios/Offload/App/AppRootView.swift`
 - Modify: `ios/Offload/App/MainTabView.swift`
 - Delete: `ios/Offload/Features/Settings/SettingsView.swift`
@@ -1553,6 +1565,7 @@ git commit -m "feat(account): wire AuthManager injection, replace InMemorySessio
 ## Task 12: Final integration test
 
 **Files:**
+
 - All files from previous tasks
 
 - [ ] **Step 1: Run full backend test suite**

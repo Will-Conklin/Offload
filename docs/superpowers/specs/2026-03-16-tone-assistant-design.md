@@ -140,7 +140,7 @@ struct ToneTransformResponse: Codable {
 
 ### API contract
 
-```
+```text
 POST /v1/ai/tone/transform
 Request:  { input_text: str, tone: str, context_hints: [str] }
 Response: { transformed_text: str, provider: str, latency_ms: int,
@@ -181,6 +181,7 @@ Matches `DefaultBreakdownService` / `DefaultDecisionFatigueService` init signatu
 ### Cloud path
 
 `DefaultToneAssistantService.transformTone()`:
+
 1. Increments `usageStore` counter for `"tone"`
 2. If `consentStore.isCloudAIEnabled`: calls backend, returns `.cloud` result
 3. On `AIBackendClientError.shouldFallbackToOnDevice`: falls back to on-device
@@ -225,16 +226,19 @@ final class ToneAssistantSheetViewModel {
 ### `ToneAssistantSheet` phases
 
 **Phase 1 — Select Tone:**
+
 - Header: "Tone Assistant" + subtitle
 - Original capture shown in a muted card
 - 2-column grid of 6 tone tiles (icon + name + one-line description)
 - Tapping a tile transitions to `.generating`
 
 **Generating state** (`isGenerating == true`, either phase):
+
 - Selected tone tile highlighted with a spinner overlay
 - Other tone tiles disabled
 
 **Phase 2 — Result** (`phase == .result`):
+
 - Original capture in a muted card
 - Result in an accent-bordered card with tone label + source badge (cloud/on-device)
 - Two action buttons: **Copy** (primary, accent fill) and **Save** (secondary, outlined)
@@ -252,9 +256,11 @@ final class ToneAssistantSheetViewModel {
 `ItemCard` context menu (in `CaptureItemCard.swift`) — "Rewrite Tone" action (icon: `wand.and.stars`), same placement as "Break Down", "Brain Dump", "Reduce Decision Fatigue". Accessibility action added using `AdvancedAccessibilityActionPolicy.toneActionName`.
 
 `CaptureView` adds:
+
 ```swift
 @State private var toneItem: Item?
 ```
+
 and a `.sheet(item: $toneItem)` presenting `ToneAssistantSheet`.
 
 ---
@@ -280,6 +286,7 @@ Route decorator: `@router.post("/ai/tone/transform")` — router included in `ma
 ### iOS unit tests
 
 **`ToneAssistantServiceTests`:**
+
 - Each of 6 tones produces non-empty output via `SimpleOnDeviceToneTransformer`
 - `formal` tone expands "can't" → "cannot"
 - `concise` tone returns only first sentence
@@ -288,6 +295,7 @@ Route decorator: `@router.post("/ai/tone/transform")` — router included in `ma
 - Usage counter incremented on each call
 
 **`ToneAssistantSheetViewModelTests`:**
+
 - `isGenerating` true during generation, false on completion
 - Phase transitions: `.selectTone` → `.result` on success
 - Error thrown by `generate()` is caught in the View and surfaced via `ErrorPresenter`; `isGenerating` returns to false, phase stays `.selectTone`

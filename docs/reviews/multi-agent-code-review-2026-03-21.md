@@ -8,7 +8,7 @@ Findings are cross-referenced and de-duplicated below.
 ## Executive Summary
 
 | Agent | Focus | Issues Found | Critical/High |
-|-------|-------|-------------|----------------|
+| ------- | ------- | ------------- | ---------------- |
 | Agent 1 | Maintainability | 16 | 4 HIGH |
 | Agent 2 | Security | 23 | 3 CRITICAL, 4 HIGH |
 | Agent 3 | Reliability | 18 | 3 CRITICAL, 5 HIGH |
@@ -92,7 +92,7 @@ These issues were independently identified by 3+ agents:
 ### Security (Agent 2)
 
 | ID | Finding | Severity |
-|----|---------|----------|
+| ---- | --------- | ---------- |
 | S1 | Keychain write failures ignored | CRITICAL |
 | S2 | X-Forwarded-For spoofing bypasses rate limits | MEDIUM |
 | S3 | Install ID rotation bypasses per-install rate limits | MEDIUM |
@@ -105,7 +105,7 @@ These issues were independently identified by 3+ agents:
 ### Reliability (Agent 3)
 
 | ID | Finding | Severity |
-|----|---------|----------|
+| ---- | --------- | ---------- |
 | R1 | Force unwrap crash in `fetchCompletedThisWeek` | CRITICAL |
 | R2 | `fatalError()` in `APIClient.init` and `PersistenceController` | CRITICAL |
 | R3 | Attachment file deletion race after save | HIGH |
@@ -119,7 +119,7 @@ These issues were independently identified by 3+ agents:
 ### Maintainability (Agent 1)
 
 | ID | Finding | Severity |
-|----|---------|----------|
+| ---- | --------- | ---------- |
 | M1 | Backend AI endpoint handler pattern duplicated 3x | HIGH |
 | M2 | OpenAI retry logic duplicated 3x (50+ lines each) | HIGH |
 | M3 | iOS pagination ViewModel logic duplicated 3x | HIGH |
@@ -132,7 +132,7 @@ These issues were independently identified by 3+ agents:
 ### Edge Cases (Agent 4)
 
 | ID | Finding | Severity |
-|----|---------|----------|
+| ---- | --------- | ---------- |
 | E1 | No 401 token refresh flow | HIGH |
 | E2 | Voice recording interruption not handled | HIGH |
 | E3 | No provider failover (OpenAI down = all requests fail) | HIGH |
@@ -147,7 +147,7 @@ These issues were independently identified by 3+ agents:
 ### Test Coverage (Agent 5)
 
 | ID | Finding | Severity |
-|----|---------|----------|
+| ---- | --------- | ---------- |
 | T1 | `AttachmentStorageService` — 0% coverage, handles file I/O | HIGH |
 | T2 | All primary ViewModels — 0% coverage | HIGH |
 | T3 | All primary Views — 0% coverage (CaptureView 433 lines) | HIGH |
@@ -204,28 +204,28 @@ Areas where agents disagreed or refined each other's findings:
 
 ### Phase 2: High-Priority Improvements (next sprint)
 
-6. Extract OpenAI retry logic into shared `_execute_with_retry()` method
-7. Extract AI service orchestration into `AIServiceBase` class
-8. Extract pagination logic into reusable `PaginatedViewModel<T>`
-9. Add tests for `AttachmentStorageService` (path traversal, I/O errors)
-10. Add tests for primary ViewModels (pagination, state management)
-11. Add provider failover to backend (OpenAI → Anthropic)
-12. Validate `X-Forwarded-For` against trusted proxy list
+1. Extract OpenAI retry logic into shared `_execute_with_retry()` method
+2. Extract AI service orchestration into `AIServiceBase` class
+3. Extract pagination logic into reusable `PaginatedViewModel<T>`
+4. Add tests for `AttachmentStorageService` (path traversal, I/O errors)
+5. Add tests for primary ViewModels (pagination, state management)
+6. Add provider failover to backend (OpenAI → Anthropic)
+7. Validate `X-Forwarded-For` against trusted proxy list
 
 ### Phase 3: Medium-Priority (next release)
 
-13. Add rate limit retry with exponential backoff on iOS client
-14. Enforce max input chars on iOS compose view
-15. Add cycle detection for `CollectionItem.parentId`
-16. Split `ItemRepository` into query/mutation/attachment layers
-17. Add integration tests for capture → organize flow
-18. Add backend rate limiting enforcement tests
-19. Log and parse provider error response bodies
+1. Add rate limit retry with exponential backoff on iOS client
+2. Enforce max input chars on iOS compose view
+3. Add cycle detection for `CollectionItem.parentId`
+4. Split `ItemRepository` into query/mutation/attachment layers
+5. Add integration tests for capture → organize flow
+6. Add backend rate limiting enforcement tests
+7. Log and parse provider error response bodies
 
 ### Phase 4: Ongoing Hygiene
 
-20. Centralize magic numbers (`pageSize`, timeouts) into config
-21. Standardize repository method naming
-22. Split `Components.swift` (1,141 lines) into logical modules
-23. Add accessibility tests
-24. Address locale/i18n hardcoded strings
+1. Centralize magic numbers (`pageSize`, timeouts) into config
+2. Standardize repository method naming
+3. Split `Components.swift` (1,141 lines) into logical modules
+4. Add accessibility tests
+5. Address locale/i18n hardcoded strings
