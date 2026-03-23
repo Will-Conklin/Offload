@@ -11,7 +11,7 @@ import UIKit
 struct AppRootView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var themeManager: ThemeManager
-    @EnvironmentObject private var authManager: AuthManager
+    @Environment(AuthManager.self) private var authManager
     @State private var repositories: RepositoryBundle?
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     private let launchCorrelationId = UUID().uuidString
@@ -30,7 +30,7 @@ struct AppRootView: View {
             )) {
                 OnboardingView(onComplete: { hasCompletedOnboarding = true })
                     .environmentObject(themeManager)
-                    .environmentObject(authManager)
+                    .environment(authManager)
             }
             .task {
                 let startupStart = Date()

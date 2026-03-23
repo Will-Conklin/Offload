@@ -3,6 +3,7 @@
 // Governed by: CLAUDE.md
 
 import Foundation
+import Observation
 
 // MARK: - Auth State
 
@@ -43,11 +44,12 @@ enum KeychainAuthStore {
 
 /// Manages optional Sign In with Apple state. The anonymous path is always available;
 /// signing in provides a stable Apple-ID-backed identity tied to the backend session.
+@Observable
 @MainActor
-final class AuthManager: ObservableObject {
+final class AuthManager {
     static let shared = AuthManager()
 
-    @Published private(set) var authState: AuthState
+    private(set) var authState: AuthState
 
     init() {
         if let identity = KeychainAuthStore.load() {
