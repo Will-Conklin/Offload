@@ -3,6 +3,7 @@
 // Governed by: CLAUDE.md
 
 import Foundation
+import OSLog
 import Security
 
 // MARK: - SessionTokenStore Protocol

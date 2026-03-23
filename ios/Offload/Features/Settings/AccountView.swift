@@ -12,7 +12,7 @@ struct AccountView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var themeManager: ThemeManager
-    @EnvironmentObject private var authManager: AuthManager
+    @Environment(AuthManager.self) private var authManager
     @Environment(\.aiBackendClient) private var backendClient
     @Environment(\.usageCounterStore) private var usageStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -381,5 +381,5 @@ private struct EditNameSheet: View {
 #Preview {
     AccountView()
         .environmentObject(ThemeManager.shared)
-        .environmentObject(AuthManager.shared)
+        .environment(AuthManager.shared)
 }

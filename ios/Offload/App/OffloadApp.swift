@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct OffloadApp: App {
     @StateObject private var themeManager = ThemeManager.shared
-    @StateObject private var authManager = AuthManager.shared
+    @State private var authManager = AuthManager.shared
 
     init() {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
@@ -22,7 +22,7 @@ struct OffloadApp: App {
         WindowGroup {
             AppRootView()
                 .environmentObject(themeManager)
-                .environmentObject(authManager)
+                .environment(authManager)
         }
         .modelContainer(PersistenceController.shared)
     }
