@@ -167,7 +167,7 @@ struct CommunicationDraftSheet: View {
                 let service = DefaultCommunicationDraftService(
                     backendClient: NetworkAIBackendClient(),
                     consentStore: UserDefaultsCloudAIConsentStore(),
-                    usageStore: QuotaStore.shared
+                    usageStore: QuotaStore()
                 )
                 let result = try await service.draftCommunication(
                     inputText: item.content,
