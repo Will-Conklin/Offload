@@ -256,6 +256,10 @@ private final class MockDecisionBackendClient: AIBackendClient {
     func reconcileUsage(request _: UsageReconcileRequest) async throws -> UsageReconcileResponse {
         throw AIBackendClientError.transport
     }
+
+    func draftCommunication(request _: CommunicationDraftRequest) async throws -> CommunicationDraftResponse {
+        throw AIBackendClientError.transport
+    }
 }
 
 private final class TestDecisionConsentStore: CloudAIConsentStore {
