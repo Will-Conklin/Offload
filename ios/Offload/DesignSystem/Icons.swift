@@ -63,4 +63,14 @@ enum Icons {
     static let typeNote = "note.text"
     static let typeIdea = "lightbulb"
     static let typeDecision = "arrow.triangle.branch"
+    static let typeConcern = "exclamationmark.triangle"
+    static let typeReference = "doc.text"
+    static let typeCommunication = "phone.bubble"
+
+    // MARK: - Communication Channels
+
+    static let channelCall = "phone"
+    static let channelText = "message"
+    static let channelEmail = "envelope"
+    static let contactLink = "person.crop.circle"
 }

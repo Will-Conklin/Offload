@@ -157,6 +157,10 @@ private final class MockBrainDumpBackendClient: AIBackendClient {
     func reconcileUsage(request _: UsageReconcileRequest) async throws -> UsageReconcileResponse {
         throw AIBackendClientError.transport
     }
+
+    func draftCommunication(request _: CommunicationDraftRequest) async throws -> CommunicationDraftResponse {
+        throw AIBackendClientError.transport
+    }
 }
 
 private final class TestBrainDumpConsentStore: CloudAIConsentStore {

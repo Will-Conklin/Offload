@@ -91,6 +91,9 @@ enum ItemType: String, Codable, CaseIterable {
     case note
     case idea
     case decision
+    case concern
+    case reference
+    case communication
 
     var displayName: String {
         switch self {
@@ -99,6 +102,9 @@ enum ItemType: String, Codable, CaseIterable {
         case .note: "Note"
         case .idea: "Idea"
         case .decision: "Decision"
+        case .concern: "Concern"
+        case .reference: "Reference"
+        case .communication: "Communication"
         }
     }
 
@@ -109,6 +115,9 @@ enum ItemType: String, Codable, CaseIterable {
         case .note: Icons.typeNote
         case .idea: Icons.typeIdea
         case .decision: Icons.typeDecision
+        case .concern: Icons.typeConcern
+        case .reference: Icons.typeReference
+        case .communication: Icons.typeCommunication
         }
     }
 
@@ -146,6 +155,16 @@ extension Item {
             var metadataValue = typedMetadata
             metadataValue.attachmentFilePath = newValue
             typedMetadata = metadataValue
+        }
+    }
+
+    /// Communication metadata for items with type `.communication`.
+    var communicationMetadata: CommunicationMetadata? {
+        get { typedMetadata.communicationMetadata }
+        set {
+            var meta = typedMetadata
+            meta.communicationMetadata = newValue
+            typedMetadata = meta
         }
     }
 
