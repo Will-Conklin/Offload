@@ -3,8 +3,32 @@
 # Role: Documentation navigation index (human reference only)
 # Note: Agents should use docs/plans/backlog.md directly
 
-version: 2
+version: 3
 sections:
+  - id: product
+    title: Product
+    description: Vision, philosophy, features, and data model.
+    documents:
+      - id: product
+        title: Product Philosophy
+        path: product.md
+
+  - id: architecture
+    title: Architecture
+    description: Tech stack, navigation, data model, CI/CD, backend/privacy.
+    documents:
+      - id: architecture
+        title: Architecture
+        path: architecture.md
+
+  - id: design
+    title: Design
+    description: UX patterns, testing checklists, and accessibility guidance.
+    documents:
+      - id: design
+        title: Design
+        path: design.md
+
   - id: plans
     title: Implementation Plans
     description: Unplanned items backlog and active plan docs.
@@ -12,3 +36,15 @@ sections:
       - id: backlog
         title: Backlog
         path: plans/backlog.md
+      - id: testing-polish
+        title: Testing & Polish
+        path: plans/plan-testing-polish.md
+      - id: release-prep
+        title: Release Prep
+        path: plans/plan-release-prep.md
+      - id: advanced-accessibility
+        title: Advanced Accessibility
+        path: plans/plan-advanced-accessibility.md
+      - id: uat-checklist
+        title: UAT Checklist
+        path: plans/uat-checklist.md

@@ -67,7 +67,7 @@ graph LR
 2. **Data Layer**: Repositories provide CRUD operations and queries
 3. **Feature Layer**: Views use `@Query` for reactive data or repositories for complex operations
 
-See [../docs/adrs/adr-0001-technology-stack-and-architecture.md](../docs/adrs/adr-0001-technology-stack-and-architecture.md) for detailed architecture decisions.
+See [../docs/architecture.md](../docs/architecture.md) for detailed architecture decisions.
 
 ## Building & Running
 
@@ -84,4 +84,4 @@ Run tests with either:
 - `just test` from the repository root
 - ⌘U in Xcode
 
-See `docs/design/testing/README.md` for testing guides and checklists.
+See [../docs/design.md](../docs/design.md) for testing guides and checklists.

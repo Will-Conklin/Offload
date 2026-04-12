@@ -106,13 +106,14 @@ Local testing: `just test` sources these values automatically.
   - `config.py` — Pydantic settings with OFFLOAD_* env vars
   - `dependencies.py` — FastAPI dependency injection
   - `security.py` — Session token v2 management (JWT with key rotation)
-  - `session_security.py` — Startup secret validation and environment checks
+  - `apple_auth.py` — Apple Sign-In authentication
   - `session_rate_limiter.py` — Session issuance rate limiting
   - `usage_store.py` — Usage tracking persistence
+  - `user_store.py` — User persistence
   - `schemas.py` — Pydantic request/response models
   - `errors.py` — API exception types and error handlers
-  - `routers/` — FastAPI route modules (breakdown, usage, health, draft)
-  - `providers/` — External service adapters (OpenAI with retry)
+  - `routers/` — FastAPI route modules (auth, sessions, breakdown, braindump, decide, execfunction, draft, usage, health)
+  - `providers/` — External service adapters (OpenAI, Anthropic)
 
 **Documentation:**
 

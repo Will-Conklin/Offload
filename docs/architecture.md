@@ -29,7 +29,7 @@ ios/Offload/
 | Concern | Choice | Rationale |
 | --- | --- | --- |
 | Framework | Python + FastAPI | Fast iteration, clean async support |
-| Provider | OpenAI (single) behind adapter interface | Swap-safe for future multi-provider |
+| Provider | OpenAI + Anthropic behind adapter interface | Multi-provider via `OFFLOAD_AI_PROVIDER` setting |
 | Identity | Anonymous device session tokens | No account required at MVP |
 | Persistence | SQLite for usage counts only | Zero content retention |
 
@@ -133,7 +133,12 @@ xcodebuild test -project ios/Offload.xcodeproj -scheme Offload \
 | --- | --- |
 | `GET /v1/health` | Health + build metadata |
 | `POST /v1/sessions/anonymous` | Issue anonymous device session token |
-| `POST /v1/ai/breakdown/generate` | Smart Task Breakdown (cloud fallback) |
+| `POST /v1/auth/apple` | Apple Sign-In authentication |
+| `POST /v1/ai/breakdown/generate` | Smart Task Breakdown |
+| `POST /v1/ai/braindump/compile` | Brain Dump Compiler |
+| `POST /v1/ai/decide/recommend` | Decision Fatigue Reducer |
+| `POST /v1/ai/executive-function/prompt` | Executive Function Prompts |
+| `POST /v1/ai/draft/generate` | Communication Draft |
 | `POST /v1/usage/reconcile` | Reconcile local provisional usage with server |
 
 Protected endpoints require a bearer session token.
@@ -169,7 +174,7 @@ Protected endpoints require a bearer session token.
 
 ### Provider resilience
 
-- Single provider (OpenAI) behind a protocol adapter for swap safety
+- OpenAI and Anthropic providers behind a protocol adapter (`OFFLOAD_AI_PROVIDER` selects active provider)
 - Provider errors normalized to API-level status codes
 - Bounded retries with jitter for transient failures
 

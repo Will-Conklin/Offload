@@ -153,7 +153,7 @@ Mid-Century Modern aesthetic with `Theme.*` tokens for all colors, fonts, spacin
 
 ---
 
-## AI Features (Planned)
+## AI Features
 
 All AI features follow these invariants:
 
@@ -163,33 +163,45 @@ All AI features follow these invariants:
 - Non-judgmental tone throughout; no urgency or pressure language
 - Respect `accessibilityReduceMotion` in all animated feedback
 
-### Smart Task Breakdown
+### Smart Task Breakdown (shipped)
 
-Decomposes an overwhelming task into subtasks with adjustable granularity (1–5 scale from "just the main steps" to "tiny micro-steps"). Users review and edit subtasks before approving. Approved breakdown creates a structured Collection. Supports saving breakdown templates for recurring task types.
+Decomposes an overwhelming task into subtasks with adjustable granularity (1–5 scale from "just the main steps" to "tiny micro-steps"). Users review and edit subtasks before approving. Approved breakdown creates a structured Collection. Template persistence deferred post-launch.
 
 **Cloud endpoint:** `POST /v1/ai/breakdown/generate`
 
-### Brain Dump Compiler
+### Brain Dump Compiler (shipped)
 
 When a capture exceeds ~75 words, offers to extract and categorize distinct items (task, question, decision, idea, concern, reference) from the unstructured text. Suggests Collection groupings. User reviews, edits categories, and approves — then Collections are created. Original capture is preserved.
 
-### Recurring Task Intelligence
+**Cloud endpoint:** `POST /v1/ai/braindump/compile`
+
+### Decision Fatigue Reducer (shipped)
+
+Surfaces 2–3 "good enough" recommendations when a user faces competing options. Asks max 1–2 clarifying questions (or zero in "just pick for me" mode). Provides brief rationale for each suggestion. Fully on-device fallback for offline use.
+
+**Cloud endpoint:** `POST /v1/ai/decide/recommend`
+
+### Executive Function Prompts (planned)
+
+Conversational scaffolding for users who are stuck. Detects challenge type (initiation, overwhelm, time blindness, decision paralysis) via clarifying questions, then offers concrete micro-strategies. Learns which strategies lead to task completion over time. User-initiated only — never interrupts.
+
+**Cloud endpoint:** `POST /v1/ai/executive-function/prompt`
+
+### Communication Draft (shipped)
+
+Generates communication-ready drafts from captures with configurable tone (formal, friendly, concise, empathetic, direct, neutral). Copy/share without saving. Does not auto-send; always user-controlled.
+
+**Cloud endpoint:** `POST /v1/ai/draft/generate`
+
+### Recurring Task Intelligence (planned)
 
 Detects natural completion patterns (requires ≥3 completions). Gently surfaces suggestions at learned intervals — never rigid schedules, never "overdue" language. Learns from snooze/dismiss timing to refine future suggestion timing. Users can view, edit, or disable detected patterns in Settings.
 
 **All processing on-device; no cloud requirement.**
 
-### Tone Assistant
+### Tone Assistant (planned)
 
 Transforms captures into communication-ready messages in different tones (formal, friendly, concise, empathetic, direct, neutral). Supports saving named presets. Multiple simultaneous previews. Copy/share without saving transformation. Does not auto-send; always user-controlled.
-
-### Executive Function Prompts
-
-Conversational scaffolding for users who are stuck. Detects challenge type (initiation, overwhelm, time blindness, decision paralysis) via clarifying questions, then offers concrete micro-strategies. Learns which strategies lead to task completion over time. User-initiated only — never interrupts.
-
-### Decision Fatigue Reducer
-
-Surfaces 2–3 "good enough" recommendations when a user faces competing options. Asks max 1–2 clarifying questions (or zero in "just pick for me" mode). Provides brief rationale for each suggestion. Learns from which recommendations the user accepts or rejects.
 
 ---
 

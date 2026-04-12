@@ -9,13 +9,26 @@ Backend services for Offload.
   - `tests/` - Tests
 - `infra/` - Infrastructure as code (Terraform/Pulumi)
 
-## MVP Scope (Current)
+## API Endpoints
 
-- Python + FastAPI scaffold for backend AI routing.
-- Anonymous device session endpoint (`/v1/sessions/anonymous`).
-- Smart Task Breakdown endpoint (`/v1/ai/breakdown/generate`) behind an OpenAI adapter.
-- Usage reconciliation endpoint (`/v1/usage/reconcile`).
+- Python + FastAPI backend for AI routing and session management.
 - Privacy default: cloud processing requires explicit opt-in and content is not retained.
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /v1/health` | Health check and build metadata |
+| `POST /v1/sessions/anonymous` | Issue anonymous device session token |
+| `POST /v1/auth/apple` | Apple Sign-In authentication |
+| `POST /v1/ai/breakdown/generate` | Smart Task Breakdown |
+| `POST /v1/ai/braindump/compile` | Brain Dump Compiler |
+| `POST /v1/ai/decide/recommend` | Decision Fatigue Reducer |
+| `POST /v1/ai/executive-function/prompt` | Executive Function Prompts |
+| `POST /v1/ai/draft/generate` | Communication Draft |
+| `POST /v1/usage/reconcile` | Reconcile local usage with server |
+
+Protected endpoints require a bearer session token. AI endpoints use OpenAI or
+Anthropic providers behind an adapter interface (configured via
+`OFFLOAD_AI_PROVIDER`).
 
 ## Local Development
 

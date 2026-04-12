@@ -17,7 +17,7 @@ AI assistance.
 
 [badge-ios]: https://img.shields.io/badge/iOS-17.0+-blue.svg
 [link-ios]: https://www.apple.com/ios/
-[badge-swift]: https://img.shields.io/badge/Swift-5.x-orange.svg
+[badge-swift]: https://img.shields.io/badge/Swift-5.9-orange.svg
 [link-swift]: https://swift.org
 [badge-swiftui]: https://img.shields.io/badge/SwiftUI-5.0-green.svg
 [link-swiftui]: https://developer.apple.com/xcode/swiftui/
@@ -61,13 +61,12 @@ Active development. For current plans and milestones, see
 ## Documentation
 
 - [Documentation index](docs/index.yaml) — navigation map for all docs.
-- [Product requirements](docs/prds/README.md) — scope, goals, and success criteria.
-- [Architecture decisions](docs/adrs/README.md) — ADR index and rationale.
-- [Design docs](docs/design/README.md) — technical approach and test guidance.
-- [Implementation plans](docs/plans/README.md) — execution sequencing and status.
-- [Reference docs](docs/reference/README.md) — contracts, schemas, and invariants.
-- [Research](docs/research/README.md) — exploratory notes and reviews.
+- [Product philosophy](docs/product.md) — vision, features, and data model.
+- [Architecture](docs/architecture.md) — tech stack, CI/CD, and backend/privacy.
+- [Design](docs/design.md) — UX patterns and testing guidance.
+- [Implementation plans](docs/plans/backlog.md) — backlog and active plan docs.
 - [iOS Development Guide](ios/README.md) — setup, build, and run details.
+- [Backend Guide](backend/README.md) — API overview and local development.
 
 ## Getting Started
 
